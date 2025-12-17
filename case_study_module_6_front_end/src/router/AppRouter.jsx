@@ -11,8 +11,6 @@ function AppRouter() {
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/" element={<Navigate to="/flights" />} />
-                <Route path="/flights/*" element={<FlightRouter />} />
             </Route>
         </Routes>
     );
