@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const URL_BE = "http://localhost:8080/api";
+const URL_BE = "http://10.10.10.69:8080/api";
 
 export async function getAllFlights() {
     try {
