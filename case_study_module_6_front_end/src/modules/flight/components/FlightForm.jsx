@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { addNewFlight, getFlightById, updateFlightTime } from "../service/flightService";
+import { addNewFlight, getFlightById, updateFlightTime } from "../service/flightService.js";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { ErrorMessage, Field, Form, Formik } from "formik";
