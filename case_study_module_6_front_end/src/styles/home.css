@@ -1,0 +1,132 @@
+/* ================= HERO ================= */
+.hero-bg {
+    width: 100vw;              /* FULL NGANG */
+    min-height: calc(100vh - 72px); /* trừ header nếu có */
+    margin-left: calc(50% - 50vw);  /* phá container */
+    display: flex;
+    align-items: center;
+
+    background-size: cover;    /* FULL ẢNH */
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* LỚP PHỦ */
+.hero-overlay {
+    width: 100%;
+    min-height: inherit;
+    background: linear-gradient(
+            to right,
+            rgba(0, 0, 0, 0.55),
+            rgba(0, 0, 0, 0.25)
+    );
+    display: flex;
+    align-items: center;
+    padding: 80px 0;
+}
+
+/* ================= SEARCH CARD ================= */
+.search-card {
+    border-radius: 20px;
+    backdrop-filter: blur(6px);
+}
+
+/* ===== SEARCH CARD GỌN HƠN ===== */
+.search-card .form-control,
+.search-card .form-select {
+    height: 38px;        /* 👈 giảm mạnh */
+    font-size: 13px;
+    padding: 6px 12px;
+}
+
+/* ================= DROPDOWN PASSENGER ================= */
+.dropdown-menu {
+    border-radius: 12px;
+}
+
+/* ================= BUTTON ================= */
+.btn-search {
+    background-color: #1ba0e2;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.btn-search:hover {
+    background-color: #148ac4;
+    transform: translateY(-2px);
+}
+
+/* ================= PROMOTION ================= */
+.promo-card {
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+
+.promo-card:hover {
+    transform: translateY(-6px);
+}
+
+/* ================= NEWS ================= */
+.news-card img {
+    height: 180px;
+    object-fit: cover;
+}
+
+.news-card {
+    border-radius: 14px;
+    transition: all 0.3s ease;
+}
+
+.news-card:hover {
+    transform: translateY(-4px);
+}
+/* ================= DESTINATION SLIDER ================= */
+.destination-slider {
+    overflow: hidden;
+}
+
+.destination-track {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding-bottom: 10px;
+}
+
+/* Ẩn scrollbar */
+.destination-track::-webkit-scrollbar {
+    display: none;
+}
+
+.destination-card {
+    min-width: 240px;
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.destination-card:hover {
+    transform: translateY(-6px);
+}
+
+.destination-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.destination-info {
+    padding: 12px;
+    text-align: center;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .destination-card {
+        min-width: 200px;
+    }
+}
+
