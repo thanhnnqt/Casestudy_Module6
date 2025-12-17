@@ -1,17 +1,19 @@
-import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
-import FlightRouter from "./FlightRouter.jsx";
+import { Routes, Route } from "react-router-dom";
+import MainLayout from "../layouts/MainLayout";
+import Home from "../pages/Home";
+import Login from "../pages/Login.jsx";
+import Register from "../pages/Register.jsx";
 
-const AppRouter = () => {
+function AppRouter() {
     return (
         <Routes>
-
-            <Route path="/" element={<Navigate to="/flights" />} />
-
-
-            <Route path="/flights/*" element={<FlightRouter />} />
+            <Route element={<MainLayout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+            </Route>
         </Routes>
     );
-};
+}
 
 export default AppRouter;

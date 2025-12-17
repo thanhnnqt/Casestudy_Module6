@@ -7,13 +7,12 @@ import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
 
 function App() {
     return (
-        <BrowserRouter>
-            <div className="App">
 
+            <div className="App">
                 <AppRouter />
                 <ToastContainer position="top-right" autoClose={3000} />
             </div>
-        </BrowserRouter>
+
     );
 }
 
