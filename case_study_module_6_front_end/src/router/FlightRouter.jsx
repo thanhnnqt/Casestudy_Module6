@@ -1,14 +1,14 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
-import FlightList from "./component/FlightList";
-import FlightForm from "./component/FlightForm";
+import {Route, Routes} from "react-router-dom";
+import FlightList from "../component/FlightList.jsx";
+import FlightForm from "../component/FlightForm";
 
 const FlightRouter = () => {
     return (
         <Routes>
-            <Route path="/" element={<FlightList />} />
-            <Route path="/create" element={<FlightForm />} />
-            <Route path="/edit/:id" element={<FlightForm />} />
+            <Route path="/" element={<FlightList/>}/>
+            <Route path="/create" element={<FlightForm/>}/>
+            <Route path="/edit/:id" element={<FlightForm/>}/>
         </Routes>
     );
 };
