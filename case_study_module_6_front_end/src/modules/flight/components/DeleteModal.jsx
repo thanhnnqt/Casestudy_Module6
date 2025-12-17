@@ -1,5 +1,5 @@
 import React from "react";
-import { cancelFlight } from "../service/flightService";
+import { cancelFlight } from "../service/flightService.js";
 import { toast } from "react-toastify";
 
 const DeleteModal = ({ show, onClose, flightId, onSuccess }) => {

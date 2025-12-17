@@ -85,6 +85,12 @@ function Header() {
                             </NavLink>
                         </li>
 
+                        <li className="nav-item">
+                            <NavLink className="nav-link fw-semibold" to="/flights">
+                                Chuyến bay
+                            </NavLink>
+                        </li>
+
                         {/* AUTH */}
                         {!user ? (
                             <>
