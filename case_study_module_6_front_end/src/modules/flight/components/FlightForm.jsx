@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { addNewFlight, getFlightById, updateFlightTime } from "../service/flightService.js";
+import { addNewFlight, getFlightById, updateFlight } from "../service/flightService"; // Đổi tên hàm
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { ErrorMessage, Field, Form, Formik } from "formik";
@@ -16,7 +16,8 @@ const FlightForm = () => {
         destination: "",
         departureTime: "",
         arrivalTime: "",
-        price: ""
+        price: "",
+        status: "SCHEDULED" // Default
     });
 
     useEffect(() => {
@@ -32,21 +33,17 @@ const FlightForm = () => {
     }, [id]);
 
     const handleSubmit = async (values) => {
-
-        const payload = {
-            ...values,
-            price: parseFloat(values.price)
-        };
-
+        const payload = { ...values, price: parseFloat(values.price) };
         let isSuccess = false;
-        if (id) {
 
-            isSuccess = await updateFlightTime(id, {
+        if (id) {
+            // Logic sửa: Gửi cả Time + Status
+            isSuccess = await updateFlight(id, {
                 departureTime: values.departureTime,
-                arrivalTime: values.arrivalTime
+                arrivalTime: values.arrivalTime,
+                status: values.status
             });
         } else {
-
             isSuccess = await addNewFlight(payload);
         }
 
@@ -54,7 +51,7 @@ const FlightForm = () => {
             toast.success(id ? "Cập nhật thành công" : "Thêm mới thành công");
             navigate("/flights");
         } else {
-            toast.error("Đã có lỗi xảy ra (Kiểm tra lại dữ liệu hoặc trạng thái chuyến bay)");
+            toast.error("Đã có lỗi xảy ra");
         }
     }
 
@@ -65,15 +62,28 @@ const FlightForm = () => {
         destination: Yup.string().required("Nơi đến không được để trống")
             .notOneOf([Yup.ref('origin')], 'Nơi đến không được trùng nơi đi'),
         departureTime: Yup.date().required("Chọn giờ khởi hành"),
-        //.min(new Date(), "Giờ khởi hành phải ở tương lai"), // Có thể bật lại nếu muốn validate chặt ở FE
         arrivalTime: Yup.date().required("Chọn giờ hạ cánh")
             .min(Yup.ref('departureTime'), "Giờ hạ cánh phải sau giờ khởi hành"),
-        price: Yup.number().required("Nhập giá vé").min(0, "Giá vé không được âm")
+        price: Yup.number().required("Nhập giá vé").min(0, "Giá vé không được âm"),
+        status: Yup.string().required("Trạng thái không được để trống") // Validate status
     });
+
+    const AIRLINES = [
+        "PACIFIC AIRLINES", "BAMBOO AIRWAYS", "JEJU AIR", "VIETJET AIR",
+        "VIETNAM AIRLINES", "AIR ASIA", "SINGAPORE AIRLINES"
+    ];
+
+    const STATUSES = [
+        { value: "SCHEDULED", label: "Sắp bay (Scheduled)" },
+        { value: "DELAYED", label: "Hoãn (Delayed)" },
+        { value: "IN_FLIGHT", label: "Đang bay (In Flight)" },
+        { value: "COMPLETED", label: "Hoàn thành (Completed)" },
+        { value: "CANCELLED", label: "Đã hủy (Cancelled)" }
+    ];
 
     return (
         <div className="container mt-4">
-            <h2 className="text-center text-primary">{id ? "Chỉnh Sửa Giờ Bay" : "Thêm Mới Chuyến Bay"}</h2>
+            <h2 className="text-center text-primary">{id ? "Chỉnh Sửa Chuyến Bay" : "Thêm Mới Chuyến Bay"}</h2>
 
             <Formik
                 enableReinitialize={true}
@@ -83,7 +93,6 @@ const FlightForm = () => {
             >
                 {({ values }) => (
                     <Form className="w-100 mx-auto border p-4 rounded shadow bg-white">
-
                         {!id && (
                             <>
                                 <div className="mb-3">
@@ -91,18 +100,14 @@ const FlightForm = () => {
                                     <Field type="text" name="flightCode" className="form-control" />
                                     <ErrorMessage name="flightCode" component="small" className="text-danger" />
                                 </div>
-
                                 <div className="mb-3">
                                     <label className="form-label">Hãng hàng không</label>
                                     <Field as="select" name="airline" className="form-select">
                                         <option value="">-- Chọn hãng --</option>
-                                        <option value="Vietnam Airlines">Vietnam Airlines</option>
-                                        <option value="VietJet Air">VietJet Air</option>
-                                        <option value="Bamboo Airways">Bamboo Airways</option>
+                                        {AIRLINES.map(airline => <option key={airline} value={airline}>{airline}</option>)}
                                     </Field>
                                     <ErrorMessage name="airline" component="small" className="text-danger" />
                                 </div>
-
                                 <div className="row">
                                     <div className="col-md-6 mb-3">
                                         <label className="form-label">Nơi đi</label>
@@ -115,7 +120,6 @@ const FlightForm = () => {
                                         <ErrorMessage name="destination" component="small" className="text-danger" />
                                     </div>
                                 </div>
-
                                 <div className="mb-3">
                                     <label className="form-label">Giá vé</label>
                                     <Field type="number" name="price" className="form-control" />
@@ -124,6 +128,17 @@ const FlightForm = () => {
                             </>
                         )}
 
+                        {/* Chỉ hiện chỉnh sửa Trạng thái khi ở chế độ Edit (có id) */}
+                        {id && (
+                            <div className="mb-3">
+                                <label className="form-label fw-bold text-danger">Trạng thái (Admin)</label>
+                                <Field as="select" name="status" className="form-select">
+                                    {STATUSES.map(st => (
+                                        <option key={st.value} value={st.value}>{st.label}</option>
+                                    ))}
+                                </Field>
+                            </div>
+                        )}
 
                         <div className="row">
                             <div className="col-md-6 mb-3">

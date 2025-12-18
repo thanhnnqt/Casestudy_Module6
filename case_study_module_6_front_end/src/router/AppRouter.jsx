@@ -21,7 +21,7 @@ function AppRouter() {
                 {/*Route chuyến bay*/}
                 <Route path="/flights" element={<FlightList />} />
                 <Route path="/flights/create" element={<FlightForm />} />
-                <Route path="/edit/:id" element={<FlightForm />} />
+                <Route path="flights/edit/:id" element={<FlightForm />} />
 
 
             </Route>
