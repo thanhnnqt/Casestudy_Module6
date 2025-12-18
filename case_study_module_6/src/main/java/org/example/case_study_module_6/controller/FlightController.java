@@ -21,21 +21,21 @@ public class FlightController {
     @Autowired
     private FlightService flightService;
 
-
     @GetMapping
     public ResponseEntity<Page<Flight>> getAllFlights(
             @RequestParam(required = false) String airline,
+            @RequestParam(required = false) String origin,      // Mới
+            @RequestParam(required = false) String destination, // Mới
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime departureTime,
             @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-
         Pageable pageable = PageRequest.of(page, size, Sort.by("departureTime").ascending());
-        Page<Flight> flights = flightService.getFlights(airline, departureTime, maxPrice, pageable);
+        // Truyền thêm origin, destination
+        Page<Flight> flights = flightService.getFlights(airline, origin, destination, departureTime, maxPrice, pageable);
         return ResponseEntity.ok(flights);
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<Flight> getFlightById(@PathVariable Long id) {
@@ -51,16 +51,14 @@ public class FlightController {
         }
     }
 
-
     @PutMapping("/{id}")
     public ResponseEntity<?> updateFlight(@PathVariable Long id, @RequestBody Flight flight) {
         try {
-            return ResponseEntity.ok(flightService.updateFlightTime(id, flight));
+            return ResponseEntity.ok(flightService.updateFlight(id, flight));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteFlight(@PathVariable Long id) {

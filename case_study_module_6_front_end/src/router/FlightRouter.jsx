@@ -1,7 +1,7 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-import FlightList from "../component/FlightList.jsx";
-import FlightForm from "../component/FlightForm.jsx";
+import FlightList from "../components/FlightList.jsx";
+import FlightForm from "../components/FlightForm.jsx";
 
 const FlightRouter = () => {
     return (

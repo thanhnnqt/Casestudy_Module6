@@ -52,7 +52,7 @@ function Home() {
             return;
         }
 
-        console.log("Search flight:", {
+        console.log("Search components:", {
             ...form,
             tripType
         });
