@@ -1,75 +1,104 @@
+import { useState } from "react";
+import {login as loginApi, loginGoogle} from "../service/authService";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
+
 function Login() {
+    const [form, setForm] = useState({
+        identifier: "",
+        password: ""
+    });
+
+    const { login } = useAuth();
+    const navigate = useNavigate();
+
+    const handleChange = (e) => {
+        setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    // ===== LOGIN LOCAL =====
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await loginApi(form);
+            login(res.token); // ✅ PHẢI CÓ TOKEN
+            navigate("/");
+        } catch (err) {
+            alert(err.response?.data || "Sai tài khoản hoặc mật khẩu");
+        }
+    };
+
+    // ===== LOGIN GOOGLE =====
+    const handleGoogleSuccess = async (credentialResponse) => {
+        try {
+            const res = await loginGoogle(credentialResponse.credential);
+            login(res.token);
+            navigate("/");
+        } catch (err) {
+            alert(err.response?.data || "Đăng nhập Google thất bại");
+        }
+    };
+
     return (
-        <div className="container my-5 d-flex justify-content-center">
-            <div
-                className="card shadow border-0"
-                style={{ maxWidth: "420px", width: "100%" }}
-            >
+        <div className="container my-5 pt-5 d-flex justify-content-center">
+            <div className="card shadow border-0" style={{ maxWidth: "420px", width: "100%" }}>
                 <div className="card-body p-4">
 
-                    <h4 className="fw-bold mb-4">Đăng nhập</h4>
+                    <h4 className="fw-bold mb-4 text-center">
+                        Đăng nhập
+                    </h4>
 
-                    <form>
-                        {/* Tài khoản */}
+                    {/* ===== LOGIN LOCAL ===== */}
+                    <form onSubmit={handleSubmit}>
+
                         <div className="mb-3">
                             <label className="form-label">Tài khoản</label>
                             <input
                                 type="text"
+                                name="identifier"
                                 className="form-control"
-                                placeholder="Nhập tài khoản"
+                                placeholder="Username hoặc Email"
+                                value={form.identifier}
+                                onChange={handleChange}
+                                required
                             />
                         </div>
 
-                        {/* Mật khẩu */}
                         <div className="mb-3">
                             <label className="form-label">Mật khẩu</label>
                             <input
                                 type="password"
+                                name="password"
                                 className="form-control"
                                 placeholder="Nhập mật khẩu"
+                                value={form.password}
+                                onChange={handleChange}
+                                required
                             />
                         </div>
 
-                        {/* Ghi nhớ + Quên mật khẩu */}
-                        <div className="d-flex justify-content-between align-items-center mb-3">
-                            <div className="form-check">
-                                <input
-                                    className="form-check-input"
-                                    type="checkbox"
-                                    id="remember"
-                                />
-                                <label
-                                    className="form-check-label"
-                                    htmlFor="remember"
-                                >
-                                    Ghi nhớ đăng nhập
-                                </label>
-                            </div>
-
-                            <a href="#" className="text-decoration-none">
-                                Quên mật khẩu?
-                            </a>
-                        </div>
-
-                        {/* Nút đăng nhập */}
-                        <button className="btn btn-outline-dark w-100 fw-bold mb-3">
+                        <button
+                            type="submit"
+                            className="btn btn-outline-dark w-100 fw-bold mb-3"
+                        >
                             Đăng nhập
                         </button>
-
-                        {/* Hoặc */}
-                        <div className="text-center text-muted mb-3">
-                            -------- Hoặc --------
-                        </div>
-
-                        {/* Gmail */}
-                        <button
-                            type="button"
-                            className="btn btn-danger w-100 d-flex align-items-center justify-content-center gap-2"
-                        >
-                            <span className="fw-bold">G+</span>
-                            Đăng nhập bằng Gmail
-                        </button>
                     </form>
+
+                    {/* ===== OR ===== */}
+                    <div className="text-center text-muted my-3">
+                        ─── hoặc ───
+                    </div>
+
+                    {/* ===== LOGIN GOOGLE ===== */}
+                    <div className="d-flex justify-content-center">
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={() => alert("Google Login thất bại")}
+                        />
+                    </div>
+
                 </div>
             </div>
         </div>
