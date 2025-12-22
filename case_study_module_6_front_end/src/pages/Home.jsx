@@ -1,69 +1,132 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../styles/home.css";
 
 function Home() {
+    /* ================= CITY LIST ================= */
     const cities = [
-        "Hà Nội",
-        "TP. Hồ Chí Minh",
-        "Đà Nẵng",
-        "Nha Trang",
-        "Phú Quốc",
-        "Cần Thơ"
+        "Hà Nội (HAN)",
+        "TP. Hồ Chí Minh (SGN)",
+        "Đà Nẵng (DAD)",
+        "Nha Trang (CXR)",
+        "Phú Quốc (PQC)",
+        "Cần Thơ (VCA)"
     ];
 
-    // ===== STATE =====
-    const [tripType, setTripType] = useState("ONE_WAY"); // ONE_WAY | ROUND_TRIP
+    /* MAP CITY → WEATHER API NAME (CHỈ PHỤC VỤ THỜI TIẾT) */
+    const cityWeatherMap = {
+        "Hà Nội (HAN)": "Hanoi",
+        "TP. Hồ Chí Minh (SGN)": "Ho Chi Minh City",
+        "Đà Nẵng (DAD)": "Da Nang",
+        "Nha Trang (CXR)": "Nha Trang",
+        "Phú Quốc (PQC)": "Phu Quoc",
+        "Cần Thơ (VCA)": "Can Tho"
+    };
+
+    /* ================= STATE ================= */
+    const [tripType, setTripType] = useState("ONE_WAY");
+    const [showPassenger, setShowPassenger] = useState(false);
 
     const [form, setForm] = useState({
-        from: "",
-        to: "",
-        departureDate: "",
+        from: "Đà Nẵng (DAD)",
+        to: "TP. Hồ Chí Minh (SGN)",
+        departureDate: "2025-12-18",
         returnDate: "",
         adult: 1,
         child: 0,
         infant: 0
     });
 
-    // ===== HANDLERS =====
+    /* WEATHER STATE */
+    const [weatherFrom, setWeatherFrom] = useState(null);
+    const [weatherTo, setWeatherTo] = useState(null);
+
+    /* ================= HANDLER ================= */
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleTripTypeChange = (type) => {
-        setTripType(type);
-
-        // Nếu chuyển về 1 chiều → reset ngày về
-        if (type === "ONE_WAY") {
-            setForm(prev => ({ ...prev, returnDate: "" }));
-        }
-    };
-
-    const handleSearch = (e) => {
-        e.preventDefault();
-
-        // Validate khứ hồi
-        if (
-            tripType === "ROUND_TRIP" &&
-            form.returnDate &&
-            form.returnDate < form.departureDate
-        ) {
-            alert("Ngày về phải sau ngày đi");
-            return;
-        }
-
-        console.log("Search flight:", {
-            ...form,
-            tripType
-        });
-
-        // TODO: navigate("/flights", { state: { ...form, tripType } })
-    };
-
     const passengerText = () =>
         `${form.adult} NL, ${form.child} TE, ${form.infant} EB`;
 
-    // ===== RENDER =====
+    /* ================= DESTINATION SLIDER ================= */
+    const destinations = [
+        {
+            name: "Đà Nẵng",
+            img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
+            price: "Từ 899.000đ"
+        },
+        {
+            name: "Phú Quốc",
+            img: "https://images.unsplash.com/photo-1501785888041-af3ef285b470",
+            price: "Từ 1.299.000đ"
+        },
+        {
+            name: "Nha Trang",
+            img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+            price: "Từ 999.000đ"
+        },
+        {
+            name: "Hà Nội",
+            img: "https://images.unsplash.com/photo-1552820728-8b83bb6b773f",
+            price: "Từ 799.000đ"
+        }
+    ];
+
+    const [activeIndex, setActiveIndex] = useState(0);
+
+    /* AUTO SLIDE */
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setActiveIndex(prev =>
+                prev === destinations.length - 1 ? 0 : prev + 1
+            );
+        }, 3000);
+
+        return () => clearInterval(timer);
+    }, [activeIndex]);
+
+    /* ================= WEATHER API ================= */
+    const fetchWeather = async (city, date) => {
+        try {
+            const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
+
+            const res = await fetch(
+                `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&lang=vi&appid=${apiKey}`
+            );
+            const data = await res.json();
+
+            return data.list.find(item =>
+                item.dt_txt.includes(date)
+            ) || data.list[0];
+        } catch (err) {
+            console.error("Weather error:", err);
+            console.log("API KEY:", import.meta.env.VITE_WEATHER_API_KEY);
+            return null;
+        }
+    };
+
+    /* LOAD WEATHER WHEN CHANGE FORM */
+    useEffect(() => {
+        if (!form.departureDate) return;
+
+        const loadWeather = async () => {
+            const fromCity = cityWeatherMap[form.from];
+            const toCity = cityWeatherMap[form.to];
+
+            if (!fromCity || !toCity) return;
+
+            const wf = await fetchWeather(fromCity, form.departureDate);
+            const wt = await fetchWeather(toCity, form.departureDate);
+
+            setWeatherFrom(wf);
+            setWeatherTo(wt);
+        };
+
+        loadWeather();
+    }, [form.from, form.to, form.departureDate]);
+
+    /* ================= RENDER ================= */
     return (
         <>
             {/* ================= HERO + SEARCH ================= */}
@@ -71,277 +134,188 @@ function Home() {
                 className="hero-bg"
                 style={{
                     backgroundImage:
-                        "url('https://images.unsplash.com/photo-1529070538774-1843cb3265df')"
+                        "url('https://i.pinimg.com/1200x/21/26/b8/2126b8191a87acf45b86cf5577bdeb69.jpg')"
                 }}
             >
                 <div className="hero-overlay">
                     <div className="container">
 
-                        {/* HERO TEXT */}
-                        <div className="mb-3">
-                            <h2 className="fw-bold text-white mb-1">
-                                Bay dễ dàng – Giá tốt mỗi ngày
-                            </h2>
-                            <p className="text-white-50 mb-0">
-                                Đặt vé máy bay nhanh chóng, an toàn và tiết kiệm
-                            </p>
+                        <h1 className="hero-title">
+                            Đặt vé máy bay nhanh chóng, lên kế hoạch cho chuyến đi của bạn!
+                        </h1>
+
+                        {/* TRIP TYPE */}
+                        <div className="trip-type">
+                            <button
+                                className={tripType === "ONE_WAY" ? "active" : ""}
+                                onClick={() => setTripType("ONE_WAY")}
+                            >
+                                Một chiều
+                            </button>
+                            <button
+                                className={tripType === "ROUND_TRIP" ? "active" : ""}
+                                onClick={() => setTripType("ROUND_TRIP")}
+                            >
+                                Khứ hồi
+                            </button>
                         </div>
 
-                        {/* SEARCH CARD */}
-                        <div className="card search-card shadow border-0">
-                            <div className="card-body p-3">
+                        {/* SEARCH FORM */}
+                        <div className="search-row">
 
-                                {/* TRIP TYPE */}
-                                <div className="mb-3 d-flex gap-2">
-                                    <button
-                                        type="button"
-                                        className={`btn btn-sm ${
-                                            tripType === "ONE_WAY"
-                                                ? "btn-primary"
-                                                : "btn-outline-primary"
-                                        }`}
-                                        onClick={() => handleTripTypeChange("ONE_WAY")}
-                                    >
-                                        Một chiều
-                                    </button>
+                            <div className="field">
+                                <label>Từ</label>
+                                <select name="from" value={form.from} onChange={handleChange}>
+                                    {cities.map(c => (
+                                        <option key={c}>{c}</option>
+                                    ))}
+                                </select>
+                            </div>
 
-                                    <button
-                                        type="button"
-                                        className={`btn btn-sm ${
-                                            tripType === "ROUND_TRIP"
-                                                ? "btn-primary"
-                                                : "btn-outline-primary"
-                                        }`}
-                                        onClick={() => handleTripTypeChange("ROUND_TRIP")}
-                                    >
-                                        Khứ hồi
-                                    </button>
+                            <div className="field">
+                                <label>Đến</label>
+                                <select name="to" value={form.to} onChange={handleChange}>
+                                    {cities.map(c => (
+                                        <option key={c}>{c}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="field">
+                                <label>Ngày khởi hành</label>
+                                <input
+                                    type="date"
+                                    name="departureDate"
+                                    value={form.departureDate}
+                                    onChange={handleChange}
+                                />
+                            </div>
+
+                            {tripType === "ROUND_TRIP" && (
+                                <div className="field">
+                                    <label>Ngày về</label>
+                                    <input
+                                        type="date"
+                                        name="returnDate"
+                                        value={form.returnDate}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                            )}
+
+                            <div className="field passenger-field">
+                                <label>Hành khách</label>
+                                <div
+                                    className="passenger-input"
+                                    onClick={() => setShowPassenger(!showPassenger)}
+                                >
+                                    {passengerText()}
+                                    <span className="arrow">▾</span>
+                                </div>
+                            </div>
+
+                            <button className="btn-search">🔍</button>
+                        </div>
+
+                        {/* ===== WEATHER INFO (NEW) ===== */}
+                        {weatherFrom && weatherTo && (
+                            <div className="row g-3 mt-4">
+                                <div className="col-md-6">
+                                    <div className="weather-card">
+                                        <h6 className="fw-bold mb-1">🌤 Thời tiết nơi đi</h6>
+                                        <p className="mb-0">
+                                            {Math.round(weatherFrom.main.temp)}°C •{" "}
+                                            {weatherFrom.weather[0].description}
+                                        </p>
+                                    </div>
                                 </div>
 
-                                <form onSubmit={handleSearch}>
-                                    <div className="row g-2 align-items-end">
-
-                                        {/* FROM */}
-                                        <div className="col-md-3">
-                                            <label className="form-label fw-semibold small">
-                                                Điểm đi
-                                            </label>
-                                            <select
-                                                className="form-select rounded-3"
-                                                name="from"
-                                                value={form.from}
-                                                onChange={handleChange}
-                                                required
-                                            >
-                                                <option value="">Chọn điểm đi</option>
-                                                {cities.map(c => (
-                                                    <option key={c} value={c}>{c}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-
-                                        {/* TO */}
-                                        <div className="col-md-3">
-                                            <label className="form-label fw-semibold small">
-                                                Điểm đến
-                                            </label>
-                                            <select
-                                                className="form-select rounded-3"
-                                                name="to"
-                                                value={form.to}
-                                                onChange={handleChange}
-                                                required
-                                            >
-                                                <option value="">Chọn điểm đến</option>
-                                                {cities.map(c => (
-                                                    <option key={c} value={c}>{c}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-
-                                        {/* DEPART */}
-                                        <div className="col-md-2">
-                                            <label className="form-label fw-semibold small">
-                                                Ngày đi
-                                            </label>
-                                            <input
-                                                type="date"
-                                                className="form-control rounded-3"
-                                                name="departureDate"
-                                                value={form.departureDate}
-                                                onChange={handleChange}
-                                                required
-                                            />
-                                        </div>
-
-                                        {/* RETURN */}
-                                        {tripType === "ROUND_TRIP" && (
-                                            <div className="col-md-2">
-                                                <label className="form-label fw-semibold small">
-                                                    Ngày về
-                                                </label>
-                                                <input
-                                                    type="date"
-                                                    className="form-control rounded-3"
-                                                    name="returnDate"
-                                                    value={form.returnDate}
-                                                    onChange={handleChange}
-                                                    required
-                                                />
-                                            </div>
-                                        )}
-
-                                        {/* PASSENGER */}
-                                        <div className="col-md-2">
-                                            <label className="form-label fw-semibold small">
-                                                Hành khách
-                                            </label>
-
-                                            <div className="dropdown">
-                                                <button
-                                                    type="button"
-                                                    className="form-control text-start rounded-3 dropdown-toggle"
-                                                    data-bs-toggle="dropdown"
-                                                >
-                                                    {passengerText()}
-                                                </button>
-
-                                                <div
-                                                    className="dropdown-menu p-2 shadow"
-                                                    style={{ minWidth: 240 }}
-                                                >
-                                                    {[
-                                                        { label: "Người lớn", name: "adult", min: 1, max: 9 },
-                                                        { label: "Trẻ em", name: "child", min: 0, max: 5 },
-                                                        { label: "Em bé", name: "infant", min: 0, max: 3 }
-                                                    ].map(p => (
-                                                        <div
-                                                            key={p.name}
-                                                            className="d-flex justify-content-between align-items-center mb-1"
-                                                        >
-                                                            <span className="small">{p.label}</span>
-                                                            <select
-                                                                className="form-select form-select-sm w-50"
-                                                                name={p.name}
-                                                                value={form[p.name]}
-                                                                onChange={handleChange}
-                                                            >
-                                                                {Array.from(
-                                                                    { length: p.max - p.min + 1 },
-                                                                    (_, i) => p.min + i
-                                                                ).map(n => (
-                                                                    <option key={n} value={n}>{n}</option>
-                                                                ))}
-                                                            </select>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </div>
+                                <div className="col-md-6">
+                                    <div className="weather-card">
+                                        <h6 className="fw-bold mb-1">🌦 Thời tiết nơi đến</h6>
+                                        <p className="mb-0">
+                                            {Math.round(weatherTo.main.temp)}°C •{" "}
+                                            {weatherTo.weather[0].description}
+                                        </p>
                                     </div>
-
-                                    {/* BUTTON */}
-                                    <div className="text-end mt-3">
-                                        <button
-                                            type="submit"
-                                            className="btn btn-info px-4 py-2 fw-bold rounded-3"
-                                        >
-                                            Tìm chuyến bay
-                                        </button>
-                                    </div>
-                                </form>
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                     </div>
                 </div>
             </section>
 
+            {/* ================= DESTINATION + PROMO ================= */}
+            <section className="container my-5">
+                <div className="row g-4">
 
-            {/* ================= DESTINATION SUGGEST ================= */}
-            <section className="destination-section my-5">
-                <div className="container">
-                    <div className="d-flex justify-content-between align-items-center mb-4">
-                        <h4 className="fw-bold mb-0">🌍 Gợi ý điểm đến nổi bật</h4>
+                    <div className="col-md-7">
+                        <h4 className="fw-bold mb-3">🌍 Gợi ý điểm đến nổi bật</h4>
 
-                        <div className="d-flex gap-2">
-                            <button
-                                className="btn btn-outline-primary btn-sm"
-                                onClick={() =>
-                                    document.getElementById("destTrack")
-                                        .scrollBy({ left: -260, behavior: "smooth" })
-                                }
-                            >
-                                &laquo;
-                            </button>
-                            <button
-                                className="btn btn-outline-primary btn-sm"
-                                onClick={() =>
-                                    document.getElementById("destTrack")
-                                        .scrollBy({ left: 260, behavior: "smooth" })
-                                }
-                            >
-                                &raquo;
-                            </button>
+                        <div className="destination-big-card">
+                            <img
+                                src={destinations[activeIndex].img}
+                                alt={destinations[activeIndex].name}
+                            />
+
+                            <div className="destination-big-overlay">
+                                <h4>{destinations[activeIndex].name}</h4>
+                                <span>{destinations[activeIndex].price}</span>
+                            </div>
+
+                            <div className="destination-dots">
+                                {destinations.map((_, i) => (
+                                    <span
+                                        key={i}
+                                        className={i === activeIndex ? "dot active" : "dot"}
+                                        onClick={() => setActiveIndex(i)}
+                                    />
+                                ))}
+                            </div>
                         </div>
                     </div>
 
-                    <div className="destination-slider">
-                        <div className="destination-track" id="destTrack">
-                            {[
-                                {
-                                    name: "Đà Nẵng",
-                                    img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-                                    price: "Từ 899.000đ"
-                                },
-                                {
-                                    name: "Phú Quốc",
-                                    img: "https://images.unsplash.com/photo-1501785888041-af3ef285b470",
-                                    price: "Từ 1.299.000đ"
-                                },
-                                {
-                                    name: "Nha Trang",
-                                    img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
-                                    price: "Từ 999.000đ"
-                                },
-                                {
-                                    name: "Hà Nội",
-                                    img: "https://images.unsplash.com/photo-1552820728-8b83bb6b773f",
-                                    price: "Từ 799.000đ"
-                                },
-                                {
-                                    name: "TP. Hồ Chí Minh",
-                                    img: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d",
-                                    price: "Từ 699.000đ"
-                                }
-                            ].map((d, i) => (
-                                <div className="destination-card" key={i}>
-                                    <img src={d.img} alt={d.name} />
-                                    <div className="destination-info">
-                                        <h6 className="fw-bold mb-1">{d.name}</h6>
-                                        <span className="text-primary small">
-                                {d.price}
-                            </span>
+                    <div className="col-md-5">
+                        <h4 className="fw-bold mb-3">🎁 Mã Ưu Đãi Tặng Bạn Mới</h4>
+
+                        <div className="promo-list">
+                            {[1, 2, 3, 4, 5].map((_, i) => (
+                                <div className="promo-item" key={i}>
+                                    <div className="promo-left">
+                                        <span className="promo-icon">✈️</span>
+                                        <div>
+                                            <h6 className="fw-bold mb-1">
+                                                Giảm đến 20.000 cho lần đặt đầu tiên
+                                            </h6>
+                                            <small className="text-muted">
+                                                Áp dụng trên ứng dụng
+                                            </small>
+                                        </div>
+                                    </div>
+
+                                    <div className="promo-code-box">
+                                        <span className="promo-code">TVLKBANMOI</span>
+                                        <button className="btn-copy">Copy</button>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </div>
+
                 </div>
             </section>
-
             {/* ================= PROMOTION ================= */}
             <section className="container my-5">
-                <h4 className="fw-bold mb-4">Ưu đãi nổi bật</h4>
+                <h4 className="fw-bold mb-4">🔥 Ưu đãi nổi bật</h4>
 
                 <div className="row g-4">
+                    {/* PROMO 1 */}
                     <div className="col-md-6">
-                        <div className="card promo-card bg-danger text-white shadow">
+                        <div className="card promo-card bg-danger text-white shadow h-100">
                             <div className="card-body">
-                                <h5 className="fw-bold">
-                                    🔥 Vé 0Đ – Bay thả ga
-                                </h5>
-                                <p>Săn vé 0Đ cho các chặng nội địa.</p>
+                                <h5 className="fw-bold">Vé 0Đ – Bay thả ga</h5>
+                                <p>Săn vé 0Đ cho các chặng nội địa</p>
                                 <button className="btn btn-light btn-sm">
                                     Xem chi tiết
                                 </button>
@@ -349,15 +323,14 @@ function Home() {
                         </div>
                     </div>
 
+                    {/* PROMO 2 */}
                     <div className="col-md-6">
-                        <div className="card promo-card bg-warning shadow">
+                        <div className="card promo-card bg-warning shadow h-100">
                             <div className="card-body">
                                 <h5 className="fw-bold">
-                                    ✈️ Giảm 30% vé khứ hồi
+                                    Giảm 30% vé khứ hồi
                                 </h5>
-                                <p>
-                                    Ưu đãi đặc biệt cho chuyến bay quốc tế.
-                                </p>
+                                <p>Ưu đãi đặc biệt cho chuyến bay quốc tế</p>
                                 <button className="btn btn-dark btn-sm">
                                     Xem chi tiết
                                 </button>
@@ -369,45 +342,30 @@ function Home() {
 
             {/* ================= NEWS ================= */}
             <section className="container my-5">
-                <h4 className="fw-bold mb-4">
-                    Tin tức & Cẩm nang du lịch
-                </h4>
+                <h4 className="fw-bold mb-4">📰 Tin tức & Cẩm nang du lịch</h4>
 
-                <div className="row g-4">
+                <div className="row g-4 text-center">
                     {[
                         {
-                            img:
-                                "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-                            title: "Kinh nghiệm săn vé máy bay giá rẻ",
-                            desc:
-                                "Mẹo giúp bạn tiết kiệm chi phí khi đặt vé."
+                            title: "Kinh nghiệm săn vé giá rẻ",
+                            img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
                         },
                         {
-                            img:
-                                "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
                             title: "Top điểm du lịch hè 2025",
-                            desc:
-                                "Những điểm đến được yêu thích nhất."
+                            img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee"
                         },
                         {
-                            img:
-                                "https://images.unsplash.com/photo-1491553895911-0055eca6402d",
                             title: "Du lịch tiết kiệm cho gia đình",
-                            desc:
-                                "Gợi ý chuyến bay phù hợp cho gia đình."
+                            img: "https://images.unsplash.com/photo-1491553895911-0055eca6402d"
                         }
                     ].map((n, i) => (
                         <div className="col-md-4" key={i}>
-                            <div className="card news-card h-100 shadow-sm">
-                                <img
-                                    src={n.img}
-                                    className="card-img-top"
-                                    alt="news"/>
+                            <div className="news-card h-100 shadow-sm">
+                                <div className="news-thumb">
+                                    <img src={n.img} alt={n.title} />
+                                </div>
                                 <div className="card-body">
                                     <h6 className="fw-bold">{n.title}</h6>
-                                    <p className="text-muted small">
-                                        {n.desc}
-                                    </p>
                                 </div>
                             </div>
                         </div>
