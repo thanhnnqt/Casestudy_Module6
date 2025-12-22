@@ -6,37 +6,31 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "employees")
+@Table(name = "admins")
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Employee {
+public class Admin {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String employeeCode;
+    private String adminCode;
 
     private String fullName;
-    private String address;
-    private String phoneNumber;
     private String email;
-    private LocalDate dob;
+    private String phoneNumber;
 
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     @OneToOne
     @JoinColumn(name = "account_id", nullable = false, unique = true)
     private Account account;
-
-    public enum Gender {
-        Nam, Nữ, Khác
-    }
 }
 
