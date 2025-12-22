@@ -25,6 +25,12 @@ public class SecurityConfig {
                 .cors(cors -> {})
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
+
+                        // Bypass để hiển thị dữ liệu chuyến bay
+                        .requestMatchers("/api/flights/**").permitAll()
+                        .requestMatchers("/api/master/**").permitAll()
+
+
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
