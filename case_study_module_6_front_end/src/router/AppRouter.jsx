@@ -3,6 +3,8 @@ import MainLayout from "../layouts/MainLayout";
 import Home from "../pages/Home";
 import Login from "../pages/Login.jsx";
 import Register from "../pages/Register.jsx";
+import PrivateRoute from "../components/PrivateRoute.jsx";
+import Profile from "../pages/Profile.jsx";
 import FlightList from "../modules/flight/./components/FlightList.jsx";
 import FlightForm from "../modules/flight/./components/FlightForm.jsx";
 import React from "react";
@@ -24,6 +26,14 @@ function AppRouter() {
                 <Route path="flights/edit/:id" element={<FlightForm />} />
 
 
+                <Route
+                    path="/profile"
+                    element={
+                        <PrivateRoute>
+                            <Profile />
+                        </PrivateRoute>
+                    }
+                />
             </Route>
         </Routes>
     );

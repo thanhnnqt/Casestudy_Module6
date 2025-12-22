@@ -1,15 +1,18 @@
 package org.example.case_study_module_6.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "flights")
-@Getter
-@Setter
+@Table(
+        name = "flights",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"flight_number", "departure_time"})
+        }
+)
+@Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Flight {
@@ -18,32 +21,33 @@ public class Flight {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Mã chuyến bay không được để trống")
-    @Column(nullable = false, unique = true)
-    private String flightCode;
+    @Column(name = "flight_number", length = 20)
+    private String flightNumber;
 
-    @NotBlank(message = "Hãng hàng không không được để trống")
-    private String airline;
+    @ManyToOne
+    @JoinColumn(name = "aircraft_id", nullable = false)
+    private Aircraft aircraft;
 
-    @NotBlank(message = "Sân bay đi không được để trống")
-    private String origin;
+    @ManyToOne
+    @JoinColumn(name = "departure_airport_id", nullable = false)
+    private Airport departureAirport;
 
-    @NotBlank(message = "Sân bay đến không được để trống")
-    private String destination;
+    @ManyToOne
+    @JoinColumn(name = "arrival_airport_id", nullable = false)
+    private Airport arrivalAirport;
 
-    @NotNull(message = "Giờ khởi hành không được để trống")
-    @Future(message = "Giờ khởi hành phải ở tương lai")
     private LocalDateTime departureTime;
-
-    @NotNull(message = "Giờ hạ cánh không được để trống")
     private LocalDateTime arrivalTime;
 
-    @NotNull(message = "Giá vé không được để trống")
-    @Min(value = 0, message = "Giá vé không được âm")
-    private BigDecimal price;
+    private BigDecimal basePrice;
 
     @Enumerated(EnumType.STRING)
-    private FlightStatus status = FlightStatus.SCHEDULED;
+    private FlightStatus status;
+
+//    public enum FlightStatus {
+//        SCHEDULED, DELAYED, IN_FLIGHT, CANCELLED, COMPLETED
+//    }
 }
+
 
 
