@@ -1,168 +1,201 @@
 import React, { useEffect, useState } from "react";
-import { addNewFlight, getFlightById, updateFlight } from "../service/flightService"; // Đổi tên hàm
+import { getFlightById, saveFlight } from "../service/flightService";
+import { getAirports, getAirlines, getAircraftsByAirline } from "../service/masterDataService";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { ErrorMessage, Field, Form, Formik } from "formik";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
 const FlightForm = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const [airports, setAirports] = useState([]);
+    const [airlines, setAirlines] = useState([]);
+    const [aircrafts, setAircrafts] = useState([]);
 
-    const [flight, setFlight] = useState({
-        flightCode: "",
-        airline: "",
-        origin: "",
-        destination: "",
-        departureTime: "",
-        arrivalTime: "",
-        price: "",
-        status: "SCHEDULED" // Default
+    const [initialValues, setInitialValues] = useState({
+        flightNumber: "", airlineId: "", aircraftId: "",
+        departureAirportId: "", arrivalAirportId: "",
+        departureTime: "", arrivalTime: "", basePrice: "", status: "SCHEDULED"
     });
+
 
     useEffect(() => {
-        const loadData = async () => {
+        const initData = async () => {
+            setAirports(await getAirports());
+            setAirlines(await getAirlines());
             if (id) {
                 const data = await getFlightById(id);
-                if (data) {
-                    setFlight(data);
-                }
+                const acList = await getAircraftsByAirline(data.aircraft.airline.id);
+                setAircrafts(acList);
+
+                // Helper function để chuyển đổi datetime sang định dạng datetime-local
+                const formatDateTimeLocal = (dateTimeString) => {
+                    if (!dateTimeString) return "";
+                    const date = new Date(dateTimeString);
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const hours = String(date.getHours()).padStart(2, '0');
+                    const minutes = String(date.getMinutes()).padStart(2, '0');
+                    return `${year}-${month}-${day}T${hours}:${minutes}`;
+                };
+
+                setInitialValues({
+                    flightNumber: data.flightNumber,
+                    airlineId: data.aircraft.airline.id,
+                    aircraftId: data.aircraft.id,
+                    departureAirportId: data.departureAirport.id,
+                    arrivalAirportId: data.arrivalAirport.id,
+                    departureTime: formatDateTimeLocal(data.departureTime),
+                    arrivalTime: formatDateTimeLocal(data.arrivalTime),
+                    basePrice: data.basePrice,
+                    status: data.status
+                });
             }
-        }
-        loadData();
+        };
+        initData();
     }, [id]);
 
+    const handleAirlineChange = async (e, setFieldValue) => {
+        const val = e.target.value;
+        setFieldValue("airlineId", val);
+        setFieldValue("aircraftId", "");
+        setAircrafts(val ? await getAircraftsByAirline(val) : []);
+    };
+
     const handleSubmit = async (values) => {
-        const payload = { ...values, price: parseFloat(values.price) };
-        let isSuccess = false;
-
-        if (id) {
-            // Logic sửa: Gửi cả Time + Status
-            isSuccess = await updateFlight(id, {
-                departureTime: values.departureTime,
-                arrivalTime: values.arrivalTime,
-                status: values.status
-            });
-        } else {
-            isSuccess = await addNewFlight(payload);
-        }
-
-        if (isSuccess) {
-            toast.success(id ? "Cập nhật thành công" : "Thêm mới thành công");
+        try {
+            await saveFlight(values, id);
+            toast.success(id ? "Cập nhật thành công" : "Tạo thành công");
             navigate("/flights");
-        } else {
-            toast.error("Đã có lỗi xảy ra");
+        } catch (err) {
+            toast.error(typeof err === 'string' ? err : "Lỗi hệ thống");
         }
-    }
+    };
 
-    const validation = Yup.object({
-        flightCode: Yup.string().required("Mã chuyến bay không được để trống"),
-        airline: Yup.string().required("Vui lòng chọn hãng hàng không"),
-        origin: Yup.string().required("Nơi đi không được để trống"),
-        destination: Yup.string().required("Nơi đến không được để trống")
-            .notOneOf([Yup.ref('origin')], 'Nơi đến không được trùng nơi đi'),
-        departureTime: Yup.date().required("Chọn giờ khởi hành"),
-        arrivalTime: Yup.date().required("Chọn giờ hạ cánh")
-            .min(Yup.ref('departureTime'), "Giờ hạ cánh phải sau giờ khởi hành"),
-        price: Yup.number().required("Nhập giá vé").min(0, "Giá vé không được âm"),
-        status: Yup.string().required("Trạng thái không được để trống") // Validate status
+    // LOGIC VALIDATION
+    const validationSchema = Yup.object({
+        departureTime: Yup.date()
+            .required("Chọn giờ đi")
+            .min(new Date(Date.now() + 24 * 60 * 60 * 1000), "Giờ đi phải sau hiện tại ít nhất 24h"),
+        arrivalTime: Yup.date()
+            .required("Chọn giờ đến")
+            .min(Yup.ref('departureTime'), "Giờ đến phải sau giờ đi"),
+
+        // Nếu là thêm mới (!id) thì bắt buộc nhập giá. Nếu sửa (id) thì không cần check.
+        basePrice: id ? Yup.number() : Yup.number().required("Nhập giá").min(0),
+
+        flightNumber: Yup.string().required("Nhập số hiệu"),
+        airlineId: Yup.string().required("Chọn hãng"),
+        aircraftId: Yup.string().required("Chọn máy bay"),
+        departureAirportId: Yup.string().required("Chọn nơi đi"),
+        arrivalAirportId: Yup.string().required("Chọn nơi đến")
+            .notOneOf([Yup.ref('departureAirportId')], 'Nơi đến trùng nơi đi')
     });
-
-    const AIRLINES = [
-        "PACIFIC AIRLINES", "BAMBOO AIRWAYS", "JEJU AIR", "VIETJET AIR",
-        "VIETNAM AIRLINES", "AIR ASIA", "SINGAPORE AIRLINES"
-    ];
-
-    const STATUSES = [
-        { value: "SCHEDULED", label: "Sắp bay (Scheduled)" },
-        { value: "DELAYED", label: "Hoãn (Delayed)" },
-        { value: "IN_FLIGHT", label: "Đang bay (In Flight)" },
-        { value: "COMPLETED", label: "Hoàn thành (Completed)" },
-        { value: "CANCELLED", label: "Đã hủy (Cancelled)" }
-    ];
 
     return (
         <div className="container mt-4">
-            <h2 className="text-center text-primary">{id ? "Chỉnh Sửa Chuyến Bay" : "Thêm Mới Chuyến Bay"}</h2>
+            <h3 className="text-center text-primary">{id ? "Sửa Giờ Bay (Admin)" : "Tạo Chuyến Bay"}</h3>
+            <Formik enableReinitialize initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
+                {({ setFieldValue, values }) => (
+                    <Form className="card p-4 shadow-sm mx-auto bg-white" style={{maxWidth: 800}}>
 
-            <Formik
-                enableReinitialize={true}
-                initialValues={flight}
-                validationSchema={validation}
-                onSubmit={handleSubmit}
-            >
-                {({ values }) => (
-                    <Form className="w-100 mx-auto border p-4 rounded shadow bg-white">
+                        <div className="row mb-3">
+
+                            <div className="alert alert-info py-2">
+                                {id ? "Chế độ Sửa: Chỉ được thay đổi thời gian và trạng thái." : "Chế độ Tạo mới: Vui lòng nhập đầy đủ thông tin."}
+                            </div>
+
+
+                            <div className="col-md-4">
+                                <label className="form-label">Số hiệu</label>
+                                <Field name="flightNumber" className="form-control" disabled={!!id} />
+                                <ErrorMessage name="flightNumber" component="small" className="text-danger"/>
+                            </div>
+                            <div className="col-md-4">
+                                <label className="form-label">Hãng</label>
+                                <Field as="select" name="airlineId" className="form-select" disabled={!!id}
+                                       onChange={(e) => handleAirlineChange(e, setFieldValue)}>
+                                    <option value="">-- Chọn Hãng --</option>
+                                    {airlines.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                                </Field>
+                                <ErrorMessage name="airlineId" component="small" className="text-danger"/>
+                            </div>
+                            <div className="col-md-4">
+                                <label className="form-label">Máy Bay</label>
+                                <Field as="select" name="aircraftId" className="form-select" disabled={!!id || !values.airlineId}>
+                                    <option value="">-- Chọn Máy Bay --</option>
+                                    {aircrafts.map(ac => <option key={ac.id} value={ac.id}>{ac.name} ({ac.registrationCode})</option>)}
+                                </Field>
+                                <ErrorMessage name="aircraftId" component="small" className="text-danger"/>
+                            </div>
+                        </div>
+
+                        <div className="row mb-3">
+                            <div className="col-md-6">
+                                <label className="form-label">Nơi đi</label>
+                                <Field as="select" name="departureAirportId" className="form-select" disabled={!!id}>
+                                    <option value="">-- Chọn nơi đi --</option>
+                                    {airports.map(ap => <option key={ap.id} value={ap.id}>{ap.city} ({ap.code})</option>)}
+                                </Field>
+                                <ErrorMessage name="departureAirportId" component="small" className="text-danger"/>
+                            </div>
+                            <div className="col-md-6">
+                                <label className="form-label">Nơi đến</label>
+                                <Field as="select" name="arrivalAirportId" className="form-select" disabled={!!id}>
+                                    <option value="">-- Chọn nơi đến --</option>
+                                    {airports.map(ap => <option key={ap.id} value={ap.id}>{ap.city} ({ap.code})</option>)}
+                                </Field>
+                                <ErrorMessage name="arrivalAirportId" component="small" className="text-danger"/>
+                            </div>
+                        </div>
+
+                        {/* KHI SỬA: KHÔNG HIỆN Ô GIÁ HOẶC DISABLE */}
                         {!id && (
-                            <>
-                                <div className="mb-3">
-                                    <label className="form-label">Mã chuyến bay</label>
-                                    <Field type="text" name="flightCode" className="form-control" />
-                                    <ErrorMessage name="flightCode" component="small" className="text-danger" />
-                                </div>
-                                <div className="mb-3">
-                                    <label className="form-label">Hãng hàng không</label>
-                                    <Field as="select" name="airline" className="form-select">
-                                        <option value="">-- Chọn hãng --</option>
-                                        {AIRLINES.map(airline => <option key={airline} value={airline}>{airline}</option>)}
-                                    </Field>
-                                    <ErrorMessage name="airline" component="small" className="text-danger" />
-                                </div>
-                                <div className="row">
-                                    <div className="col-md-6 mb-3">
-                                        <label className="form-label">Nơi đi</label>
-                                        <Field type="text" name="origin" className="form-control" />
-                                        <ErrorMessage name="origin" component="small" className="text-danger" />
-                                    </div>
-                                    <div className="col-md-6 mb-3">
-                                        <label className="form-label">Nơi đến</label>
-                                        <Field type="text" name="destination" className="form-control" />
-                                        <ErrorMessage name="destination" component="small" className="text-danger" />
-                                    </div>
-                                </div>
-                                <div className="mb-3">
-                                    <label className="form-label">Giá vé</label>
-                                    <Field type="number" name="price" className="form-control" />
-                                    <ErrorMessage name="price" component="small" className="text-danger" />
-                                </div>
-                            </>
+                            <div className="mb-3">
+                                <label className="form-label">Giá vé</label>
+                                <Field name="basePrice" type="number" className="form-control" />
+                                <ErrorMessage name="basePrice" component="small" className="text-danger"/>
+                            </div>
                         )}
 
-                        {/* Chỉ hiện chỉnh sửa Trạng thái khi ở chế độ Edit (có id) */}
+
+
+                        <div className="row mb-3">
+                            <div className="col-md-6">
+                                <label className="form-label fw-bold">Giờ khởi hành</label>
+                                <Field name="departureTime" type="datetime-local" className="form-control" />
+                                <ErrorMessage name="departureTime" component="small" className="text-danger"/>
+                            </div>
+                            <div className="col-md-6">
+                                <label className="form-label fw-bold">Giờ hạ cánh</label>
+                                <Field name="arrivalTime" type="datetime-local" className="form-control" />
+                                <ErrorMessage name="arrivalTime" component="small" className="text-danger"/>
+                            </div>
+                        </div>
+
                         {id && (
                             <div className="mb-3">
-                                <label className="form-label fw-bold text-danger">Trạng thái (Admin)</label>
+                                <label className="form-label fw-bold">Trạng thái</label>
                                 <Field as="select" name="status" className="form-select">
-                                    {STATUSES.map(st => (
-                                        <option key={st.value} value={st.value}>{st.label}</option>
-                                    ))}
+                                    <option value="SCHEDULED">SCHEDULED</option>
+                                    <option value="DELAYED">DELAYED</option>
+                                    <option value="IN_FLIGHT">IN_FLIGHT</option>
+                                    <option value="COMPLETED">COMPLETED</option>
+                                    <option value="CANCELLED">CANCELLED</option>
                                 </Field>
                             </div>
                         )}
 
-                        <div className="row">
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">Giờ khởi hành</label>
-                                <Field type="datetime-local" name="departureTime" className="form-control" />
-                                <ErrorMessage name="departureTime" component="small" className="text-danger" />
-                            </div>
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">Giờ hạ cánh</label>
-                                <Field type="datetime-local" name="arrivalTime" className="form-control" />
-                                <ErrorMessage name="arrivalTime" component="small" className="text-danger" />
-                            </div>
-                        </div>
-
                         <div className="text-center mt-3">
-                            <button type="submit" className="btn btn-success px-4">
-                                {id ? "Lưu thay đổi" : "Tạo chuyến bay"}
-                            </button>
+                            <button type="button" className="btn btn-secondary me-2" onClick={() => navigate("/flights")}>Quay lại</button>
+                            <button type="submit" className="btn btn-primary">{id ? "Lưu Thay Đổi" : "Tạo Mới"}</button>
                         </div>
                     </Form>
                 )}
             </Formik>
         </div>
     );
-}
-
+};
 export default FlightForm;
