@@ -13,6 +13,9 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmployeeDTO {
+    @NotBlank(message = "Vui lòng nhập mã của nhân viên!")
+    @Pattern(regexp = "^NV[1-9]$", message = "Vui lòng nhập đúng định dạng mã nhân viên(NV-001)!")
+    private String employeeCode;
     @NotBlank(message = "Vui lòng nhập họ và tên của nhân viên!")
     @Pattern(regexp = "^[A-Z][a-z]+(\\s[A-Z][a-z]+)+$", message = "Vui lòng nhập tên đúng định dạng(Nguyen Van A)!")
     private String fullName;
