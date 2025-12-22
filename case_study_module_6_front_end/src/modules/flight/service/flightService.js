@@ -1,66 +1,39 @@
 import axios from "axios";
+import qs from "qs";
+const URL_BE = "http://localhost:8080/api/flights";
 
-const URL_BE = "http://localhost:8080/api";
-
-export async function getAllFlights() {
+export const getAllFlights = async (params) => {
     try {
-        const response = await axios.get(`${URL_BE}/flights`);
+        const response = await axios.get(URL_BE, {
+            params,
+            // Cấu hình để Axios gửi array sort đúng chuẩn Spring Boot
+            // VD: sort=col1,asc&sort=col2,desc
+            paramsSerializer: params => {
+                return qs.stringify(params, { arrayFormat: 'repeat' })
+            }
+        });
         return response.data.content || [];
-    } catch (e) {
-        return [];
-    }
-}
+        // eslint-disable-next-line no-unused-vars
+    } catch (e) { return []; }
+};
 
-// Cập nhật search: thêm origin, destination
-export async function searchFlight(airline, origin, destination, departureTime, maxPrice) {
+export const getFlightById = async (id) => (await axios.get(`${URL_BE}/${id}`)).data;
+
+export const saveFlight = async (flight, id = null) => {
     try {
-        const params = {};
-        if (airline) params.airline = airline;
-        if (origin) params.origin = origin;            // Mới
-        if (destination) params.destination = destination; // Mới
-        if (departureTime) params.departureTime = departureTime;
-        if (maxPrice) params.maxPrice = maxPrice;
-
-        const response = await axios.get(`${URL_BE}/flights`, { params });
-        return response.data.content || [];
-    } catch (e) {
-        return [];
-    }
-}
-
-export async function getFlightById(id) {
-    try {
-        const response = await axios.get(`${URL_BE}/flights/${id}`);
-        return response.data;
-    } catch (e) {
-        return null;
-    }
-}
-
-export async function addNewFlight(flight) {
-    try {
-        const response = await axios.post(`${URL_BE}/flights`, flight);
-        return response.status === 200 || response.status === 201;
-    } catch (e) {
-        return false;
-    }
-}
-
-// Cập nhật: update cả status
-export async function updateFlight(id, flightData) {
-    try {
-        const response = await axios.put(`${URL_BE}/flights/${id}`, flightData);
+        const method = id ? 'put' : 'post';
+        const url = id ? `${URL_BE}/${id}` : URL_BE;
+        const response = await axios[method](url, flight);
         return response.status === 200;
     } catch (e) {
-        return false;
+        throw e.response?.data || "Lỗi hệ thống";
     }
-}
+};
 
-export async function cancelFlight(id) {
+export const cancelFlight = async (id) => {
     try {
-        const response = await axios.delete(`${URL_BE}/flights/${id}`);
+        const response = await axios.delete(`${URL_BE}/${id}`);
         return response.status === 200;
-    } catch (e) {
-        return false;
-    }
-}
+        // eslint-disable-next-line no-unused-vars
+    } catch (e) { return false; }
+};
