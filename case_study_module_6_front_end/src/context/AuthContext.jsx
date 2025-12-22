@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import {getMe} from "../modules/login/service/authService.js";
 
 const AuthContext = createContext(null);
 
@@ -7,31 +8,20 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-        if (!token || !token.includes(".")) {
-            localStorage.removeItem("token");
-            return;
-        }
+        if (!token) return;
 
-        try {
-            const payload = JSON.parse(atob(token.split(".")[1]));
-            setUser({
-                email: payload.sub,
-                role: payload.role
+        getMe()
+            .then(res => setUser(res.data))
+            .catch(() => {
+                localStorage.removeItem("token");
+                setUser(null);
             });
-        } catch (e) {
-            console.error("Invalid token", e);
-            localStorage.removeItem("token");
-            setUser(null);
-        }
     }, []);
 
-    const login = (token) => {
+    const login = async (token) => {
         localStorage.setItem("token", token);
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        setUser({
-            email: payload.sub,
-            role: payload.role
-        });
+        const res = await getMe();   // ✅ lấy từ backend
+        setUser(res.data);           // { email, username, role }
     };
 
     const logout = () => {

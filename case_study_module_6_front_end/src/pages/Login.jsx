@@ -21,8 +21,8 @@ function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await loginApi(form);
-            login(res.token); // ✅ PHẢI CÓ TOKEN
+            const { token } = await loginApi(form); // ✅ destructuring
+            await login(token);                     // ✅ await
             navigate("/");
         } catch (err) {
             alert(err.response?.data || "Sai tài khoản hoặc mật khẩu");
@@ -32,8 +32,8 @@ function Login() {
     // ===== LOGIN GOOGLE =====
     const handleGoogleSuccess = async (credentialResponse) => {
         try {
-            const res = await loginGoogle(credentialResponse.credential);
-            login(res.token);
+            const { token } = await loginGoogle(credentialResponse.credential);
+            await login(token);
             navigate("/");
         } catch (err) {
             alert(err.response?.data || "Đăng nhập Google thất bại");
@@ -98,7 +98,6 @@ function Login() {
                             onError={() => alert("Google Login thất bại")}
                         />
                     </div>
-
                 </div>
             </div>
         </div>

@@ -54,6 +54,7 @@ public class AuthController {
         }
 
         String token = jwtService.generateToken(
+                account.getEmail(),
                 account.getUsername(),
                 account.getRole()
         );
@@ -80,6 +81,7 @@ public class AuthController {
                     });
 
             String token = jwtService.generateToken(
+                    account.getEmail(),
                     account.getUsername(),
                     account.getRole()
             );
@@ -91,4 +93,50 @@ public class AuthController {
                     .body("Google token không hợp lệ");
         }
     }
+    @GetMapping("/me")
+    public ResponseEntity<?> me(@RequestHeader("Authorization") String authHeader) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body("Missing token");
+        }
+
+        String token = authHeader.substring(7);
+
+        try {
+            var claims = jwtService.extractClaims(token);
+
+            return ResponseEntity.ok(
+                    Map.of(
+                            "email", claims.getSubject(),
+                            "username", claims.get("username"),
+                            "role", claims.get("role")
+                    )
+            );
+
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("Invalid token");
+        }
+    }
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody Map<String, String> req) {
+
+        String email = req.get("email");
+        String username = req.get("username");
+        String password = req.get("password");
+
+        if (accountService.existsByEmail(email)) {
+            return ResponseEntity.badRequest().body("Email đã tồn tại");
+        }
+
+        Account account = new Account();
+        account.setEmail(email);
+        account.setUsername(username);
+        account.setPassword(passwordEncoder.encode(password));
+        account.setRole("ROLE_USER");
+
+        accountService.save(account);
+
+        return ResponseEntity.ok("Đăng ký thành công");
+    }
+
 }

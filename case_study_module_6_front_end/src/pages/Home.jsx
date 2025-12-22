@@ -94,18 +94,26 @@ function Home() {
             const res = await fetch(
                 `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&lang=vi&appid=${apiKey}`
             );
+
             const data = await res.json();
 
-            return data.list.find(item =>
-                item.dt_txt.includes(date)
-            ) || data.list[0];
+            // ❗ BẮT BUỘC CHECK
+            if (!data.list || !Array.isArray(data.list)) {
+                console.error("Weather API response invalid:", data);
+                return null;
+            }
+
+            return (
+                data.list.find(item =>
+                    item.dt_txt.startsWith(date)
+                ) || data.list[0]
+            );
+
         } catch (err) {
             console.error("Weather error:", err);
-            console.log("API KEY:", import.meta.env.VITE_WEATHER_API_KEY);
             return null;
         }
     };
-
     /* LOAD WEATHER WHEN CHANGE FORM */
     useEffect(() => {
         if (!form.departureDate) return;
@@ -124,7 +132,7 @@ function Home() {
         };
 
         loadWeather();
-    }, [form.from, form.to, form.departureDate]);
+    }, [form.from, form.to, form.departureDate, cityWeatherMap]);
 
     /* ================= RENDER ================= */
     return (
