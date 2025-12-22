@@ -1,0 +1,350 @@
+/* ================= GLOBAL ================= */
+html, body, #root {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+    background-color: #eaf3ff;
+    overflow-x: hidden;
+}
+
+/* ================= HERO ================= */
+.hero-bg {
+    width: 100vw;
+    min-height: calc(100vh - 72px);
+    margin-left: calc(50% - 50vw);
+    background-size: cover;
+    background-position: center;
+}
+
+.hero-overlay {
+    min-height: inherit;
+    background: linear-gradient(
+            to bottom,
+            rgba(10, 35, 66, 0.75),
+            rgba(10, 35, 66, 0.4)
+    );
+    padding: 120px 0;
+}
+
+/* ================= TITLE ================= */
+.hero-title {
+    color: #fff;
+    font-size: 34px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+/* ================= SEARCH BAR ================= */
+.search-bar {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(18px);
+    border-radius: 32px;
+    padding: 24px;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.45);
+}
+
+/* ================= TRIP TYPE ================= */
+.trip-type {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.trip-type button {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: #fff;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.trip-type button.active {
+    background: #0d6efd;
+    border-color: #0d6efd;
+}
+
+/* ================= FORM ROW ================= */
+.search-row {
+    display: flex;
+    gap: 14px;
+    align-items: flex-end;
+}
+
+/* ================= FIELD ================= */
+.field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.field label {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+.field input,
+.field select {
+    height: 52px;
+    border-radius: 16px;
+    border: none;
+    padding: 0 16px;
+    font-size: 14px;
+    background: #fff;
+}
+
+/* ================= SEARCH BUTTON ================= */
+.btn-search {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    background: #ff6a00;
+    color: #fff;
+    font-size: 20px;
+    box-shadow: 0 12px 30px rgba(255, 106, 0, 0.5);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-search:hover {
+    background: #ff8126;
+    transform: translateY(-2px);
+}
+
+/* ================= PASSENGER ================= */
+.passenger-field {
+    position: relative;
+}
+
+.passenger-input {
+    height: 52px;
+    border-radius: 16px;
+    background: #fff;
+    padding: 0 16px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.passenger-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 100%;
+    background: #fff;
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+    z-index: 10;
+}
+
+/* ================= BIG DESTINATION ================= */
+.destination-big-card {
+    position: relative;
+    height: 320px;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.destination-big-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: fade 0.6s ease-in-out;
+}
+
+@keyframes fade {
+    from { opacity: 0.6; }
+    to { opacity: 1; }
+}
+
+.destination-big-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 16px;
+    background: linear-gradient(
+            to top,
+            rgba(0,0,0,0.65),
+            transparent
+    );
+    color: #fff;
+}
+
+/* ================= PROMO LIST ================= */
+.promo-list {
+    max-height: 320px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* ================= NEWS (FIX TRIỆT ĐỂ) ================= */
+.news-card {
+    border-radius: 16px;
+    overflow: hidden;
+    background: #fff;
+    transition: transform 0.3s ease;
+}
+
+.news-card:hover {
+    transform: translateY(-4px);
+}
+
+/* KHUNG ẢNH CỐ ĐỊNH */
+.news-thumb {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    background: #f1f3f5;
+}
+
+/* ẢNH LUÔN COVER */
+.news-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+    .destination-big-card {
+        height: 220px;
+    }
+
+    .promo-list {
+        max-height: none;
+    }
+}
+/* ===== COPY BUTTON ===== */
+.btn-copy {
+    border: none;
+    background: linear-gradient(135deg, #0d6efd, #4dabff);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.35);
+}
+
+.btn-copy:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(13, 110, 253, 0.45);
+}
+
+/* SAU KHI COPY */
+.btn-copy.copied {
+    background: linear-gradient(135deg, #28a745, #5cd68d);
+    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.4);
+    cursor: default;
+}
+.destination-dots {
+    position: absolute;
+    bottom: 14px;
+    right: 16px;
+    display: flex;
+    gap: 8px;
+    z-index: 2;
+}
+
+.dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: rebeccapurple;
+    border: 1px solid rgba(0,0,0,0.25);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.dot:hover {
+    transform: scale(1.3);
+}
+
+.dot.active {
+    background: #fff;
+}
+/* ===== FOOTER HEADER GLOW ===== */
+.footer-full::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+            circle at top,
+            rgba(255, 224, 138, 0.25),
+            transparent 70%
+    );
+    opacity: 0.3;
+    animation: footerGlowBg 3s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes footerGlowBg {
+    0% { opacity: 0.2; }
+    50% { opacity: 0.45; }
+    100% { opacity: 0.2; }
+}
+/* ===== WEATHER CARD ===== */
+.weather-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 14px 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    color: #212529;
+}
+
+.weather-card h6 {
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+/* ===== WEATHER ROW ===== */
+.weather-row {
+    display: flex;
+    gap: 14px;
+    margin-top: 14px;
+}
+
+/* mỗi card = 1 field */
+.weather-card {
+    flex: 1; /* 👈 QUAN TRỌNG: bằng width select */
+    height: 90px;
+
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 18px;
+    padding: 10px 16px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* title */
+.weather-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0d6efd;
+    margin-bottom: 2px;
+}
+
+/* info */
+.weather-info {
+    font-size: 15px;
+    font-weight: 500;
+    color: #333;
+}
