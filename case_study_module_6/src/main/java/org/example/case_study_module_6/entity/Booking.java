@@ -1,51 +1,53 @@
 package org.example.case_study_module_6.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.example.case_study_module_6.enums.BookingStatus;
+import org.example.case_study_module_6.enums.Channel;
+import org.example.case_study_module_6.enums.PaymentMethod;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
+@Data
 @Table(name = "bookings")
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Booking {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 20)
+    @Column(name = "booking_code", unique = true, nullable = false)
     private String bookingCode;
 
-    private LocalDateTime bookingDate;
-
+    @Column(name = "total_amount")
     private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
     private BookingStatus status;
 
-    private String channels;
-    private String tripType;
+    @Enumerated(EnumType.STRING)
+    private Channel channel;
 
+    @Column(name = "contact_email")
     private String contactEmail;
-    private String contactPhone;
+
+    @Column(name = "booking_date")
+    private LocalDateTime bookingDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_method")
+    private PaymentMethod paymentMethod;
 
     @ManyToOne
     @JoinColumn(name = "customer_account_id")
-    private Account customerAccount;
+    private Customer customerAccount;
 
-    @ManyToOne
-    @JoinColumn(name = "created_by_sales_id")
-    private Account createdBySales;
-
-    public enum BookingStatus {
-        PENDING, PAID, CANCELLED, REFUNDED
-    }
+    // 1 Booking có nhiều Ticket
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Ticket> tickets;
 }
 

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
+@Table(name = "airports")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 public class Airport {

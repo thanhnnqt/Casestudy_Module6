@@ -8,6 +8,11 @@ import Profile from "../pages/Profile.jsx";
 import FlightList from "../modules/flight/./components/FlightList.jsx";
 import FlightForm from "../modules/flight/./components/FlightForm.jsx";
 import React from "react";
+import FlightSelection from "../modules/booking/components/FlightSelection.jsx";
+import BookingDetails from "../modules/booking/components/BookingDetails.jsx";
+import BookingManagement from "../modules/booking/components/BookingManagement.jsx";
+import NewTicketSale from "../modules/booking/components/NewTicketSale.jsx";
+import FlightSearch from "../modules/booking/components/FlightSearch.jsx";
 
 function AppRouter() {
     return (
@@ -24,6 +29,13 @@ function AppRouter() {
                 <Route path="/flights" element={<FlightList />} />
                 <Route path="/flights/create" element={<FlightForm />} />
                 <Route path="flights/edit/:id" element={<FlightForm />} />
+
+                {/*Route booking*/}
+                <Route path="/search-flight" element={<FlightSearch />} />
+                <Route path="/select-flight" element={<FlightSelection />} />
+                <Route path="/booking-details" element={<BookingDetails />} />
+                <Route path="/management" element={<BookingManagement />} />
+                <Route path="/new-sale" element={<NewTicketSale />} />
 
 
                 <Route
