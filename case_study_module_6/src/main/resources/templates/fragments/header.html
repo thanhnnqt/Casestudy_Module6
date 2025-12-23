@@ -3,22 +3,72 @@
 
   <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
     <div class="container">
+
+      <!-- LOGO -->
       <a class="navbar-brand fw-bold text-danger" th:href="@{/}">
-        VietJetAir Clone
+        Fly Fast
       </a>
 
+      <!-- MOBILE BUTTON -->
       <button class="navbar-toggler"
+              type="button"
               data-bs-toggle="collapse"
               data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
 
+      <!-- MENU -->
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="#">Vé máy bay</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Check-in</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Ưu đãi</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Liên hệ</a></li>
+
+          <!-- Trang chủ -->
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/}">
+              Trang chủ
+            </a>
+          </li>
+
+          <!-- Tin khuyến mãi -->
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/promotion}">
+              Tin khuyến mãi
+            </a>
+          </li>
+
+          <!-- Giới thiệu -->
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/about}">
+              Giới thiệu
+            </a>
+          </li>
+
+          <!-- Quy định hành lý -->
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/baggage}">
+              Quy định hành lý
+            </a>
+          </li>
+
+          <!-- CHƯA ĐĂNG NHẬP -->
+          <li class="nav-item" th:if="${session.user == null}">
+            <a class="nav-link" th:href="@{/register}">
+              Đăng ký
+            </a>
+          </li>
+
+          <li class="nav-item" th:if="${session.user == null}">
+            <a class="nav-link" th:href="@{/login}">
+              Đăng nhập
+            </a>
+          </li>
+
+          <!-- ĐÃ ĐĂNG NHẬP -->
+          <li class="nav-item" th:if="${session.user != null}">
+            <a class="nav-link text-danger fw-bold" th:href="@{/logout}">
+              Đăng xuất
+            </a>
+          </li>
+
         </ul>
       </div>
     </div>

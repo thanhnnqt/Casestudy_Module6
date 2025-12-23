@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đám Cưới: Lê Thịnh & Trà My</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Great+Vibes&family=Nunito:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #B71C1C;
+            --gold-color: #C5A059;
+            --bg-color: #fffbf7;
+        }
+        body { font-family: 'Nunito', sans-serif; background-color: var(--bg-color); overflow-x: hidden; margin: 0; padding: 0; }
+        .font-script { font-family: 'Great Vibes', cursive; }
+        .font-serif { font-family: 'Cormorant Garamond', serif; }
+
+        /* =========================================
+           1. SIÊU PHẨM: HIỆU ỨNG MỞ THIỆP 3D
+           ========================================= */
+        #intro-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); /* Nền tối để nổi bật thiệp */
+            z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 1.5s ease-out, visibility 1.5s;
+        }
+
+        /* Khung bao thư */
+        .envelope-wrapper {
+            position: relative; width: 320px; height: 220px;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        .envelope {
+            position: relative; width: 100%; height: 100%;
+            background: #B71C1C;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-radius: 5px;
+            z-index: 10;
+        }
+
+        /* Nắp trên của bao thư */
+        .envelope::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            border-top: 130px solid #D32F2F; /* Màu nắp sáng hơn */
+            border-right: 160px solid transparent;
+            border-bottom: 100px solid transparent;
+            border-left: 160px solid transparent;
+            transform-origin: top;
+            transition: transform 0.8s ease-in-out;
+            z-index: 20;
+        }
+
+        /* Thân bao thư */
+        .envelope::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 100%;
+            border-top: 120px solid transparent;
+            border-right: 160px solid #B71C1C;
+            border-bottom: 100px solid #B71C1C;
+            border-left: 160px solid #B71C1C;
+            z-index: 15;
+            pointer-events: none; /* Để bấm được vào tấm thiệp bên trong */
+        }
+
+        /* Tấm thiệp bên trong */
+        .letter {
+            position: absolute; top: 10px; left: 15px; width: 290px; height: 200px;
+            background: #fff;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            transition: transform 1s ease-in-out 0.8s; /* Trễ 0.8s để chờ nắp mở */
+            z-index: 5;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+
+        /* Con dấu sáp (Nút bấm) */
+        .wax-seal {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -20%);
+            width: 60px; height: 60px;
+            background: radial-gradient(circle, #D4AF37, #b8860b);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            z-index: 100; /* Nằm trên cùng */
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px; color: #fff; font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.5s;
+            animation: pulse-seal 2s infinite;
+        }
+
+        @keyframes pulse-seal {
+            0% { transform: translate(-50%, -20%) scale(1); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
+            70% { transform: translate(-50%, -20%) scale(1.1); box-shadow: 0 0 0 15px rgba(212, 175, 55, 0); }
+            100% { transform: translate(-50%, -20%) scale(1); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+        }
+
+        /* --- TRẠNG THÁI KHI MỞ (CLASS .OPEN) --- */
+        .envelope-wrapper.open .envelope::before {
+            transform: rotateX(180deg); /* Mở nắp */
+            z-index: 1; /* Đưa nắp ra sau */
+        }
+        .envelope-wrapper.open .letter {
+            transform: translateY(-120px); /* Trồi thiệp lên */
+            z-index: 25; /* Đưa thiệp lên trên cùng */
+        }
+        .envelope-wrapper.open .wax-seal {
+            opacity: 0; pointer-events: none; /* Ẩn con dấu */
+        }
+
+        /* Ẩn overlay sau khi xong */
+        .hide-overlay {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        /* =========================================
+           2. CSS CHO TRANG WEB CHÍNH (CŨ)
+           ========================================= */
+        #main-website { opacity: 0; transition: opacity 2s ease; display: none; }
+
+        .hero-section {
+            height: 100vh;
+            background: url('https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1000') center/cover no-repeat;
+            position: relative;
+        }
+        .hero-overlay {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6));
+            position: absolute; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
+            padding-bottom: 80px; color: white;
+        }
+
+        .invitation-card-container { padding: 60px 20px; background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png'); }
+        .invitation-card { background: #fff; border: 1px solid #e0e0e0; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; max-width: 600px; margin: 0 auto; position: relative; }
+        .invitation-card::before, .invitation-card::after { content: "❧"; font-size: 30px; color: var(--gold-color); display: block; }
+
+        .profile-img { width: 200px; height: 200px; object-fit: cover; border-radius: 50%; border: 5px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .quote-box { background: white; padding: 20px; border-radius: 10px; position: relative; font-style: italic; }
+        .gallery-img { height: 200px; object-fit: cover; width: 100%; border-radius: 5px; cursor: pointer; transition: 0.3s; }
+        .music-btn { position: fixed; bottom: 20px; left: 20px; z-index: 1000; width: 40px; height: 40px; border-radius: 50%; background: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; animation: spin 4s linear infinite; cursor: pointer; display: none; }
+        @keyframes spin { 100% {transform: rotate(360deg);} }
+    </style>
+</head>
+<body>
+
+<div id="intro-overlay">
+    <div class="envelope-wrapper" onclick="openEnvelope()">
+        <div class="envelope">
+            <div class="wax-seal">囍</div> </div>
+        <div class="letter">
+            <h3 class="font-script text-danger" style="font-size: 28px;">Thiệp Hồng</h3>
+            <p class="font-serif text-muted small">Kính gửi</p>
+            <h4 class="font-serif fw-bold">Bạn & Người thương</h4>
+            <p class="font-serif text-muted small mt-2">Chạm để mở</p>
+        </div>
+    </div>
+</div>
+
+<div id="main-website">
+
+    <header class="hero-section">
+        <div class="hero-overlay">
+            <h2 class="text-uppercase" style="letter-spacing: 3px; font-size: 1.2rem;">Save The Date</h2>
+            <h1 class="font-script display-1 mb-3">Lê Thịnh & Trà My</h1>
+            <p class="fs-5">Chúng mình sắp cưới!</p>
+            <div class="mt-3 animate__animated animate__bounce infinite">
+                <i class="bi bi-chevron-down fs-1"></i>
+            </div>
+        </div>
+    </header>
+
+    <section class="invitation-card-container">
+        <div class="container" data-aos="fade-up">
+            <div class="invitation-card">
+                <p class="font-serif text-uppercase text-muted small ls-2">Trân trọng kính mời</p>
+                <h3 class="font-serif fw-bold mb-4">Bạn và Người thương</h3>
+                <p class="font-serif fst-italic">Tới dự bữa cơm thân mật mừng lễ thành hôn của</p>
+                <h2 class="font-script text-danger display-4 my-4">Lê Thịnh <span class="text-dark">&</span> Trà My</h2>
+                <div class="font-serif fs-5 mb-4">
+                    Lễ thành hôn được tổ chức vào lúc<br>
+                    <strong class="fs-3 text-dark">09:00</strong><br>
+                    <span class="text-uppercase text-danger fw-bold fs-4">Chủ Nhật, 15 . 05 . 2025</span>
+                </div>
+                <div class="font-serif">
+                    Tại: <strong>Nhà Hàng Cảnh Hồ - Trống Đồng Plaza</strong><br>
+                    <span class="text-muted small">Thanh Xuân - Hà Nội</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container py-5">
+        <div class="row g-5">
+            <div class="col-md-6 text-center" data-aos="fade-right">
+                <h3 class="font-script text-danger mb-3">Chú Rể</h3>
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" class="profile-img">
+                <h2 class="font-serif fw-bold">Lê Thịnh</h2>
+                <div class="quote-box mt-3 shadow-sm"><p class="mb-0">"Cảm ơn em đã đến và thay đổi thế giới của anh."</p></div>
+            </div>
+            <div class="col-md-6 text-center" data-aos="fade-left">
+                <h3 class="font-script text-danger mb-3">Cô Dâu</h3>
+                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80" class="profile-img">
+                <h2 class="font-serif fw-bold">Trà My</h2>
+                <div class="quote-box mt-3 shadow-sm"><p class="mb-0">"Em chỉ cần một người khiến em cảm thấy mình là duy nhất."</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-white py-5">
+        <div class="container">
+            <h2 class="text-center font-script text-danger mb-5 display-5" data-aos="zoom-in">Đại Diện Hai Gia Đình</h2>
+            <div class="row justify-content-center text-center font-serif fs-5">
+                <div class="col-md-5 mb-4" data-aos="fade-up">
+                    <div class="p-4 border rounded-3 h-100 bg-light">
+                        <h3 class="text-uppercase fw-bold text-danger mb-3">Nhà Trai</h3>
+                        <p>Ông: <strong>Lê Văn A</strong></p><p>Bà: <strong>Nguyễn Thị B</strong></p>
+                    </div>
+                </div>
+                <div class="col-md-5 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="p-4 border rounded-3 h-100 bg-light">
+                        <h3 class="text-uppercase fw-bold text-danger mb-3">Nhà Gái</h3>
+                        <p>Ông: <strong>Trần Văn C</strong></p><p>Bà: <strong>Phạm Thị D</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container py-5">
+        <h2 class="text-center font-script text-danger mb-5 display-5">Chuyện Tình Yêu</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="mb-5 border-start border-3 border-danger ps-4" data-aos="fade-left">
+                    <span class="badge bg-danger mb-2">Gặp gỡ</span>
+                    <h4 class="font-serif fw-bold">Duyên Số</h4>
+                    <p>Lần đầu tiên gặp nhau, ánh mắt ấy đã làm thay đổi cả thanh xuân.</p>
+                    <img src="https://images.unsplash.com/photo-1522673607200-1645062cd958" class="img-fluid rounded shadow-sm mt-2">
+                </div>
+                <div class="mb-5 border-start border-3 border-danger ps-4" data-aos="fade-left">
+                    <span class="badge bg-danger mb-2">Hẹn hò</span>
+                    <h4 class="font-serif fw-bold">Yêu Thương</h4>
+                    <p>Những buổi chiều đèo nhau quanh Hồ Tây...</p>
+                    <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2" class="img-fluid rounded shadow-sm mt-2">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5" style="background-color: #fff0f5;">
+        <div class="container">
+            <h2 class="text-center font-script text-danger mb-4 display-5">Album Ảnh Cưới</h2>
+            <div class="row g-2">
+                <div class="col-4"><img src="https://images.unsplash.com/photo-1519741497674-611481863552" class="gallery-img"></div>
+                <div class="col-4"><img src="https://images.unsplash.com/photo-1520854221256-17451cc330e7" class="gallery-img"></div>
+                <div class="col-4"><img src="https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8" class="gallery-img"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container py-5">
+        <h2 class="text-center font-script text-danger mb-5 display-5">Địa Điểm & Lời Chúc</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-5 mb-4">
+                <div class="border p-4 rounded text-center">
+                    <h4 class="font-serif mb-3">Hộp Mừng Cưới</h4>
+                    <div class="d-flex justify-content-center gap-3">
+                        <div><img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=Bank1" class="img-thumbnail"><p class="small fw-bold">Lê Thịnh</p></div>
+                        <div><img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=Bank2" class="img-thumbnail"><p class="small fw-bold">Trà My</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="text-center py-4 bg-dark text-white small">© 2025 Lê Thịnh & Trà My Wedding</footer>
+</div>
+
+<div class="music-btn" onclick="toggleMusic()"><i class="bi bi-music-note-beamed"></i></div>
+<audio id="bg-music" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg"></audio>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    AOS.init();
+    var music = document.getElementById('bg-music');
+    var isPlaying = false;
+
+    function openEnvelope() {
+        var wrapper = document.querySelector('.envelope-wrapper');
+        var overlay = document.getElementById('intro-overlay');
+        var mainSite = document.getElementById('main-website');
+        var musicBtn = document.querySelector('.music-btn');
+
+        // 1. Kích hoạt hoạt hình mở phong bì
+        wrapper.classList.add('open');
+
+        // 2. Chờ 2 giây cho thiệp trồi lên xong rồi mới ẩn overlay
+        setTimeout(function() {
+            overlay.classList.add('hide-overlay');
+
+            // 3. Hiện website chính
+            mainSite.style.display = 'block';
+            setTimeout(() => {
+                mainSite.style.opacity = 1;
+                AOS.refresh(); // Làm mới hiệu ứng cuộn
+            }, 100);
+
+            // 4. Xóa overlay khỏi DOM để không che nút bấm
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                musicBtn.style.display = 'flex';
+            }, 1500);
+
+            // 5. Tự động phát nhạc
+            playMusic();
+
+        }, 2000);
+    }
+
+    function toggleMusic() {
+        if (isPlaying) { music.pause(); } else { music.play(); }
+        isPlaying = !isPlaying;
+    }
+
+    function playMusic() {
+        music.play().then(() => { isPlaying = true; }).catch(e => console.log("Cần tương tác để phát nhạc"));
+    }
+</script>
+</body>
+</html>
