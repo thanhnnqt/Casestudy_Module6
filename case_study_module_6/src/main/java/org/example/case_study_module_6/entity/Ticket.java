@@ -1,55 +1,45 @@
 package org.example.case_study_module_6.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.example.case_study_module_6.enums.SeatClass;
+import org.example.case_study_module_6.enums.TicketStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(
-        name = "tickets",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"flight_id", "seat_number"})
-        }
-)
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
+@Table(name = "tickets")
 public class Ticket {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String seatNumber;
+    @Column(name = "ticket_number", unique = true)
+    private String ticketNumber; // Mã vé (khác mã đặt chỗ)
 
-    @Column(unique = true)
-    private String ticketNumber;
-
-    @Column(nullable = false)
+    @Column(name = "passenger_name")
     private String passengerName;
 
-    private LocalDate passengerDob;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "seat_class")
+    private SeatClass seatClass;
 
-    private BigDecimal price;
+    private BigDecimal price; // Giá vé lúc mua
 
+    // Quan hệ với Booking
     @ManyToOne
-    @JoinColumn(name = "booking_id", nullable = false)
+    @JoinColumn(name = "booking_id")
+    @JsonBackReference
     private Booking booking;
 
+
     @ManyToOne
-    @JoinColumn(name = "flight_id", nullable = false)
+    @JoinColumn(name = "flight_id")
     private Flight flight;
 
     @Enumerated(EnumType.STRING)
-    private TicketStatus status = TicketStatus.BOOKED;
-
-    public enum TicketStatus {
-        BOOKED, CHECKED_IN, CANCELLED
-    }
+    private TicketStatus status;
 }
-
