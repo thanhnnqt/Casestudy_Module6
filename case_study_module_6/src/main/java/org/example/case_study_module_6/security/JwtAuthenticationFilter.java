@@ -29,7 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         System.out.println("Kiểm tra Path: " + path); //
         boolean shouldSkip = path.startsWith("/auth/") ||
                 path.startsWith("/v1/api/employees") || // Đảm bảo đúng chính tả
-                path.startsWith("/api/master");
+                path.startsWith("/api/master") || path.startsWith("/api/flights");
 
         if (shouldSkip) System.out.println("=> BỎ QUA FILTER cho: " + path); // <--- THÊM
         return shouldSkip;
