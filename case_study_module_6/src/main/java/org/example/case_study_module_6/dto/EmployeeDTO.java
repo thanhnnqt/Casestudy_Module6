@@ -32,5 +32,7 @@ public class EmployeeDTO {
     @Past(message = "Ngày sinh không hợp lệ, vui lòng nhập lại!")
     private LocalDate DOB;
     @NotNull(message = "Vui lòng nhập giới tính!")
-    private Boolean gender;
+    private String gender;
+    private String userName;
+    private String password;
 }

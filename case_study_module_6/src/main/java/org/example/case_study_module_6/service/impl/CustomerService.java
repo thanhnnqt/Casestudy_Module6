@@ -36,7 +36,6 @@ public class CustomerService implements ICustomerService {
         // ===== ACCOUNT =====
         Account account = new Account();
         account.setUsername(req.getUsername());
-        account.setEmail(req.getEmail());
 //        account.setPassword(passwordEncoder.encode(req.getPassword()));
         account.setRole("USER");
         account.setProvider("LOCAL");
