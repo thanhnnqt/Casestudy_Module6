@@ -1,17 +1,23 @@
 package org.example.case_study_module_6.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
-import java.math.BigDecimal;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@Table(name = "flights")
+@Getter
+@Setter
 public class Flight {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "flight_number")
     private String flightNumber;
 
     @ManyToOne
@@ -28,9 +34,13 @@ public class Flight {
 
     private LocalDateTime departureTime;
     private LocalDateTime arrivalTime;
-    private BigDecimal basePrice;
 
     @Enumerated(EnumType.STRING)
-    private FlightStatus status = FlightStatus.SCHEDULED;
+    private FlightStatus status;
+
+
+    @OneToMany(mappedBy = "flight", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JsonManagedReference // Để tránh lỗi vòng lặp JSON khi API trả về
+    private List<FlightSeatDetail> seatDetails = new ArrayList<>();
 }
 
