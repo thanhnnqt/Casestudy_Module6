@@ -23,23 +23,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.jwtService = jwtService;
     }
 
-    // 🔥 QUAN TRỌNG NHẤT
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-
         String path = request.getRequestURI();
 
-        // ✅ BỎ QUA AUTH API
-        if (path.startsWith("/auth/")) {
-            return true;
-        }
-
-        // ✅ BỎ QUA OPTIONS (preflight)
-        if (HttpMethod.OPTIONS.matches(request.getMethod())) {
-            return true;
-        }
-
-        return false;
+        return path.startsWith("/auth/")
+                || path.startsWith("/axios/auth/")
+                || path.startsWith("/error")
+                || HttpMethod.OPTIONS.matches(request.getMethod());
     }
 
     @Override
@@ -48,6 +40,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
+
+        String path = request.getRequestURI();
+
+        // 🔥 BẢO HIỂM: auth API luôn cho qua
+        if (path.startsWith("/auth/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String authHeader = request.getHeader("Authorization");
 

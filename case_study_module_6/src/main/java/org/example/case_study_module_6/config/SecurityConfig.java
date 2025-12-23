@@ -33,16 +33,11 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // ✅ AUTH API – GHI RÕ HTTP METHOD
-                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/google").permitAll()
-                        .requestMatchers(HttpMethod.GET,  "/auth/me").permitAll()
+                        // 🔥 PERMIT CẢ 2 PATH
+                        .requestMatchers("/auth/**", "/axios/auth/**", "/error").permitAll()
 
-                        // ✅ OPTIONS luôn cho qua
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // Còn lại phải login
                         .anyRequest().authenticated()
                 )
 

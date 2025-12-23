@@ -1,8 +1,10 @@
 package org.example.case_study_module_6.controller;
 
+import jakarta.transaction.Transactional;
 import org.example.case_study_module_6.dto.GoogleLoginRequest;
 import org.example.case_study_module_6.entity.Account;
 import org.example.case_study_module_6.service.impl.AccountService;
+import org.example.case_study_module_6.service.impl.CustomerService;
 import org.example.case_study_module_6.service.impl.GoogleTokenVerifierService;
 import org.example.case_study_module_6.service.impl.JwtService;
 import org.springframework.http.ResponseEntity;
@@ -20,123 +22,160 @@ public class AuthController {
     private final AccountService accountService;
     private final PasswordEncoder passwordEncoder;
     private final GoogleTokenVerifierService googleVerifier;
+    private final CustomerService customerService;
 
     public AuthController(
             JwtService jwtService,
             AccountService accountService,
             PasswordEncoder passwordEncoder,
-            GoogleTokenVerifierService googleVerifier
+            GoogleTokenVerifierService googleVerifier,
+            CustomerService customerService
     ) {
         this.jwtService = jwtService;
         this.accountService = accountService;
         this.passwordEncoder = passwordEncoder;
         this.googleVerifier = googleVerifier;
+        this.customerService = customerService;
     }
+
+    // ================= LOGIN =================
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> req) {
 
         String identifier = req.get("identifier");
-        String password = req.get("password");
+        if (identifier == null) {
+            identifier = req.get("username");
+        }
+        String password = req.get("password").trim();
 
-        Account account = accountService
-                .findByIdentifier(identifier)
+        Account account = accountService.findByUsername(identifier)
                 .orElse(null);
 
         if (account == null) {
-            return ResponseEntity.status(401)
-                    .body("Tài khoản không tồn tại");
+            return ResponseEntity.status(401).body("Tài khoản không tồn tại");
+        }
+
+        if (!Boolean.TRUE.equals(account.getEnabled())) {
+            return ResponseEntity.status(403).body("Tài khoản đã bị khóa");
         }
 
         if (!passwordEncoder.matches(password, account.getPassword())) {
-            return ResponseEntity.status(401)
-                    .body("Sai mật khẩu");
+            return ResponseEntity.status(401).body("Sai mật khẩu");
         }
 
+        String role = accountService.resolveRole(account.getId());
+
         String token = jwtService.generateToken(
-                account.getEmail(),
                 account.getUsername(),
-                account.getRole()
+                role
         );
 
         return ResponseEntity.ok(Map.of("token", token));
     }
 
-    @PostMapping("/google")
-    public ResponseEntity<?> loginGoogle(@RequestBody GoogleLoginRequest req) {
-        try {
-            var payload = googleVerifier.verify(req.getCredential());
+    // ================= REGISTER =================
 
-            String email = payload.getEmail();
-
-            // 🔹 tìm user theo email
-            Account account = accountService.findByEmail(email)
-                    .orElseGet(() -> {
-                        Account newAcc = new Account();
-                        newAcc.setEmail(email);
-                        newAcc.setUsername(email);
-                        newAcc.setRole("ROLE_USER");
-                        newAcc.setPassword(""); // Google login không cần password
-                        return accountService.save(newAcc);
-                    });
-
-            String token = jwtService.generateToken(
-                    account.getEmail(),
-                    account.getUsername(),
-                    account.getRole()
-            );
-
-            return ResponseEntity.ok(Map.of("token", token));
-
-        } catch (Exception e) {
-            return ResponseEntity.status(401)
-                    .body("Google token không hợp lệ");
-        }
-    }
-    @GetMapping("/me")
-    public ResponseEntity<?> me(@RequestHeader("Authorization") String authHeader) {
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(401).body("Missing token");
-        }
-
-        String token = authHeader.substring(7);
-
-        try {
-            var claims = jwtService.extractClaims(token);
-
-            return ResponseEntity.ok(
-                    Map.of(
-                            "email", claims.getSubject(),
-                            "username", claims.get("username"),
-                            "role", claims.get("role")
-                    )
-            );
-
-        } catch (Exception e) {
-            return ResponseEntity.status(401).body("Invalid token");
-        }
-    }
+    @Transactional
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Map<String, String> req) {
 
-        String email = req.get("email");
         String username = req.get("username");
-        String password = req.get("password");
+        String rawPassword = req.get("password");
 
-        if (accountService.existsByEmail(email)) {
-            return ResponseEntity.badRequest().body("Email đã tồn tại");
+        if (username == null || username.isBlank()) {
+            return ResponseEntity.badRequest().body("Username không hợp lệ");
+        }
+
+        if (rawPassword == null || rawPassword.isBlank()) {
+            return ResponseEntity.badRequest().body("Mật khẩu không hợp lệ");
+        }
+
+        if (accountService.existsByUsername(username)) {
+            return ResponseEntity.badRequest().body("Username đã tồn tại");
         }
 
         Account account = new Account();
-        account.setEmail(email);
         account.setUsername(username);
-        account.setPassword(passwordEncoder.encode(password));
-        account.setRole("ROLE_USER");
+        account.setPassword(passwordEncoder.encode(rawPassword));
+        account.setEnabled(true);
 
-        accountService.save(account);
+        Account saved = accountService.save(account);
+
+        accountService.createCustomerProfile(
+                saved,
+                req.get("fullName"),
+                req.get("phoneNumber"),
+                req.get("email"),
+                req.get("address")
+        );
 
         return ResponseEntity.ok("Đăng ký thành công");
     }
 
+    // ================= ME =================
+
+    @GetMapping("/me")
+    public ResponseEntity<?> me(
+            @RequestHeader(value = "Authorization", required = false) String authHeader
+    ) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body("Missing or invalid token");
+        }
+
+        String token = authHeader.substring(7);
+        var claims = jwtService.extractClaims(token);
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "username", claims.getSubject(),
+                        "role", claims.get("role")
+                )
+        );
+    }
+    @PostMapping("/google")
+    public ResponseEntity<?> googleLogin(
+            @RequestBody GoogleLoginRequest req
+    ) {
+        // 1. Verify token
+        var payload = googleVerifier.verify(req.getCredential());
+
+        String email = payload.getEmail();
+        String name = (String) payload.get("name");
+
+        // 2. Tìm account theo email
+        Account account = accountService.findByUsername(email)
+                .orElseGet(() -> {
+                    // 3. Chưa có → tạo mới
+                    Account acc = new Account();
+                    acc.setUsername(email);
+                    acc.setPassword("GOOGLE"); // không dùng
+                    acc.setEnabled(true);
+
+                    Account saved = accountService.save(acc);
+
+                    // tạo customer mặc định
+                    accountService.createCustomerProfile(
+                            saved,
+                            name,
+                            null,
+                            email,
+                            null
+                    );
+
+                    return saved;
+                });
+
+        // 4. Resolve role + tạo JWT
+        String role = accountService.resolveRole(account.getId());
+
+        String token = jwtService.generateToken(
+                account.getUsername(),
+                role
+        );
+
+        return ResponseEntity.ok(
+                Map.of("token", token)
+        );
+    }
 }

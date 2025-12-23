@@ -11,18 +11,18 @@ import java.util.Date;
 public class JwtService {
 
     private static final String SECRET_KEY =
-            "12345678901234567890123456789012"; // 32 ký tự
-    private static final long EXPIRATION = 1000 * 60 * 60 * 24; // 1 ngày
+            "12345678901234567890123456789012";
+    private static final long EXPIRATION = 1000 * 60 * 60 * 24;
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }
 
-    public String generateToken(String email, String username, String role) {
+    // ✅ ĐÚNG với AuthController
+    public String generateToken(String username, String role) {
         return Jwts.builder()
-                .setSubject(email)
-                .claim("username", username) // ✅ THÊM
-                .claim("role", role)
+                .setSubject(username)      // username
+                .claim("role", role)       // 🔥 BẮT BUỘC
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)

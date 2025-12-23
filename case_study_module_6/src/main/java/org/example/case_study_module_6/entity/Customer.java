@@ -32,6 +32,7 @@ public class Customer {
     private Gender gender;
 
     private String phoneNumber;
+    private String email;
     private String identityCard;
     private String address;
 

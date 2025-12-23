@@ -35,13 +35,10 @@ function Register() {
         try {
             await registerApi({
                 username: form.username,
-                email: form.email,
                 password: form.password,
                 fullName: form.fullName,
-                dateOfBirth: form.dateOfBirth,
-                gender: form.gender,
                 phoneNumber: form.phoneNumber,
-                identityCard: form.identityCard,
+                email: form.email,
                 address: form.address
             });
 
