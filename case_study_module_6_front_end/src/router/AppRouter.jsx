@@ -11,6 +11,11 @@ import CustomerList from "../components/CustomerList";
 import CustomerForm from "../components/CustomerForm";
 import EmployeeInfo from "../components/EmployeeInfo";
 import React from "react";
+import FlightSelection from "../modules/booking/components/FlightSelection.jsx";
+import BookingDetails from "../modules/booking/components/BookingDetails.jsx";
+import BookingManagement from "../modules/booking/components/BookingManagement.jsx";
+import NewTicketSale from "../modules/booking/components/NewTicketSale.jsx";
+import FlightSearch from "../modules/booking/components/FlightSearch.jsx";
 
 function AppRouter() {
     return (
@@ -29,10 +34,20 @@ function AppRouter() {
                 <Route path="/flights/create" element={<FlightForm />} />
                 <Route path="flights/edit/:id" element={<FlightForm />} />
 
+<<<<<<< HEAD
                 {/* --- MỚI THÊM: Route Quản lý khách hàng --- */}
                 <Route path="/customers" element={<CustomerList />} />
                 <Route path="/customers/create" element={<CustomerForm />} />
                 <Route path="/customers/edit/:id" element={<CustomerForm />} />
+=======
+                {/*Route booking*/}
+                <Route path="/search-flight" element={<FlightSearch />} />
+                <Route path="/select-flight" element={<FlightSelection />} />
+                <Route path="/booking-details" element={<BookingDetails />} />
+                <Route path="/management" element={<BookingManagement />} />
+                <Route path="/new-sale" element={<NewTicketSale />} />
+
+>>>>>>> 28bb4e8c55d9bead3a347781028238db17de6c38
 
                 <Route
                     path="/profile"

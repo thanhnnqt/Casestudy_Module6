@@ -14,6 +14,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
+
+
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -25,7 +27,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return request.getRequestURI().startsWith("/auth/");
+        String path = request.getRequestURI();
+        System.out.println("Kiểm tra Path: " + path); //
+        boolean shouldSkip = path.startsWith("/auth/") ||
+                path.startsWith("/api/flights") || // Đảm bảo đúng chính tả
+                path.startsWith("/api/master");
+
+        if (shouldSkip) System.out.println("=> BỎ QUA FILTER cho: " + path); // <--- THÊM
+        return shouldSkip;
     }
 
     @Override
@@ -34,6 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
+        System.out.println("=> ĐANG CHẠY FILTER cho: " + request.getRequestURI()); // <--- THÊM
 
         String authHeader = request.getHeader("Authorization");
 

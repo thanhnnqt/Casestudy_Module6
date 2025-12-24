@@ -1,8 +1,8 @@
 package org.example.case_study_module_6.dto;
 
 import lombok.Data;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class FlightRequestDTO {
@@ -12,6 +12,9 @@ public class FlightRequestDTO {
     private Integer arrivalAirportId;
     private LocalDateTime departureTime;
     private LocalDateTime arrivalTime;
-    private BigDecimal basePrice;
+
+    // THÊM MỚI: Trường này để hứng trạng thái khi Update
     private String status;
+
+    private List<SeatConfigDTO> seatConfigs;
 }
