@@ -1,18 +1,45 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // 👈 NEW
+import { useAuth } from "../context/AuthContext";
+import { useEffect, useRef, useState } from "react";
 
 function Header() {
-    const { user, logout } = useAuth(); // 👈 NEW
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
 
+    const [open, setOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
     const handleLogout = () => {
-        logout();       // 👈 NEW: xoá token + user
+        setOpen(false);
+        logout();
         navigate("/");
     };
 
+    // 👇 đóng dropdown khi click ra ngoài
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+                setOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    // 👇 đóng dropdown khi user đổi (login / logout)
+    useEffect(() => {
+        setOpen(false);
+    }, [user]);
+
     return (
-        <nav className="navbar navbar-expand-lg shadow-sm fixed-top"
-             style={{ backgroundColor: "#ffffff", height: "72px" }}>
+        <nav
+            className="navbar navbar-expand-lg shadow-sm fixed-top"
+            style={{
+                backgroundColor: "#ffffff",
+                height: "72px",
+                zIndex: 1050
+            }}
+        >
             <div className="container">
 
                 {/* LOGO */}
@@ -36,16 +63,11 @@ function Header() {
                 <div className="collapse navbar-collapse" id="mainNavbar">
                     <ul className="navbar-nav ms-auto align-items-center">
 
-                        {/* MENU giữ nguyên */}
+                        {/* MENU */}
                         <li className="nav-item dropdown">
-                            <span className="nav-link dropdown-toggle fw-semibold"
-                                  role="button" data-bs-toggle="dropdown">
+                            <span className="nav-link fw-semibold">
                                 Vé máy bay
                             </span>
-                            <ul className="dropdown-menu">
-                                <li><NavLink className="dropdown-item" to="/">Vé nội địa</NavLink></li>
-                                <li><NavLink className="dropdown-item" to="/">Vé quốc tế</NavLink></li>
-                            </ul>
                         </li>
 
                         <li className="nav-item">
@@ -80,29 +102,47 @@ function Header() {
                                 </li>
                             </>
                         ) : (
-                            <li className="nav-item dropdown ms-2">
-                                <span
-                                    className="nav-link dropdown-toggle fw-semibold"
-                                    role="button"
-                                    data-bs-toggle="dropdown"
+                            <li
+                                className="nav-item position-relative ms-2"
+                                ref={dropdownRef}
+                            >
+                                {/* TOGGLE */}
+                                <button
+                                    className="nav-link fw-semibold btn btn-link text-decoration-none"
+                                    onClick={() => setOpen(!open)}
                                 >
-                                    Xin chào, {user.fullName} {/* 👈 NEW */}
-                                </span>
-                                <ul className="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <NavLink className="dropdown-item" to="/profile">
-                                            Tài khoản
-                                        </NavLink>
-                                    </li>
-                                    <li>
-                                        <button
-                                            className="dropdown-item text-danger"
-                                            onClick={handleLogout}
-                                        >
-                                            Đăng xuất
-                                        </button>
-                                    </li>
-                                </ul>
+                                    Xin chào, {user.fullName || user.email}
+                                </button>
+
+                                {/* DROPDOWN */}
+                                {open && (
+                                    <ul
+                                        className="dropdown-menu show dropdown-menu-end"
+                                        style={{
+                                            position: "absolute",
+                                            top: "100%",
+                                            right: 0
+                                        }}
+                                    >
+                                        <li>
+                                            <NavLink
+                                                className="dropdown-item"
+                                                to="/profile"
+                                                onClick={() => setOpen(false)}
+                                            >
+                                                Tài khoản
+                                            </NavLink>
+                                        </li>
+                                        <li>
+                                            <button
+                                                className="dropdown-item text-danger"
+                                                onClick={handleLogout}
+                                            >
+                                                Đăng xuất
+                                            </button>
+                                        </li>
+                                    </ul>
+                                )}
                             </li>
                         )}
 

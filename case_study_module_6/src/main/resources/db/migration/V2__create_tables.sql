@@ -198,6 +198,7 @@ CREATE TABLE customers
     date_of_birth  DATE,
     gender         ENUM('Nam', 'Nữ', 'Khác') DEFAULT 'Khác',
     phone_number   VARCHAR(15),
+    email   VARCHAR(30),
     identity_card  VARCHAR(20),
     address        VARCHAR(255),
     total_spending DECIMAL(15, 2) DEFAULT 0,

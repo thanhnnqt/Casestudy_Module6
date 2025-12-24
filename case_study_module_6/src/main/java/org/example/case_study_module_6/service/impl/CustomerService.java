@@ -121,17 +121,20 @@ public class CustomerService implements ICustomerService {
 
         return customerRepository.save(customer);
     }
-}
-
-import java.util.Optional;
 
     @Override
     public boolean existsByAccountId(Long accountId) {
         return customerRepository.existsByAccountId(accountId);
     }
+
     public Optional<Customer> findByAccountId(Long accountId) {
         return customerRepository.findByAccountId(accountId);
     }
+
     @Override
     public Customer findByAccount(Account account) {
         return customerRepository.findByAccount(account);
+    }
+}
+
+

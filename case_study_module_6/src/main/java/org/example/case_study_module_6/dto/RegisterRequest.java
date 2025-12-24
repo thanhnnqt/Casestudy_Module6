@@ -1,19 +1,26 @@
 package org.example.case_study_module_6.dto;
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+import java.time.LocalDate;
+
+@Getter
+@Setter
 public class RegisterRequest {
 
-    // ❌ Không bắt client gửi cũng được
-    // nếu bạn muốn backend tự sinh thì bỏ field này
-    private String customerCode;
-
+    // ===== ACCOUNT =====
     private String username;
+    private String email;
     private String password;
 
+    // ===== CUSTOMER =====
     private String fullName;
-    private String email;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate dateOfBirth;
+    private String gender;      // Nam | Nữ | Khác
     private String phoneNumber;
+    private String identityCard;
     private String address;
 }
