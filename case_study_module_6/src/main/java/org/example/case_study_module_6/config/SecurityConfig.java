@@ -14,6 +14,12 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 public class SecurityConfig {
@@ -28,10 +34,29 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
+                // 1. Tắt CSRF (để cho phép POST/PUT/DELETE)
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> {
+                })
+
+                // 2. Cấu hình CORS (quan trọng để React gọi được)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                // 3. Phân quyền: Tạm thời cho phép TẤT CẢ (permitAll)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/v1/api/**", "/swagger-ui/**", "/v3/api-docs/**",
+                                "/swagger-ui.html").permitAll().requestMatchers("/api/flights/**").permitAll()
+                        .requestMatchers("/api/master/**").permitAll()
+//                        .anyRequest().authenticated()
+                        .requestMatchers("/auth/**").permitAll() // API đăng nhập/đăng ký
+                        .requestMatchers("/api/**").permitAll()  // API khách hàng
+                        .anyRequest().permitAll()                // Cho phép hết để test cho dễ
+                )
+
+                // Vẫn giữ filter nhưng vì đã permitAll nên không có token vẫn qua được
 
                         // 🔥 PERMIT CẢ 2 PATH
                         .requestMatchers("/auth/**", "/axios/auth/**", "/error").permitAll()
@@ -61,6 +86,28 @@ public class SecurityConfig {
     }
 
     // ✅ Password encoder
+
+    // Bean cấu hình CORS chi tiết
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        // Cho phép React chạy ở cổng 5173 (Vite)
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+
+        // Cho phép các phương thức HTTP
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+
+        // Cho phép tất cả các Header (Authorization, Content-Type...)
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+
+        // Cho phép gửi credentials (nếu cần sau này)
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

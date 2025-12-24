@@ -25,6 +25,7 @@ public class Account {
 
     private Boolean enabled = true;
 
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 }
