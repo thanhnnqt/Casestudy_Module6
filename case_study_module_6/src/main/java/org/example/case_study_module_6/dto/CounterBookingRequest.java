@@ -12,5 +12,6 @@ public class CounterBookingRequest {
     // --- SỬA LẠI TÊN BIẾN CHO KHỚP FRONTEND ---
     private String contactName;   // Lúc trước là customerName -> Sửa thành contactName
     private String contactEmail;  // Lúc trước là email -> Sửa thành contactEmail
+    private String contactPhone;
     // ------------------------------------------
 }

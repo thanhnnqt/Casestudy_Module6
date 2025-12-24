@@ -7,20 +7,15 @@ const BookingManagement = () => {
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // --- 1. HÀM LOAD DỮ LIỆU ---
     const fetchBookings = () => {
         setLoading(true);
         FlightService.getAllBookings()
             .then(res => {
-                console.log("🔥 Dữ liệu Booking từ API:", res.data);
                 const data = Array.isArray(res.data) ? res.data : [];
-                // Sắp xếp: ID giảm dần
-                const sortedData = data.sort((a, b) => b.id - a.id);
-                setBookings(sortedData);
+                // Sắp xếp vé mới nhất lên đầu
+                setBookings(data.sort((a, b) => b.id - a.id));
             })
-            .catch(err => {
-                console.error("Lỗi tải danh sách:", err);
-            })
+            .catch(err => console.error("Lỗi tải danh sách:", err))
             .finally(() => setLoading(false));
     };
 
@@ -28,25 +23,15 @@ const BookingManagement = () => {
         fetchBookings();
     }, []);
 
-    // --- 2. HÀM XỬ LÝ ---
     const handleStatusChange = (id, newStatus) => {
-        const confirmMsg = newStatus === 'PAID'
-            ? "Xác nhận khách đã thanh toán?"
-            : "Bạn có chắc muốn HỦY vé này không?";
-
+        const confirmMsg = newStatus === 'PAID' ? "Xác nhận khách đã thanh toán?" : "Bạn có chắc muốn HỦY vé này không?";
         if (window.confirm(confirmMsg)) {
             FlightService.updateBookingStatus(id, newStatus)
-                .then(() => {
-                    alert("Cập nhật thành công!");
-                    fetchBookings();
-                })
-                .catch(err => {
-                    alert("Lỗi: " + (err.response?.data || "Không thể cập nhật"));
-                });
+                .then(() => { alert("Cập nhật thành công!"); fetchBookings(); })
+                .catch(err => alert("Lỗi: " + (err.response?.data || "Không thể cập nhật")));
         }
     };
 
-    // --- 3. FORMAT ---
     const formatCurrency = (val) => val ? val.toLocaleString('vi-VN') + ' đ' : '0 đ';
     const formatDate = (dateString) => {
         if (!dateString) return '---';
@@ -59,77 +44,31 @@ const BookingManagement = () => {
     const getStatusBadge = (status) => {
         const s = (status || '').toUpperCase();
         switch (s) {
-            case 'PENDING':
-            case 'UNPAID': return <span className="badge bg-warning text-dark">⏳ Chờ thanh toán</span>;
-            case 'PAID': return <span className="badge bg-success">✅ Đã thanh toán</span>;
+            case 'PENDING': case 'UNPAID': return <span className="badge bg-warning text-dark">⏳ Chờ TT</span>;
+            case 'PAID': return <span className="badge bg-success">✅ Đã TT</span>;
             case 'CANCELLED': return <span className="badge bg-danger">❌ Đã hủy</span>;
             default: return <span className="badge bg-secondary">{s}</span>;
         }
     };
 
     return (
-        // THAY ĐỔI 1: Thêm marginTop 100px để tránh bị thanh Menu trên cùng che mất
-        <div className="container" style={{ fontFamily: 'Arial, sans-serif', maxWidth: '1200px', marginTop: '100px', paddingBottom: '50px' }}>
-
-            {/* --- KHU VỰC HEADER (Đã thêm màu nền để dễ nhìn thấy) --- */}
-            <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '20px',
-                backgroundColor: '#fff3cd', // Màu vàng nhạt để nổi bật
-                padding: '15px',
-                borderRadius: '8px',
-                border: '1px solid #ffeeba'
-            }}>
-                <h2 style={{ color: '#856404', margin: 0, fontWeight: 'bold' }}>
-                    ✈ Quản Lý Vé
-                </h2>
-
+        <div className="container-fluid" style={{ fontFamily: 'Arial, sans-serif' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', backgroundColor: '#fff3cd', padding: '15px', borderRadius: '8px', border: '1px solid #ffeeba' }}>
+                <h2 style={{ color: '#856404', margin: 0, fontWeight: 'bold' }}>✈ Quản Lý Vé</h2>
                 <div style={{ display: 'flex', gap: '10px' }}>
-                    <button
-                        onClick={fetchBookings}
-                        style={{
-                            padding: '10px 15px',
-                            cursor: 'pointer',
-                            backgroundColor: 'white',
-                            border: '1px solid #ccc',
-                            borderRadius: '5px'
-                        }}
-                    >
-                        ↻ Tải lại
-                    </button>
-
-                    {/* NÚT BÁN VÉ QUAN TRỌNG */}
-                    <button
-                        onClick={() => navigate('/new-sale')}
-                        style={{
-                            backgroundColor: '#0d6efd',
-                            color: 'white',
-                            border: 'none',
-                            padding: '10px 20px',
-                            borderRadius: '5px',
-                            fontWeight: 'bold',
-                            cursor: 'pointer',
-                            boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
-                        }}
-                    >
-                        + Bán Vé Tại Quầy
-                    </button>
+                    <button onClick={fetchBookings} style={{ padding: '8px 15px', cursor: 'pointer', backgroundColor: 'white', border: '1px solid #ccc', borderRadius: '5px' }}>↻ Tải lại</button>
+                    <button onClick={() => navigate('/new-sale')} style={{ backgroundColor: '#0d6efd', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '5px', fontWeight: 'bold', cursor: 'pointer' }}>+ Bán Vé Tại Quầy</button>
                 </div>
             </div>
-            {/* ------------------------------------------------------- */}
 
-            {loading ? (
-                <div className="text-center p-5">Đang tải dữ liệu...</div>
-            ) : (
+            {loading ? <div className="text-center p-5">Đang tải dữ liệu...</div> : (
                 <div className="table-responsive shadow-sm rounded">
                     <table className="table table-hover table-bordered mb-0">
                         <thead className="table-light">
                         <tr>
                             <th className="text-center">#ID</th>
                             <th>Mã Vé</th>
-                            <th>Khách Hàng</th>
+                            <th>Khách Hàng (SĐT)</th> {/* Sửa tiêu đề cột */}
                             <th>Chuyến Bay</th>
                             <th>Ngày Đặt</th>
                             <th className="text-end">Tổng Tiền</th>
@@ -145,21 +84,26 @@ const BookingManagement = () => {
                                 <tr key={b.id}>
                                     <td className="text-center">{b.id}</td>
                                     <td style={{ color: '#0056b3', fontWeight: 'bold' }}>{b.bookingCode}</td>
+
+                                    {/* --- CỘT KHÁCH HÀNG: ĐÃ THÊM SĐT --- */}
                                     <td>
                                         <div className="fw-bold">{b.contactName || 'Vãng lai'}</div>
+                                        {/* Hiển thị số điện thoại màu xanh đậm */}
+                                        <div style={{color: '#006400', fontWeight: 'bold', fontSize: '0.95em'}}>
+                                            📞 {b.contactPhone || b.contact_phone || '---'}
+                                        </div>
+                                        {/* Email hiển thị nhạt hơn */}
                                         <small className="text-muted">{b.contactEmail}</small>
                                     </td>
+                                    {/* ----------------------------------- */}
+
                                     <td><span className="badge bg-info text-dark">{b.flight?.flightNumber || 'N/A'}</span></td>
                                     <td>{formatDate(b.bookingDate)}</td>
                                     <td className="text-end fw-bold text-danger">{formatCurrency(b.totalAmount)}</td>
                                     <td className="text-center">{getStatusBadge(b.status)}</td>
                                     <td className="text-center">
-                                        {b.status !== 'CANCELLED' && (
-                                            <button className="btn btn-sm btn-outline-danger" onClick={() => handleStatusChange(b.id, 'CANCELLED')}>Hủy</button>
-                                        )}
-                                        {['PENDING', 'UNPAID'].includes(b.status) && (
-                                            <button className="btn btn-sm btn-outline-success ms-1" onClick={() => handleStatusChange(b.id, 'PAID')}>TT</button>
-                                        )}
+                                        {b.status !== 'CANCELLED' && <button className="btn btn-sm btn-outline-danger" onClick={() => handleStatusChange(b.id, 'CANCELLED')}>Hủy</button>}
+                                        {['PENDING', 'UNPAID'].includes(b.status) && <button className="btn btn-sm btn-outline-success ms-1" onClick={() => handleStatusChange(b.id, 'PAID')}>TT</button>}
                                     </td>
                                 </tr>
                             ))
