@@ -34,12 +34,11 @@ function AppRouter() {
                 <Route path="/flights/create" element={<FlightForm />} />
                 <Route path="flights/edit/:id" element={<FlightForm />} />
 
-<<<<<<< HEAD
                 {/* --- MỚI THÊM: Route Quản lý khách hàng --- */}
                 <Route path="/customers" element={<CustomerList />} />
                 <Route path="/customers/create" element={<CustomerForm />} />
                 <Route path="/customers/edit/:id" element={<CustomerForm />} />
-=======
+
                 {/*Route booking*/}
                 <Route path="/search-flight" element={<FlightSearch />} />
                 <Route path="/select-flight" element={<FlightSelection />} />
@@ -47,7 +46,6 @@ function AppRouter() {
                 <Route path="/management" element={<BookingManagement />} />
                 <Route path="/new-sale" element={<NewTicketSale />} />
 
->>>>>>> 28bb4e8c55d9bead3a347781028238db17de6c38
 
                 <Route
                     path="/profile"
