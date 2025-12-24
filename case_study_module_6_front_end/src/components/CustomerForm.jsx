@@ -2,14 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { createCustomer, getCustomerById, updateCustomer } from '../services/CustomerService';
-import Sidebar from './Sidebar';
 import "../modules/flight/components/FlightList.css";
 
 const CustomerForm = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const isEditMode = !!id;
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
     const [customer, setCustomer] = useState({
         customerCode: '',
@@ -136,11 +134,6 @@ const CustomerForm = () => {
                 <i className="bi bi-cloud-fill cloud" style={{ top: '60%', fontSize: '150px', animationDuration: '55s', animationDelay: '-5s', opacity: 0.2 }}></i>
             </div>
 
-            {/* === SIDEBAR COMPONENT === */}
-            <Sidebar
-                isCollapsed={sidebarCollapsed}
-                onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-            />
 
             {/* Main Content */}
             <div className="main d-flex flex-column justify-content-center align-items-center" style={{minHeight: '100vh'}}>
