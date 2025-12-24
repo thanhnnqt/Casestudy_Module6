@@ -2,39 +2,47 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext(null);
 
+function decodeJwt(token) {
+    const base64 = token.split(".")[1];
+    const json = decodeURIComponent(
+        atob(base64)
+            .split("")
+            .map(c => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+            .join("")
+    );
+    return JSON.parse(json);
+}
+
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
 
-    // 🔹 Load user khi refresh trang
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (token) {
-            const payload = JSON.parse(atob(token.split(".")[1]));
+            const payload = decodeJwt(token);
             setUser({
                 email: payload.sub,
                 role: payload.role,
-                fullName: payload.fullName   // 👈
+                fullName: payload.fullName
             });
         }
     }, []);
 
-    // 🔹 Sau khi login thành công
     const login = (token) => {
         if (!token) throw new Error("Token is missing");
 
         localStorage.setItem("token", token);
 
-        const payload = JSON.parse(atob(token.split(".")[1]));
+        const payload = decodeJwt(token);
 
         setUser({
             username: payload.sub,
             role: payload.role,
             customerId: payload.customerId,
-            fullName: payload.fullName   // ✅ DB
+            fullName: payload.fullName
         });
     };
 
-    // 🔹 Logout
     const logout = () => {
         localStorage.removeItem("token");
         setUser(null);
