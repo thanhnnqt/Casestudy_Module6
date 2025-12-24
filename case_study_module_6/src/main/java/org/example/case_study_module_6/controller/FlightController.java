@@ -76,4 +76,17 @@ public class FlightController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    // --- BỔ SUNG: API tìm kiếm theo ngày cụ thể ---
+    @GetMapping("/search-by-date")
+    public ResponseEntity<Page<Flight>> getFlightsByDate(
+            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required = false) String origin,      // Thêm cái này
+            @RequestParam(required = false) String destination, // Thêm cái này
+            @RequestParam(required = false) String status,
+            @PageableDefault(sort = "departureTime", direction = Sort.Direction.ASC, size = 10) Pageable pageable
+    ) {
+        // Gọi Service với đầy đủ tham số
+        return ResponseEntity.ok(flightService.getFlightsBySpecificDate(date, origin, destination, status, pageable));
+    }
 }
