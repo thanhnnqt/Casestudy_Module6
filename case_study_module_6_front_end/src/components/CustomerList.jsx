@@ -3,13 +3,12 @@ import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Modal, Button } from 'react-bootstrap';
 import { getAllCustomers, deleteCustomer } from '../services/CustomerService';
-import Sidebar from './Sidebar'; // Import Sidebar mới tạo
 import "../modules/flight/components/FlightList.css";
 
 const CustomerList = () => {
     const [customers, setCustomers] = useState([]);
     const [keyword, setKeyword] = useState('');
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
 
     // State cho Modal Xóa
     const [showModal, setShowModal] = useState(false);
@@ -70,11 +69,6 @@ const CustomerList = () => {
                 <i className="bi bi-cloud-fill cloud" style={{ top: '60%', fontSize: '150px', animationDuration: '55s', animationDelay: '-5s', opacity: 0.2 }}></i>
             </div>
 
-            {/* === SIDEBAR COMPONENT === */}
-            <Sidebar
-                isCollapsed={sidebarCollapsed}
-                onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-            />
 
             {/* Main Content */}
             <div className="main">

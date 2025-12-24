@@ -32,7 +32,7 @@ public class BookingService { // Nếu có implement Interface thì thêm implem
 
     // --- HÀM BÁN VÉ TẠI QUẦY ---
     @Transactional(rollbackFor = Exception.class)
-    public Booking createBookingAtCounter(Long flightId, SeatClass seatClass, int quantity, String customerName, String customerEmail) throws Exception {
+    public Booking createBookingAtCounter(Long flightId, SeatClass seatClass, int quantity, String customerName, String customerEmail, String customerPhone) throws Exception {
 
         // 1. Tìm thông tin hạng ghế
         FlightSeatDetail seatDetail = flightSeatDetailRepository.findByFlightIdAndSeatClass(flightId, seatClass)
@@ -61,6 +61,7 @@ public class BookingService { // Nếu có implement Interface thì thêm implem
         booking.setChannel(Channel.OFFLINE);            // Bán tại quầy
         booking.setContactName(customerName);   // Lưu tên khách vào đây thì ra Dashboard mới thấy
         booking.setContactEmail(customerEmail);
+        booking.setContactPhone(customerPhone);
         // Lưu Booking trước để lấy ID
         Booking savedBooking = bookingRepository.save(booking);
 

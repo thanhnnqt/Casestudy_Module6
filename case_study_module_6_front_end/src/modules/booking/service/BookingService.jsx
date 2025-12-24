@@ -72,7 +72,8 @@ export const FlightService = {
             quantity: passengerList.length,
 
             contactName: values.contactName,
-            contactEmail: values.contactEmail
+            contactEmail: values.contactEmail,
+            contactPhone: values.contactPhone
         };
 
         console.log("Payload gửi đi bán tại quầy:", payload);

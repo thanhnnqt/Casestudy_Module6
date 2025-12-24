@@ -54,9 +54,10 @@ public class BookingController {
                     request.getFlightId(),
                     request.getSeatClass(),
                     request.getQuantity(),
-                    // --- SỬA 2 DÒNG NÀY ---
+                    // --- SỬA 3 DÒNG NÀY ---
                     request.getContactName(),  // Gọi getContactName()
-                    request.getContactEmail()  // Gọi getContactEmail()
+                    request.getContactEmail(),  // Gọi getContactEmail()
+                    request.getContactPhone()
                     // ----------------------
             );
             return ResponseEntity.ok(newBooking);
