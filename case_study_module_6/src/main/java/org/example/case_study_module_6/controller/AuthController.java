@@ -33,62 +33,62 @@ public class AuthController {
         this.googleVerifier = googleVerifier;
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> req) {
+//    @PostMapping("/login")
+//    public ResponseEntity<?> login(@RequestBody Map<String, String> req) {
+//
+//        String identifier = req.get("identifier");
+//        String password = req.get("password");
+//
+//        Account account = accountService
+//                .findByIdentifier(identifier)
+//                .orElse(null);
+//
+//        if (account == null) {
+//            return ResponseEntity.status(401)
+//                    .body("Tài khoản không tồn tại");
+//        }
+//
+//        if (!passwordEncoder.matches(password, account.getPassword())) {
+//            return ResponseEntity.status(401)
+//                    .body("Sai mật khẩu");
+//        }
+//
+//        String token = jwtService.generateToken(
+//                account.getUsername(),
+//                account.getRole()
+//        );
+//
+//        return ResponseEntity.ok(Map.of("token", token));
+//    }
 
-        String identifier = req.get("identifier");
-        String password = req.get("password");
+//    @PostMapping("/google")
+//    public ResponseEntity<?> loginGoogle(@RequestBody GoogleLoginRequest req) {
+//        try {
+//            var payload = googleVerifier.verify(req.getCredential());
+//
+//            String email = payload.getEmail();
+//
+//            // 🔹 tìm user theo email
+//            Account account = accountService.findByEmail(email)
+//                    .orElseGet(() -> {
+//                        Account newAcc = new Account();
+//                        newAcc.setEmail(email);
+//                        newAcc.setUsername(email);
+//                        newAcc.setRole("ROLE_USER");
+//                        newAcc.setPassword(""); // Google login không cần password
+//                        return accountService.save(newAcc);
+//                    });
+//
+//            String token = jwtService.generateToken(
+//                    account.getUsername(),
+//                    account.getRole()
+//            );
 
-        Account account = accountService
-                .findByIdentifier(identifier)
-                .orElse(null);
-
-        if (account == null) {
-            return ResponseEntity.status(401)
-                    .body("Tài khoản không tồn tại");
-        }
-
-        if (!passwordEncoder.matches(password, account.getPassword())) {
-            return ResponseEntity.status(401)
-                    .body("Sai mật khẩu");
-        }
-
-        String token = jwtService.generateToken(
-                account.getUsername(),
-                account.getRole()
-        );
-
-        return ResponseEntity.ok(Map.of("token", token));
-    }
-
-    @PostMapping("/google")
-    public ResponseEntity<?> loginGoogle(@RequestBody GoogleLoginRequest req) {
-        try {
-            var payload = googleVerifier.verify(req.getCredential());
-
-            String email = payload.getEmail();
-
-            // 🔹 tìm user theo email
-            Account account = accountService.findByEmail(email)
-                    .orElseGet(() -> {
-                        Account newAcc = new Account();
-                        newAcc.setEmail(email);
-                        newAcc.setUsername(email);
-                        newAcc.setRole("ROLE_USER");
-                        newAcc.setPassword(""); // Google login không cần password
-                        return accountService.save(newAcc);
-                    });
-
-            String token = jwtService.generateToken(
-                    account.getUsername(),
-                    account.getRole()
-            );
-
-            return ResponseEntity.ok(Map.of("token", token));
-
-        } catch (Exception e) {
-            return ResponseEntity.status(401)
-                    .body("Google token không hợp lệ");
-        }
-    }
+//            return ResponseEntity.ok(Map.of("token", token));
+//
+//        } catch (Exception e) {
+//            return ResponseEntity.status(401)
+//                    .body("Google token không hợp lệ");
+//        }
+//    }
 }

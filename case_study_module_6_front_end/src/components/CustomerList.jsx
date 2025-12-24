@@ -20,6 +20,7 @@ const CustomerList = () => {
         try {
             const data = await getAllCustomers(keyword);
             setCustomers(data || []);
+            // eslint-disable-next-line no-unused-vars
         } catch (error) {
             toast.error('Lỗi: Không thể tải danh sách khách hàng!');
         }

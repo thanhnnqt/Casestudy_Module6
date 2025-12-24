@@ -23,7 +23,7 @@ function AppRouter() {
                 <Route path="/register" element={<Register />} />
 
 
-                <Route path="/employees" element={<EmployeeInfo />} />
+                <Route path="/detailemployee" element={<EmployeeInfo />} />
                 {/*Route chuyến bay*/}
                 <Route path="/flights" element={<FlightList />} />
                 <Route path="/flights/create" element={<FlightForm />} />

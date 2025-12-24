@@ -91,21 +91,19 @@ public class CustomerService implements ICustomerService {
     @Override
     public Customer registerCustomer(RegisterRequest req) {
 
-        if (accountRepository.existsByUsername(req.getUsername())) {
-            throw new RuntimeException("Username đã tồn tại");
-        }
-
-        if (accountRepository.existsByEmail(req.getEmail())) {
-            throw new RuntimeException("Email đã tồn tại");
-        }
+//        if (accountRepository.existsByUsername(req.getUsername())) {
+//            throw new RuntimeException("Username đã tồn tại");
+//        }
+//
+//        if (accountRepository.existsByEmail(req.getEmail())) {
+//            throw new RuntimeException("Email đã tồn tại");
+//        }
 
         // ===== ACCOUNT =====
         Account account = new Account();
         account.setUsername(req.getUsername());
-        account.setEmail(req.getEmail());
+//        account.setEmail(req.getEmail());
 //        account.setPassword(passwordEncoder.encode(req.getPassword()));
-        account.setRole("USER");
-        account.setProvider("LOCAL");
 
         accountRepository.save(account);
 

@@ -26,7 +26,7 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
 
             {/* Menu */}
             <div className="nav flex-column mt-4">
-                <Link to="/employees" className={`nav-link ${isActive('/employees')}`}>
+                <Link to="/detailemployee" className={`nav-link ${isActive('/detailemployee')}`}>
                     <i className="bi bi-person-badge-fill"></i>
                     <span> Thông tin nhân viên</span>
                 </Link>
