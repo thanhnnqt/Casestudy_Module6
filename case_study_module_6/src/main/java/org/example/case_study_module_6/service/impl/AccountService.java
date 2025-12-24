@@ -10,30 +10,39 @@ import java.util.Optional;
 @Service
 public class AccountService implements IAccountService {
 
-    private final IAccountRepository accountRepository;
-
-    public AccountService(IAccountRepository accountRepository) {
-        this.accountRepository = accountRepository;
-    }
-
-    @Override
-    public Optional<Account> findByUsername(String username) {
-        return accountRepository.findByUsername(username);
-    }
-
-
-    @Override
-    public Optional<Account> findByIdentifier(String identifier) {
-        return accountRepository.findByIdentifier(identifier);
-    }
-
-    @Override
-    public boolean existsByUsername(String username) {
-        return accountRepository.existsByUsername(username);
-    }
-
-    @Override
-    public Account save(Account account) {
-        return accountRepository.save(account);
-    }
+//    private final IAccountRepository accountRepository;
+//
+//    public AccountService(IAccountRepository accountRepository) {
+//        this.accountRepository = accountRepository;
+//    }
+//
+//    @Override
+//    public Optional<Account> findByUsername(String username) {
+//        return accountRepository.findByUsername(username);
+//    }
+//
+//    @Override
+//    public Optional<Account> findByEmail(String email) {
+//        return accountRepository.findByEmail(email);
+//    }
+//
+//    @Override
+//    public Optional<Account> findByIdentifier(String identifier) {
+//        return accountRepository.findByIdentifier(identifier);
+//    }
+//
+//    @Override
+//    public boolean existsByUsername(String username) {
+//        return accountRepository.existsByUsername(username);
+//    }
+//
+//    @Override
+//    public boolean existsByEmail(String email) {
+//        return accountRepository.existsByEmail(email);
+//    }
+//
+//    @Override
+//    public Account save(Account account) {
+//        return accountRepository.save(account);
+//    }
 }
