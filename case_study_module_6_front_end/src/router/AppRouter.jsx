@@ -8,17 +8,15 @@ import Profile from "../pages/Profile.jsx";
 import FlightList from "../modules/flight/./components/FlightList.jsx";
 import FlightForm from "../modules/flight/./components/FlightForm.jsx";
 import React from "react";
-<<<<<<< HEAD
-import EmployeeList from "../modules/employee/components/EmployeeList.jsx";
-import EmployeeDetail from "../modules/employee/components/EmployeeDetail.jsx";
-import AddEmployee from "../modules/employee/components/AddEmployee.jsx";
-=======
+import FlightSearch from "../modules/booking/components/FlightSearch.jsx";
 import FlightSelection from "../modules/booking/components/FlightSelection.jsx";
 import BookingDetails from "../modules/booking/components/BookingDetails.jsx";
 import BookingManagement from "../modules/booking/components/BookingManagement.jsx";
 import NewTicketSale from "../modules/booking/components/NewTicketSale.jsx";
-import FlightSearch from "../modules/booking/components/FlightSearch.jsx";
->>>>>>> 28bb4e8c55d9bead3a347781028238db17de6c38
+import EmployeeList from "../modules/employee/components/EmployeeList.jsx";
+import EmployeeDetail from "../modules/employee/components/EmployeeDetail.jsx";
+import AddEmployee from "../modules/employee/components/AddEmployee.jsx";
+
 
 function AppRouter() {
     return (

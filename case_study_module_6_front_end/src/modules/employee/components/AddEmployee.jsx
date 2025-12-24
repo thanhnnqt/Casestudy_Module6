@@ -1,6 +1,7 @@
 import {Field, Form, Formik} from "formik";
 import {addEmployee} from "../service/employeeService.js";
 import {toast} from "react-toastify";
+import {useNavigate} from "react-router-dom";
 
 const AddEmployee = () => {
     const init = {
@@ -10,10 +11,11 @@ const AddEmployee = () => {
         phoneNumber: "",
         email: "",
         dob: "",
-        gender: "",
+        gender: "Nam",
         userName: "",
         password: ""
     }
+    const navigate = useNavigate();
     const handleAdd = (values) => {
         const fetchData = async () => {
             const isAdded = await addEmployee(values);
@@ -23,6 +25,7 @@ const AddEmployee = () => {
                     autoClose: 2000,
                     closeOnClick: true
                 });
+                navigate("/employees")
             } else {
                 toast.error("Thêm mới nhân viên thất bại!", {
                     theme: "colored",
@@ -119,24 +122,24 @@ const AddEmployee = () => {
                                     </div>
                                 </div>
 
-                                <div className="row mb-3">
-                                    <div className="col-md-6">
-                                        <label className="form-label fw-semibold">
-                                            <i className="bi bi-person-circle me-1"></i>
-                                            Tài khoản
-                                        </label>
-                                        <Field name={"userName"} type="text" className="form-control"
-                                               placeholder="Tên đăng nhập hệ thống"/>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <label className="form-label fw-semibold">
-                                            <i className="bi bi-key me-1"></i>
-                                            Mật khẩu
-                                        </label>
-                                        <Field name={"password"} type="password" className="form-control"
-                                               placeholder="Ít nhất 8 ký tự"/>
-                                    </div>
-                                </div>
+                                {/*<div className="row mb-3">*/}
+                                {/*    <div className="col-md-6">*/}
+                                {/*        <label className="form-label fw-semibold">*/}
+                                {/*            <i className="bi bi-person-circle me-1"></i>*/}
+                                {/*            Tài khoản*/}
+                                {/*        </label>*/}
+                                {/*        <Field name={"userName"} type="text" className="form-control"*/}
+                                {/*               placeholder="Tên đăng nhập hệ thống"/>*/}
+                                {/*    </div>*/}
+                                {/*    <div className="col-md-6">*/}
+                                {/*        <label className="form-label fw-semibold">*/}
+                                {/*            <i className="bi bi-key me-1"></i>*/}
+                                {/*            Mật khẩu*/}
+                                {/*        </label>*/}
+                                {/*        <Field name={"password"} type="password" className="form-control"*/}
+                                {/*               placeholder="Ít nhất 8 ký tự"/>*/}
+                                {/*    </div>*/}
+                                {/*</div>*/}
 
                                 <div className="row mb-3">
                                     <div className="col-md-6">

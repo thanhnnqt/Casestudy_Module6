@@ -1,5 +1,6 @@
 package org.example.case_study_module_6.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,6 +29,7 @@ public class EmployeeDTO {
     @NotBlank(message = "Vui lòng nhập email của nhân viên!")
     @Email(message = "Vui lòng nhập đúng định dạng email(example@gmail.com)!")
     private String email;
+    @JsonProperty("dob")
     @NotNull(message = "Vui lòng nhập ngày sinh của nhân viên!")
     @Past(message = "Ngày sinh không hợp lệ, vui lòng nhập lại!")
     private LocalDate DOB;
