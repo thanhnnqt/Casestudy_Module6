@@ -36,7 +36,7 @@ public class Employee {
     private Account account;
 
     public enum Gender {
-        Nam, Nữ, Khác
+        NAM, NU, KHAC
     }
 }
 

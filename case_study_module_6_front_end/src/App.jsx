@@ -1,9 +1,10 @@
 import React from "react";
-import {BrowserRouter, Route} from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import AppRouter from "./router/AppRouter.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "bootstrap/dist/css/bootstrap.min.css";
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
 
 function App() {
     return (
@@ -12,6 +13,7 @@ function App() {
                 <ToastContainer position="top-right" autoClose={3000} />
             </div>
     );
+
 }
 
 export default App;
