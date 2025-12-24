@@ -2,6 +2,7 @@ package org.example.case_study_module_6.service.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.example.case_study_module_6.entity.Account;
 import org.example.case_study_module_6.entity.Customer;
 import org.example.case_study_module_6.repository.ICustomerRepository;
 import org.example.case_study_module_6.service.ICustomerService;
@@ -25,4 +26,8 @@ public class CustomerService implements ICustomerService {
         return customerRepository.findByAccountId(accountId);
     }
 
+    @Override
+    public Customer findByAccount(Account account) {
+        return customerRepository.findByAccount(account);
+    }
 }

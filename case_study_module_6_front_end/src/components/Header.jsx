@@ -86,7 +86,7 @@ function Header() {
                                     role="button"
                                     data-bs-toggle="dropdown"
                                 >
-                                    Xin chào, {user.username} {/* 👈 NEW */}
+                                    Xin chào, {user.fullName} {/* 👈 NEW */}
                                 </span>
                                 <ul className="dropdown-menu dropdown-menu-end">
                                     <li>

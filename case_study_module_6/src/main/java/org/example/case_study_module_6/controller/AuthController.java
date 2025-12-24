@@ -3,6 +3,7 @@ package org.example.case_study_module_6.controller;
 import jakarta.transaction.Transactional;
 import org.example.case_study_module_6.dto.GoogleLoginRequest;
 import org.example.case_study_module_6.entity.Account;
+import org.example.case_study_module_6.entity.Customer;
 import org.example.case_study_module_6.service.impl.AccountService;
 import org.example.case_study_module_6.service.impl.CustomerService;
 import org.example.case_study_module_6.service.impl.GoogleTokenVerifierService;
@@ -65,10 +66,13 @@ public class AuthController {
         }
 
         String role = accountService.resolveRole(account.getId());
+        Customer customer = customerService.findByAccount(account);
 
         String token = jwtService.generateToken(
                 account.getUsername(),
-                role
+                "CUSTOMER",
+                customer.getId(),
+                customer.getFullName()
         );
 
         return ResponseEntity.ok(Map.of("token", token));
@@ -133,31 +137,28 @@ public class AuthController {
                 )
         );
     }
+
     @PostMapping("/google")
-    public ResponseEntity<?> googleLogin(
-            @RequestBody GoogleLoginRequest req
-    ) {
-        // 1. Verify token
+    public ResponseEntity<?> googleLogin(@RequestBody GoogleLoginRequest req) {
+
         var payload = googleVerifier.verify(req.getCredential());
 
         String email = payload.getEmail();
-        String name = (String) payload.get("name");
 
-        // 2. Tìm account theo email
+        // 1. Tìm hoặc tạo account
         Account account = accountService.findByUsername(email)
                 .orElseGet(() -> {
-                    // 3. Chưa có → tạo mới
                     Account acc = new Account();
                     acc.setUsername(email);
-                    acc.setPassword("GOOGLE"); // không dùng
+                    acc.setPassword("GOOGLE");
                     acc.setEnabled(true);
 
                     Account saved = accountService.save(acc);
 
-                    // tạo customer mặc định
+                    // 👉 CHỈ DÙNG NAME GOOGLE KHI TẠO CUSTOMER LẦN ĐẦU
                     accountService.createCustomerProfile(
                             saved,
-                            name,
+                            (String) payload.get("name"), // chỉ lần đầu
                             null,
                             email,
                             null
@@ -166,16 +167,18 @@ public class AuthController {
                     return saved;
                 });
 
-        // 4. Resolve role + tạo JWT
-        String role = accountService.resolveRole(account.getId());
+        // 2. ⚠️ LUÔN LOAD CUSTOMER TỪ DB
+        Customer customer = customerService.findByAccount(account);
 
+        // 3. JWT LẤY FULLNAME TỪ DB
         String token = jwtService.generateToken(
                 account.getUsername(),
-                role
+                "CUSTOMER",
+                customer.getId(),
+                customer.getFullName()   // ✅ DB
         );
 
-        return ResponseEntity.ok(
-                Map.of("token", token)
-        );
+        return ResponseEntity.ok(Map.of("token", token));
     }
+
 }

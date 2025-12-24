@@ -19,10 +19,17 @@ public class JwtService {
     }
 
     // ✅ ĐÚNG với AuthController
-    public String generateToken(String username, String role) {
+    public String generateToken(
+            String username,
+            String role,
+            Long customerId,
+            String fullName
+    ) {
         return Jwts.builder()
-                .setSubject(username)      // username
-                .claim("role", role)       // 🔥 BẮT BUỘC
+                .setSubject(username)
+                .claim("role", role)
+                .claim("customerId", customerId)
+                .claim("fullName", fullName)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)

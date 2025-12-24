@@ -1,4 +1,3 @@
-// service/impl/GoogleTokenVerifierService.java
 package org.example.case_study_module_6.service.impl;
 
 import com.google.api.client.googleapis.auth.oauth2.*;
@@ -10,7 +9,6 @@ import java.util.Collections;
 @Service
 public class GoogleTokenVerifierService {
 
-    // 🔥 ĐỔI CLIENT ID CỦA BẠN
     private static final String CLIENT_ID =
             "239106531712-f1if0c9rnbcnimm30vbumnj7cr6abk0b.apps.googleusercontent.com";
 

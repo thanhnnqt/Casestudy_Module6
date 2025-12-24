@@ -35,9 +35,7 @@ public class SecurityConfig {
 
                         // 🔥 PERMIT CẢ 2 PATH
                         .requestMatchers("/auth/**", "/axios/auth/**", "/error").permitAll()
-
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
                         .anyRequest().authenticated()
                 )
 
