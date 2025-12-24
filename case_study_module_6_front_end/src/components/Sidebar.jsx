@@ -36,12 +36,12 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
                     <span> Quản lý khách hàng</span>
                 </Link>
 
-                <Link to="/sales" className={`nav-link ${isActive('/sales')}`}>
+                <Link to="/management" className={`nav-link ${isActive('/management')}`}>
                     <i className="bi bi-receipt-cutoff"></i>
                     <span> Quản lý bán vé</span>
                 </Link>
 
-                <Link to="/booking" className={`nav-link ${isActive('/booking')}`}>
+                <Link to="/search-flight" className={`nav-link ${isActive('/search-flight')}`}>
                     <i className="bi bi-ticket-perforated-fill"></i>
                     <span> Đặt vé</span>
                 </Link>
