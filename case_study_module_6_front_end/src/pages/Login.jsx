@@ -1,12 +1,12 @@
 import { useState } from "react";
-import {login as loginApi, loginGoogle} from "../modules/login/service/authService.js";
+import { login as loginApi, loginGoogle } from "../modules/login/service/authService.js";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 
 function Login() {
     const [form, setForm] = useState({
-        identifier: "",
+        username: "",
         password: ""
     });
 
@@ -21,8 +21,8 @@ function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const { token } = await loginApi(form); // ✅ destructuring
-            await login(token);                     // ✅ await
+            const { token } = await loginApi(form);
+            await login(token);
             navigate("/");
         } catch (err) {
             alert(err.response?.data || "Sai tài khoản hoặc mật khẩu");
@@ -45,9 +45,7 @@ function Login() {
             <div className="card shadow border-0" style={{ maxWidth: "420px", width: "100%" }}>
                 <div className="card-body p-4">
 
-                    <h4 className="fw-bold mb-4 text-center">
-                        Đăng nhập
-                    </h4>
+                    <h4 className="fw-bold mb-4 text-center">Đăng nhập</h4>
 
                     {/* ===== LOGIN LOCAL ===== */}
                     <form onSubmit={handleSubmit}>
@@ -56,10 +54,10 @@ function Login() {
                             <label className="form-label">Tài khoản</label>
                             <input
                                 type="text"
-                                name="identifier"
+                                name="username"
                                 className="form-control"
                                 placeholder="Username hoặc Email"
-                                value={form.identifier}
+                                value={form.username}
                                 onChange={handleChange}
                                 required
                             />
@@ -98,6 +96,7 @@ function Login() {
                             onError={() => alert("Google Login thất bại")}
                         />
                     </div>
+
                 </div>
             </div>
         </div>

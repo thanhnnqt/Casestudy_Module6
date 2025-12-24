@@ -23,6 +23,10 @@ public class Account {
     @Column(length = 255)
     private String password; // null nếu login Google
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Provider provider = Provider.LOCAL;
+
     private Boolean enabled = true;
 
 

@@ -25,4 +25,7 @@ public interface ICustomerService {
     boolean existsByAccountId(Long accountId);
     Optional<Customer> findByAccountId(Long accountId);
     Customer findByAccount(Account account);
+    Customer findByEmail(String email);
+
+    void save(Customer customer);
 }

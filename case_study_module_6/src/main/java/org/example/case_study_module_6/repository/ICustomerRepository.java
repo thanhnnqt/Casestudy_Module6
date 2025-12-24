@@ -26,5 +26,6 @@ public interface ICustomerRepository extends JpaRepository<Customer, Long> {
     Optional<Customer> findByAccountId(Long accountId);
 
     Customer findByAccount(Account account);
+    Customer findByEmail(String email);
 }
 

@@ -27,10 +27,10 @@ export const AuthProvider = ({ children }) => {
         const payload = JSON.parse(atob(token.split(".")[1]));
 
         setUser({
-            email: payload.sub,
+            username: payload.sub,
             role: payload.role,
-            fullName: payload.fullName,
-            customerId: payload.customerId
+            customerId: payload.customerId,
+            fullName: payload.fullName   // ✅ DB
         });
     };
 

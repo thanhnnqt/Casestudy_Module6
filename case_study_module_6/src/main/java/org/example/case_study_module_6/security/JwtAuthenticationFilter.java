@@ -12,8 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collections;
-
 import java.util.List;
 
 @Component
@@ -25,18 +23,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.jwtService = jwtService;
     }
 
-
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getRequestURI();
-        System.out.println("Kiểm tra Path: " + path); //
-        boolean shouldSkip = path.startsWith("/auth/") ||
-                path.startsWith("/v1/api/employees") || // Đảm bảo đúng chính tả
-                path.startsWith("/api/master") || path.startsWith("/api/flights");
-
-        return path.startsWith("/auth/")
-                || path.startsWith("/axios/auth/")
-                || path.startsWith("/error")
+        return request.getRequestURI().startsWith("/auth/")
                 || HttpMethod.OPTIONS.matches(request.getMethod());
     }
 
@@ -47,39 +36,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String path = request.getRequestURI();
-
-        // 🔥 BẢO HIỂM: auth API luôn cho qua
-        if (path.startsWith("/auth/")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         String authHeader = request.getHeader("Authorization");
 
-        // Không có token → cho qua (Security sẽ xử lý)
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = authHeader.substring(7);
-
         try {
+            String token = authHeader.substring(7);
             var claims = jwtService.extractClaims(token);
+
+            String role = claims.get("role", String.class);
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
                             claims.getSubject(),
                             null,
-                            Collections.emptyList()
+                            List.of(() -> role)
                     );
 
-            SecurityContextHolder.getContext()
-                    .setAuthentication(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (Exception e) {
-            // Token sai → reject
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
