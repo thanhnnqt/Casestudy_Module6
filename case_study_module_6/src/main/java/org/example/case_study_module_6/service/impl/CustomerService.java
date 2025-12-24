@@ -29,17 +29,10 @@ public class CustomerService implements ICustomerService {
             throw new RuntimeException("Username đã tồn tại");
         }
 
-        if (accountRepository.existsByEmail(req.getEmail())) {
-            throw new RuntimeException("Email đã tồn tại");
-        }
-
         // ===== ACCOUNT =====
         Account account = new Account();
         account.setUsername(req.getUsername());
-        account.setEmail(req.getEmail());
 //        account.setPassword(passwordEncoder.encode(req.getPassword()));
-        account.setRole("USER");
-        account.setProvider("LOCAL");
 
         accountRepository.save(account);
 

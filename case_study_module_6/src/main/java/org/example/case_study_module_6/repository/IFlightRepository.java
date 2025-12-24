@@ -50,4 +50,18 @@ public interface IFlightRepository extends JpaRepository<Flight, Long>, JpaSpeci
     // 3. Lấy danh sách số hiệu chuyến bay
     @Query("SELECT DISTINCT f.flightNumber FROM Flight f")
     List<String> findDistinctFlightNumbers();
+
+    // ---------------------------------------------------------
+    // 4. (MỚI) Tìm kiếm chuyến bay chính xác theo ngày (Bỏ qua giờ phút)
+    // Logic: Ép kiểu departureTime (ngày + giờ) về date (chỉ ngày) để so sánh
+    @Query("SELECT f FROM Flight f " +
+            "WHERE CAST(f.departureTime AS date) = :searchDate " +
+            "AND (:origin IS NULL OR f.departureAirport.code = :origin) " + // Thêm dòng này
+            "AND (:destination IS NULL OR f.arrivalAirport.code = :destination) " + // Thêm dòng này
+            "AND (:status IS NULL OR f.status = :status)")
+    Page<Flight> findByDepartureDate(@Param("searchDate") LocalDate searchDate,
+                                     @Param("origin") String origin,      // Thêm tham số
+                                     @Param("destination") String destination, // Thêm tham số
+                                     @Param("status") FlightStatus status,
+                                     Pageable pageable);
 }

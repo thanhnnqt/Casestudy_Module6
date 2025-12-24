@@ -21,10 +21,6 @@ public class AccountService implements IAccountService {
         return accountRepository.findByUsername(username);
     }
 
-    @Override
-    public Optional<Account> findByEmail(String email) {
-        return accountRepository.findByEmail(email);
-    }
 
     @Override
     public Optional<Account> findByIdentifier(String identifier) {
@@ -34,11 +30,6 @@ public class AccountService implements IAccountService {
     @Override
     public boolean existsByUsername(String username) {
         return accountRepository.existsByUsername(username);
-    }
-
-    @Override
-    public boolean existsByEmail(String email) {
-        return accountRepository.existsByEmail(email);
     }
 
     @Override

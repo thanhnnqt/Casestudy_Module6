@@ -3,6 +3,7 @@ package org.example.case_study_module_6.service.impl;
 import org.example.case_study_module_6.dto.FlightRequestDTO;
 import org.example.case_study_module_6.dto.SeatConfigDTO;
 import org.example.case_study_module_6.entity.*;
+import org.example.case_study_module_6.enums.SeatClass;
 
 import org.example.case_study_module_6.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class FlightService {
@@ -168,5 +168,20 @@ public class FlightService {
         detail.setAvailableSeats(config.getTotalSeats());
         detail.setFlight(flight);
         return detail;
+    }
+
+    // --- BỔ SUNG: Hàm tìm kiếm chính xác theo ngày ---
+    public Page<Flight> getFlightsBySpecificDate(LocalDate date, String origin, String destination, String statusStr, Pageable pageable) {
+        FlightStatus status = null;
+        if (statusStr != null && !statusStr.isEmpty()) {
+            try {
+                status = FlightStatus.valueOf(statusStr);
+            } catch (IllegalArgumentException e) {
+                // Ignore error
+            }
+        }
+
+        // Truyền đủ 5 tham số cho khớp với Repository
+        return flightRepository.findByDepartureDate(date, origin, destination, status, pageable);
     }
 }

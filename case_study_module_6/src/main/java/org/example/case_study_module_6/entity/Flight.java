@@ -1,5 +1,6 @@
 package org.example.case_study_module_6.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -39,7 +40,7 @@ public class Flight {
     private FlightStatus status;
 
 
-    @OneToMany(mappedBy = "flight", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "flight", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JsonManagedReference // Để tránh lỗi vòng lặp JSON khi API trả về
     private List<FlightSeatDetail> seatDetails = new ArrayList<>();
 }
