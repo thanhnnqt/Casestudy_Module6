@@ -41,6 +41,6 @@ public class Employee {
     private Long accountId;
 
     public enum Gender {
-        NAM, NU, KHAC
+        Nam, Nữ, Khác
     }
 }

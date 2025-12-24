@@ -41,7 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/v1/api/**", "/swagger-ui/**", "/v3/api-docs/**",
                                 "/swagger-ui.html").permitAll().requestMatchers("/api/flights/**").permitAll()
                         .requestMatchers("/api/master/**").permitAll()
-                        .anyRequest().authenticated()
+//                        .anyRequest().authenticated()
                         .requestMatchers("/auth/**").permitAll() // API đăng nhập/đăng ký
                         .requestMatchers("/api/**").permitAll()  // API khách hàng
                         .anyRequest().permitAll()                // Cho phép hết để test cho dễ
@@ -61,7 +61,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of("http://localhost:5173"));
 
         // Cho phép các phương thức HTTP
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 
         // Cho phép tất cả các Header (Authorization, Content-Type...)
         configuration.setAllowedHeaders(Arrays.asList("*"));
