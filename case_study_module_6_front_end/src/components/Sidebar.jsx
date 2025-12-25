@@ -16,7 +16,7 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
             <div className="p-3 border-bottom d-flex align-items-center justify-content-between">
                 <div className="d-flex align-items-center gap-2 overflow-hidden">
                     <i className="bi bi-airplane-engines-fill text-primary fs-4"></i>
-                    {!isCollapsed && <span className="fw-bold fs-5 text-dark">SkyAdmin</span>}
+                    {!isCollapsed && <span className="fw-bold fs-5 text-dark">SkyEmployee</span>}
                 </div>
                 <button onClick={onToggle} className="btn btn-sm btn-light border-0">
                     <i className={`bi ${isCollapsed ? 'bi-chevron-right' : 'bi-chevron-left'}`}></i>

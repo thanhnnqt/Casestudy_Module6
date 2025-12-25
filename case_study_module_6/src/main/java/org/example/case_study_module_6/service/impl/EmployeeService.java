@@ -34,4 +34,9 @@ public class EmployeeService implements IEmployeeService {
     public boolean save(Employee employee) {
         return employeeRepository.save(employee) != null;
     }
+
+    @Override
+    public boolean existsByAccountId(Long accountId) {
+        return employeeRepository.existsByAccountId(accountId);
+    }
 }

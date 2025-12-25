@@ -14,4 +14,6 @@ public interface IEmployeeService {
 
     boolean save(Employee employee);
 
+    boolean existsByAccountId(Long accountId);
+
 }

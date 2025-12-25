@@ -35,6 +35,7 @@ public class Customer {
     private String email;
 
     private String phoneNumber;
+    private String email;
     private String identityCard;
     private String address;
 
@@ -50,4 +51,3 @@ public class Customer {
         NAM, NU, KHAC
     }
 }
-
