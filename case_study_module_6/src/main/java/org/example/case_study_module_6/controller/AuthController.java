@@ -1,7 +1,9 @@
 package org.example.case_study_module_6.controller;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.example.case_study_module_6.dto.GoogleLoginRequest;
+import org.example.case_study_module_6.dto.RegisterRequest;
 import org.example.case_study_module_6.entity.Account;
 import org.example.case_study_module_6.entity.Customer;
 import org.example.case_study_module_6.entity.Provider;
@@ -77,32 +79,32 @@ public class AuthController {
     }
 
     // ================= REGISTER =================
-    @Transactional
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody Map<String, String> req) {
+    @Transactional
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest req) {
 
-        String username = req.get("username");
-        String password = req.get("password");
+        if (accountService.existsByUsername(req.getUsername())) {
+            return ResponseEntity.badRequest().body("Tên đăng nhập đã tồn tại");
+        }
+        if (req.getPhoneNumber() != null &&
+                customerService.existsByPhoneNumber(req.getPhoneNumber())) {
+            return ResponseEntity.badRequest().body("Số điện thoại đã tồn tại");
+        }
 
-        if (accountService.existsByUsername(username)) {
-            return ResponseEntity.badRequest().body("Username exists");
+        if (req.getIdentityCard() != null &&
+                customerService.existsByIdentityCard(req.getIdentityCard())) {
+            return ResponseEntity.badRequest().body("CCCD đã tồn tại");
         }
 
         Account account = new Account();
-        account.setUsername(username);
-        account.setPassword(passwordEncoder.encode(password));
+        account.setUsername(req.getUsername());
+        account.setPassword(passwordEncoder.encode(req.getPassword()));
         account.setProvider(Provider.LOCAL);
         account.setEnabled(true);
 
         Account saved = accountService.save(account);
 
-        accountService.createCustomerProfile(
-                saved,
-                req.get("fullName"),
-                req.get("phone"),
-                req.get("email"),
-                req.get("address")
-        );
+        accountService.createCustomerProfile(saved, req);
 
         return ResponseEntity.ok("Register success");
     }
@@ -116,38 +118,47 @@ public class AuthController {
         String email = payload.getEmail();
         String name = (String) payload.get("name");
 
-        // 1️⃣ LUÔN tìm account theo email
-        Account account = accountService.findByUsername(email).orElse(null);
+        // 1️⃣ tìm customer theo email (NGƯỜI DÙNG)
+        Customer customer = customerService.findByEmail(email);
 
-        if (account == null) {
-            // 2️⃣ tạo account
-            account = new Account();
-            account.setUsername(email);
-            account.setProvider(Provider.GOOGLE);
-            account.setEnabled(true);
+        Account googleAccount = accountService.findByUsername(email).orElse(null);
 
-            account = accountService.save(account);
+        // 2️⃣ nếu customer đã tồn tại
+        if (customer != null) {
 
-            // 3️⃣ tìm customer theo email (nếu có data cũ)
-            Customer customer = customerService.findByEmail(email);
-
-            if (customer != null) {
-                customer.setAccount(account);
-                customerService.save(customer);
-            } else {
-                // 4️⃣ chưa có → tạo mới
-                accountService.createCustomerProfile(
-                        account, name, null, email, null
-                );
+            // 2.1 chưa có google account → tạo & LINK
+            if (googleAccount == null) {
+                googleAccount = new Account();
+                googleAccount.setUsername(email);
+                googleAccount.setProvider(Provider.GOOGLE);
+                googleAccount.setEnabled(true);
+                googleAccount = accountService.save(googleAccount);
             }
+
+            // ❗ KHÔNG ghi đè account LOCAL
+            // customer giữ nguyên account LOCAL
+        }
+        // 3️⃣ chưa có customer → tạo mới
+        else {
+            googleAccount = new Account();
+            googleAccount.setUsername(email);
+            googleAccount.setProvider(Provider.GOOGLE);
+            googleAccount.setEnabled(true);
+            googleAccount = accountService.save(googleAccount);
+
+            RegisterRequest registerReq = new RegisterRequest();
+            registerReq.setFullName(name);
+            registerReq.setEmail(email);
+            registerReq.setGender(Customer.Gender.KHAC);
+
+            accountService.createCustomerProfile(googleAccount, registerReq);
+            customer = customerService.findByEmail(email);
         }
 
-        // 5️⃣ LUÔN load customer qua account
-        Customer customer = customerService.findByAccount(account);
-
+        // 4️⃣ token LUÔN sinh từ CUSTOMER
         String token = jwtService.generateToken(
-                account.getUsername(),
-                accountService.resolveRole(account.getId()),
+                email,
+                accountService.resolveRole(customer.getAccount().getId()),
                 customer.getId(),
                 customer.getFullName()
         );

@@ -23,6 +23,8 @@ import java.util.UUID;
 public class CustomerService implements ICustomerService {
     private final ICustomerRepository customerRepository;
     private final IAccountRepository accountRepository;
+//    private final PasswordEncoder passwordEncoder;
+
 
     @Override
     public List<Customer> getAllCustomers() {
@@ -67,6 +69,7 @@ public class CustomerService implements ICustomerService {
             customer.setCreatedAt(LocalDateTime.now());
         }
 
+
         return customerRepository.save(customer);
     }
 
@@ -104,15 +107,17 @@ public class CustomerService implements ICustomerService {
     @Override
     public Customer registerCustomer(RegisterRequest req) {
         // (Giữ nguyên logic cũ, có thể thêm set Email nếu trong RegisterRequest có)
+        // ===== ACCOUNT =====
         Account account = new Account();
         account.setUsername(req.getUsername());
         accountRepository.save(account);
 
+        // ===== CUSTOMER =====
         Customer customer = new Customer();
         customer.setCustomerCode("CUS-" + UUID.randomUUID().toString().substring(0, 8));
         customer.setFullName(req.getFullName());
         customer.setDateOfBirth(req.getDateOfBirth());
-        customer.setGender(Customer.Gender.valueOf(req.getGender()));
+        customer.setGender(req.getGender());
         customer.setPhoneNumber(req.getPhoneNumber());
         customer.setIdentityCard(req.getIdentityCard());
         customer.setAddress(req.getAddress());
@@ -164,4 +169,23 @@ public class CustomerService implements ICustomerService {
     public boolean existsByAccountId(Long accountId) {
         return customerRepository.existsByAccountId(accountId);
     }
+
+    @Override
+    public Optional<Customer> findByAccountId(Long accountId) {
+        return customerRepository.findByAccountId(accountId);
+    }
+
+    @Override
+    public boolean existsByPhoneNumber(String phoneNumber) {
+        return customerRepository.existsByPhoneNumber(phoneNumber);
+    }
+
+    @Override
+    public boolean existsByIdentityCard(String identityCard) {
+        return customerRepository.existsByIdentityCard(identityCard);
+    }
+
+
 }
+
+
