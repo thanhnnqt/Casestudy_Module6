@@ -31,6 +31,9 @@ public class Customer {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
+    @Column(unique = true)
+    private String email;
+
     private String phoneNumber;
     private String identityCard;
     private String address;

@@ -56,21 +56,21 @@ VALUES
 -- =========================================================
 -- 4. CUSTOMERS (10) – TEN THAT, KHONG DAU
 -- =========================================================
+ALTER TABLE customers ADD COLUMN email VARCHAR(255) UNIQUE;
+ALTER TABLE customers MODIFY COLUMN gender VARCHAR(10);
 INSERT INTO customers
-(customer_code, full_name, date_of_birth, gender, phone_number, identity_card, address, total_spending, account_id)
+(customer_code, full_name, date_of_birth, gender, phone_number, email, identity_card, address, total_spending, account_id)
 VALUES
-    ('KH1','Nguyen Minh Quan','1990-01-01','Nam','0912000001','012345001','Ha Noi',0,12),
-    ('KH2','Tran Ngoc Anh','1991-02-02','Nu','0912000002','012345002','Ha Noi',0,13),
-    ('KH3','Le Hoang Nam','1992-03-03','Nam','0912000003','012345003','Da Nang',0,14),
-    ('KH4','Pham Thu Ha','1993-04-04','Nu','0912000004','012345004','Da Nang',0,15),
-    ('KH5','Hoang Gia Bao','1994-05-05','Nam','0912000005','012345005','HCM',0,16),
-    ('KH6','Do Thanh Thao','1995-06-06','Nu','0912000006','012345006','HCM',0,17),
-    ('KH7','Bui Duc Thinh','1996-07-07','Nam','0912000007','012345007','Can Tho',0,18),
-    ('KH8','Dang My Linh','1997-08-08','Nu','0912000008','012345008','Hai Phong',0,19),
-    ('KH9','Ngo Tien Dat','1998-09-09','Nam','0912000009','012345009','Hue',0,20),
-    ('KH10','Vu Anh Tuyet','1999-10-10','Nu','0912000010','012345010','Nha Trang',0,21);
-
-
+    ('KH1','Nguyen Minh Quan','1990-01-01','NAM','0912000001', 'quan.nm@example.com', '012345001','Ha Noi',0,12),
+    ('KH2','Tran Ngoc Anh','1991-02-02','NU','0912000002', 'anh.tn@example.com', '012345002','Ha Noi',0,13),
+    ('KH3','Le Hoang Nam','1992-03-03','NAM','0912000003', 'nam.lh@example.com', '012345003','Da Nang',0,14),
+    ('KH4','Pham Thu Ha','1993-04-04','NU','0912000004', 'ha.pt@example.com', '012345004','Da Nang',0,15),
+    ('KH5','Hoang Gia Bao','1994-05-05','NAM','0912000005', 'bao.hg@example.com', '012345005','HCM',0,16),
+    ('KH6','Do Thanh Thao','1995-06-06','NU','0912000006', 'thao.dt@example.com', '012345006','HCM',0,17),
+    ('KH7','Bui Duc Thinh','1996-07-07','NAM','0912000007', 'thinh.bd@example.com', '012345007','Can Tho',0,18),
+    ('KH8','Dang My Linh','1997-08-08','NU','0912000008', 'linh.dm@example.com', '012345008','Hai Phong',0,19),
+    ('KH9','Ngo Tien Dat','1998-09-09','NAM','0912000009', 'dat.nt@example.com', '012345009','Hue',0,20),
+    ('KH10','Vu Anh Tuyet','1999-10-10','NU','0912000010', 'tuyet.va@example.com', '012345010','Nha Trang',0,21);
 -- =========================================================
 -- 5. AIRPORTS
 -- =========================================================
@@ -102,7 +102,7 @@ INSERT INTO aircrafts (name, registration_code, total_seats, airline_id) VALUES
 -- 8. FLIGHTS
 -- =========================================================
 INSERT INTO flights
-(flight_number, aircraft_id, departure_airport_id, arrival_airport_id, departure_time, arrival_time, status)
+(flight_Number, aircraft_id, departure_airport_id, arrival_airport_id, departure_time, arrival_time, status)
 VALUES
     ('VN201',1,1,4,'2025-01-10 08:00','2025-01-10 10:00','SCHEDULED'),
     ('VN202',2,4,1,'2025-01-11 14:00','2025-01-11 16:30','SCHEDULED');
