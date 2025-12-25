@@ -36,6 +36,11 @@ public class EmployeeService implements IEmployeeService {
     }
 
     @Override
+    public boolean existsByAccountId(Long accountId) {
+        return employeeRepository.existsByAccountId(accountId);
+    }
+
+    @Override
     public List<Employee> search(String field, String keyword) {
         if (field == null || keyword == null || keyword.trim().isEmpty()) {
             return employeeRepository.findAll();

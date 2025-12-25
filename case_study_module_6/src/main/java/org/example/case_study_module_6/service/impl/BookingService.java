@@ -1,74 +1,111 @@
+// 1. SỬA PACKAGE: Thêm .impl vào cuối cho khớp với thư mục
 package org.example.case_study_module_6.service.impl;
 
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.example.case_study_module_6.entity.Booking;
-import org.example.case_study_module_6.entity.Flight;
-import org.example.case_study_module_6.entity.Ticket;
-import org.example.case_study_module_6.enums.BookingStatus;
-import org.example.case_study_module_6.enums.Channel;
-import org.example.case_study_module_6.enums.TicketStatus;
-import org.example.case_study_module_6.repository.IBookingRepository;
-import org.example.case_study_module_6.repository.IFlightRepository;
-import org.springframework.stereotype.Service;
+import org.example.case_study_module_6.dto.BookingRequestDTO;
+import org.example.case_study_module_6.entity.*;
 
-import java.math.BigDecimal;
+// 2. SỬA IMPORT: Đổi từ .entity.* thành .enums.* // (Vì trong ảnh cây thư mục của ông, các file này nằm trong folder 'enums')
+import org.example.case_study_module_6.enums.*;
+import org.example.case_study_module_6.enums.SeatClass; // Import thêm cái này nữa
+
+import org.example.case_study_module_6.repository.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
-public class BookingService {
+public class BookingService { // Nếu có implement Interface thì thêm implements IBookingService
 
+    @Autowired
+    private IFlightSeatDetailRepository flightSeatDetailRepository;
+    @Autowired
+    private IBookingRepository bookingRepository;
+    @Autowired
+    private ITicketRepository ticketRepository;
+    @Autowired
+    private IFlightRepository flightRepository;
 
-    private final IBookingRepository bookingRepository;
+    // --- HÀM BÁN VÉ TẠI QUẦY ---
+    @Transactional(rollbackFor = Exception.class)
+    public Booking createBookingAtCounter(Long flightId, SeatClass seatClass, int quantity, String customerName, String customerEmail, String customerPhone) throws Exception {
 
-    private final IFlightRepository flightRepository; // Cần cái này để check chuyến bay
+        // 1. Tìm thông tin hạng ghế
+        FlightSeatDetail seatDetail = flightSeatDetailRepository.findByFlightIdAndSeatClass(flightId, seatClass)
+                .orElseThrow(() -> new Exception("Không tìm thấy hạng ghế này!"));
 
-    @Transactional
-    public Booking createBooking(Booking bookingRequest, Long flightId) {
-        // 1. Sinh mã Booking Code ngẫu nhiên (Ví dụ: PNR-123456)
-        bookingRequest.setBookingCode("PNR-" + UUID.randomUUID().toString().substring(0, 6).toUpperCase());
-
-        // 2. Set thời gian và trạng thái mặc định
-        bookingRequest.setBookingDate(LocalDateTime.now());
-        bookingRequest.setStatus(BookingStatus.PENDING); // Mới đặt thì là Pending
-        bookingRequest.setChannel(Channel.ONLINE); // Mặc định là Online
-
-        // 3. Xử lý danh sách vé & Tính tiền
-        BigDecimal total = BigDecimal.ZERO;
-
-        // Lấy thông tin chuyến bay (Giả sử tất cả vé trong booking này đi cùng 1 chuyến)
-        Flight flight = flightRepository.findById(flightId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy chuyến bay!"));
-
-        if (bookingRequest.getTickets() != null) {
-            for (Ticket ticket : bookingRequest.getTickets()) {
-                // Link vé với booking
-                ticket.setBooking(bookingRequest);
-
-                // Link vé với chuyến bay
-                ticket.setFlight(flight);
-
-                // Sinh mã vé riêng
-                ticket.setTicketNumber("TKT-" + UUID.randomUUID().toString().substring(0, 8));
-                ticket.setStatus(TicketStatus.BOOKED);
-
-                // Cộng dồn tiền
-                if (ticket.getPrice() != null) {
-                    total = total.add(ticket.getPrice());
-                }
-            }
+        // 2. Kiểm tra số lượng
+        if (seatDetail.getAvailableSeats() < quantity) {
+            throw new Exception("Chỉ còn lại " + seatDetail.getAvailableSeats() + " ghế, không đủ bán " + quantity + " vé.");
         }
 
-        bookingRequest.setTotalAmount(total);
+        // 3. Trừ số ghế trong kho (DB)
+        seatDetail.setAvailableSeats(seatDetail.getAvailableSeats() - quantity);
+        flightSeatDetailRepository.save(seatDetail);
 
-        // 4. Lưu tất cả xuống DB
-        return bookingRepository.save(bookingRequest);
+        // 4. Tạo Booking (Đơn hàng)
+        Booking booking = new Booking();
+        booking.setBookingDate(LocalDateTime.now());
+        booking.setFlight(seatDetail.getFlight());
+        booking.setBookingCode("VN-" + System.currentTimeMillis());
+        booking.setTotalAmount(seatDetail.getPrice().multiply(java.math.BigDecimal.valueOf(quantity)));
+
+        // Set các trạng thái (Sử dụng Enum chuẩn)
+        booking.setStatus(BookingStatus.PAID);          // Đã hoàn tất
+        booking.setPaymentStatus(PaymentStatus.PAID);   // Đã thanh toán tiền
+        booking.setPaymentMethod(PaymentMethod.CASH);   // Tiền mặt
+        booking.setChannel(Channel.OFFLINE);            // Bán tại quầy
+        booking.setContactName(customerName);   // Lưu tên khách vào đây thì ra Dashboard mới thấy
+        booking.setContactEmail(customerEmail);
+        booking.setContactPhone(customerPhone);
+        // Lưu Booking trước để lấy ID
+        Booking savedBooking = bookingRepository.save(booking);
+
+        // 5. Sinh vé và Mã ghế (A1, A2...)
+        long currentSold = ticketRepository.countByFlightIdAndSeatClass(flightId, seatClass);
+
+        String prefix = "A";
+        if (seatClass == SeatClass.BUSINESS) prefix = "B";
+        if (seatClass == SeatClass.FIRST_CLASS) prefix = "C"; // Sửa lại logic so sánh Enum chuẩn
+
+        List<Ticket> tickets = new ArrayList<>();
+        for (int i = 1; i <= quantity; i++) {
+            Ticket ticket = new Ticket();
+            ticket.setBooking(savedBooking);
+            ticket.setFlight(seatDetail.getFlight());
+            ticket.setSeatClass(seatClass);
+            ticket.setPrice(seatDetail.getPrice());
+            ticket.setPassengerName(customerName);
+            ticket.setSeatNumber(prefix + (currentSold + i));
+
+            // --- THÊM ĐOẠN NÀY ---
+            // 1. Sinh mã vé ngẫu nhiên (để không bị trùng)
+            ticket.setTicketNumber("TIC-" + System.currentTimeMillis() + i);
+
+            // 2. Set trạng thái vé (BOOKED)
+            // Nếu ông dùng Enum: ticket.setStatus(TicketStatus.BOOKED);
+            // Nếu dùng String: ticket.setStatus("BOOKED");
+            ticket.setStatus(TicketStatus.BOOKED);
+            // ---------------------
+
+            tickets.add(ticket);
+        }
+
+        ticketRepository.saveAll(tickets);
+
+        return savedBooking;
     }
 
+    // --- Các hàm phụ trợ khác ---
     public List<Booking> findAll() {
-        return bookingRepository.findAll();
+        // Sắp xếp theo ID giảm dần (Cái nào mới tạo ID to hơn sẽ lên đầu)
+        return bookingRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
     }
+
+    public Booking createBooking(BookingRequestDTO request) { return null; }
+    public Booking updateStatus(Long id, String status) { return null; }
 }

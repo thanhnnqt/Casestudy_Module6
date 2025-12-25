@@ -8,49 +8,5 @@ import java.util.List;
 public interface IEmployeeRepository extends JpaRepository<Employee, Long> {
 
     List<Employee> findByFullNameContainingIgnoreCase(String fullName);
+    boolean existsByAccountId(Long accountId);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
