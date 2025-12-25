@@ -3,6 +3,10 @@ package org.example.case_study_module_6.service.impl;
 import org.example.case_study_module_6.entity.Employee;
 import org.example.case_study_module_6.repository.IEmployeeRepository;
 import org.example.case_study_module_6.service.IEmployeeService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,16 +45,15 @@ public class EmployeeService implements IEmployeeService {
     }
 
     @Override
-    public List<Employee> search(String field, String keyword) {
-        if (field == null || keyword == null || keyword.trim().isEmpty()) {
-            return employeeRepository.findAll();
-        }
+    public Page<Employee> searchEmployees(String fullName, String phoneNumber, int page, int size) {
 
-        if ("fullName".equals(field)) {
-            return employeeRepository
-                    .findByFullNameContainingIgnoreCase(keyword);
-        }
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 
-        return employeeRepository.findAll();
+        return employeeRepository.searchEmployeesNative(
+                (fullName == null || fullName.isBlank()) ? null : fullName,
+                (phoneNumber == null || phoneNumber.isBlank()) ? null : phoneNumber,
+                pageable
+        );
     }
+
 }

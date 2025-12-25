@@ -8,6 +8,7 @@ import org.example.case_study_module_6.entity.Account;
 import org.example.case_study_module_6.entity.Employee;
 import org.example.case_study_module_6.service.IAccountService;
 import org.example.case_study_module_6.service.IEmployeeService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -33,9 +34,16 @@ public class EmployeeController {
             @ApiResponse(responseCode = "200", description = "Lấy danh sách thành công!")
     })
     @GetMapping
-    public ResponseEntity<?> getAll() {
-        List<Employee> employeeList = employeeService.findAll();
-        return new ResponseEntity<>(employeeList, HttpStatus.OK);
+    public ResponseEntity<Page<Employee>> searchEmployees(
+            @RequestParam(required = false) String fullName,
+            @RequestParam(required = false) String phoneNumber,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "2") int size
+    ) {
+        Page<Employee> data =
+                employeeService.searchEmployees(fullName, phoneNumber, page, size);
+
+        return ResponseEntity.ok(data);
     }
 
     @DeleteMapping("/{id}")
@@ -65,12 +73,4 @@ public class EmployeeController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<?> searchEmployees(
-            @RequestParam(required = false) String field,
-            @RequestParam(required = false) String keyword
-    ) {
-        List<Employee> result = employeeService.search(field, keyword);
-        return ResponseEntity.ok(result);
-    }
 }
