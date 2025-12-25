@@ -74,7 +74,6 @@ public class AccountService implements IAccountService {
 
         Customer customer = new Customer();
         customer.setCustomerCode("CUS_" + System.currentTimeMillis());
-
         customer.setAccount(account);
         customer.setFullName(req.getFullName());
         customer.setDateOfBirth(req.getDateOfBirth());
