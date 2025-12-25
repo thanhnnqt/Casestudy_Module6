@@ -56,7 +56,6 @@ VALUES
 -- =========================================================
 -- 4. CUSTOMERS (10) – TEN THAT, KHONG DAU
 -- =========================================================
-ALTER TABLE customers ADD COLUMN email VARCHAR(255) UNIQUE;
 ALTER TABLE customers MODIFY COLUMN gender VARCHAR(10);
 INSERT INTO customers
 (customer_code, full_name, date_of_birth, gender, phone_number, email, identity_card, address, total_spending, account_id)
