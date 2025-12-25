@@ -4,6 +4,7 @@ import {toast} from "react-toastify";
 import {useNavigate} from "react-router-dom";
 import {useState} from "react";
 import * as Yup from "yup";
+import {Button} from "react-bootstrap";
 
 /* ===== COMPONENT SAO ĐỎ ===== */
 const Required = () => <span className="text-danger"> *</span>;
@@ -137,7 +138,7 @@ const AddEmployee = () => {
                                             <Field
                                                 name="fullName"
                                                 className="form-control"
-                                                placeholder="Nguyễn Văn A"
+                                                placeholder="Nguyen Van An"
                                             />
                                             <ErrorMessage name="fullName" component="div"
                                                           className="text-danger small mt-1"/>
@@ -271,14 +272,14 @@ const AddEmployee = () => {
 
                                     {/* ===== ACTION ===== */}
                                     <div className="d-flex justify-content-end border-top pt-4">
-                                        <button
+                                        <Button
                                             type="submit"
                                             className="btn btn-primary px-5 fw-semibold"
                                             disabled={uploading}
                                         >
                                             <i className="bi bi-save me-1"></i>
                                             Lưu
-                                        </button>
+                                        </Button>
                                     </div>
 
                                 </Form>

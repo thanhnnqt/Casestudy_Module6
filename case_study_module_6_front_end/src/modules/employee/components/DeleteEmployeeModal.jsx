@@ -22,6 +22,8 @@ const DeleteEmployeeModal = ({
                 theme: "colored",
                 autoClose: 3000
             });
+            reloadAfterDelete();
+            handleToggleModal();
             navigate("/employees");
         } else {
             toast.error("Xóa nhân viên không thành công!", {
@@ -30,7 +32,7 @@ const DeleteEmployeeModal = ({
                 autoClose: 3000
             });
         }
-        reloadAfterDelete();
+
     };
 
     return (
