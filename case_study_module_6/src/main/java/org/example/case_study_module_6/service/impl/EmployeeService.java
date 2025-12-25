@@ -34,4 +34,18 @@ public class EmployeeService implements IEmployeeService {
     public boolean save(Employee employee) {
         return employeeRepository.save(employee) != null;
     }
+
+    @Override
+    public List<Employee> search(String field, String keyword) {
+        if (field == null || keyword == null || keyword.trim().isEmpty()) {
+            return employeeRepository.findAll();
+        }
+
+        if ("fullName".equals(field)) {
+            return employeeRepository
+                    .findByFullNameContainingIgnoreCase(keyword);
+        }
+
+        return employeeRepository.findAll();
+    }
 }

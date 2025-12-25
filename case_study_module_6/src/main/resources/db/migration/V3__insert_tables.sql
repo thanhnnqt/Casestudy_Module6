@@ -40,18 +40,13 @@ VALUES ('AD01','Nguyen Quoc Tuan','admin@system.com','0900000000',1);
 -- 3. EMPLOYEES (10) – TEN THAT, KHONG DAU
 -- =========================================================
 INSERT INTO employees
-(employee_code, full_name, address, phone_number, email, dob, gender, account_id)
+(full_name, address, phone_number, email, dob, gender, account_id, imgURL)
 VALUES
-    ('NV1','Nguyen Van Huy','Ha Noi','0901000001','nv1@company.com','1995-01-01','Nam',2),
-    ('NV2','Tran Thi Mai','Ha Noi','0901000002','nv2@company.com','1996-02-02','Nu',3),
-    ('NV3','Le Minh Duc','Da Nang','0901000003','nv3@company.com','1994-03-03','Nam',4),
-    ('NV4','Pham Quang Hieu','Da Nang','0901000004','nv4@company.com','1993-04-04','Nam',5),
-    ('NV5','Hoang Thanh Tung','HCM','0901000005','nv5@company.com','1992-05-05','Nam',6),
-    ('NV6','Do Thu Trang','HCM','0901000006','nv6@company.com','1997-06-06','Nu',7),
-    ('NV7','Bui Van Long','Can Tho','0901000007','nv7@company.com','1991-07-07','Nam',8),
-    ('NV8','Dang Thi Phuong','Hai Phong','0901000008','nv8@company.com','1998-08-08','Nu',9),
-    ('NV9','Ngo Quoc Bao','Hue','0901000009','nv9@company.com','1990-09-09','Nam',10),
-    ('NV10','Vu Khanh Linh','Nha Trang','0901000010','nv10@company.com','1999-10-10','Nu',11);
+    ('Nguyen Van Huy','Ha Noi','0901000001','nv1@company.com','1995-01-01','Nam',2, "https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559419/anh1_pgptg9.jpg"),
+    ('Tran Thi Mai','Ha Noi','0901000002','nv2@company.com','1996-02-02','Nu',3, "https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559640/anh2_qoopvg.webp"),
+    ('Le Minh Duc','Da Nang','0901000003','nv3@company.com','1994-03-03','Nam',4, "https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559709/anh3_gqwraf.jpg"),
+    ('Pham Quang Hieu','Da Nang','0901000004','nv4@company.com','1993-04-04','Nam',5, "https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559769/anh4_zcg3vw.webp"),
+    ('Hoang Thanh Tung','HCM','0901000005','nv5@company.com','1992-05-05','Nam',6, "https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559859/anh6_lql0pq.webp");
 
 -- =========================================================
 -- 4. CUSTOMERS (10) – TEN THAT, KHONG DAU

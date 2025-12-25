@@ -13,8 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -59,21 +57,20 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody EmployeeDTO employeeDTO) {
-        Account account  = new Account();
+    public ResponseEntity<?> create(@RequestBody Employee employee) {
+        Account account = new Account();
         account.setId(32L);
-        Employee employee = new Employee();
-        employee.setEmployeeCode(employeeDTO.getEmployeeCode());
-        employee.setAddress(employeeDTO.getAddress());
-        employee.setFullName(employeeDTO.getFullName());
-        employee.setEmail(employeeDTO.getEmail());
-        employee.setDob(employeeDTO.getDOB());
-        employee.setGender(Employee.Gender.valueOf(employeeDTO.getGender()));
-        employee.setPhoneNumber(employeeDTO.getPhoneNumber());
         employee.setAccountId(account.getId());
-        System.out.println(employeeDTO.getDOB());
         employeeService.save(employee);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<?> searchEmployees(
+            @RequestParam(required = false) String field,
+            @RequestParam(required = false) String keyword
+    ) {
+        List<Employee> result = employeeService.search(field, keyword);
+        return ResponseEntity.ok(result);
+    }
 }

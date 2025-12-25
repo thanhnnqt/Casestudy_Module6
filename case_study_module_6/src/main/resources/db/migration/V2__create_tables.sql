@@ -177,13 +177,13 @@ CREATE TABLE tickets
 CREATE TABLE employees
 (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
-    employee_code VARCHAR(50)  NOT NULL UNIQUE,
     full_name     VARCHAR(100) NOT NULL,
     address       VARCHAR(255),
     phone_number  VARCHAR(20),
     email         VARCHAR(100),
     dob           DATE,
     gender        ENUM('Nam', 'Nữ', 'Khác') DEFAULT 'Khác',
+    imgURL        VARCHAR(500),
 
     account_id    BIGINT
 --                            FOREIGN KEY (account_id) REFERENCES accounts(id)

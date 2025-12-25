@@ -14,4 +14,7 @@ public interface IEmployeeService {
 
     boolean save(Employee employee);
 
+    List<Employee> search(String field, String keyword);
 }
+
+
