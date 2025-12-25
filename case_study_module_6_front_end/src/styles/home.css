@@ -10,9 +10,8 @@ html, body, #root {
 
 /* ================= HERO ================= */
 .hero-bg {
-    width: 100vw;
-    min-height: calc(100vh - 72px);
-    margin-left: calc(50% - 50vw);
+    width: 100%;
+    min-height: calc(100vh - 70px);
     background-size: cover;
     background-position: center;
     position: relative;
@@ -271,4 +270,36 @@ html, body, #root {
     .promo-list {
         max-height: none;
     }
+}
+.passenger-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.counter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.counter button {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: #0d6efd;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.promo-item {
+    background: #fff;
+    border-radius: 16px;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }

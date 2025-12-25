@@ -53,24 +53,37 @@ function Home() {
     const destinations = [
         {
             name: "Đà Nẵng",
-            img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
+            img: "https://i.pinimg.com/1200x/32/f0/11/32f01197c72d5fc489fbfbb1e3d015b2.jpg",
             price: "Từ 899.000đ"
         },
         {
             name: "Phú Quốc",
-            img: "https://images.unsplash.com/photo-1501785888041-af3ef285b470",
+            img: "https://i.pinimg.com/736x/e5/9c/35/e59c35cd8fcbd50a92675d3532d326b7.jpg",
             price: "Từ 1.299.000đ"
         },
         {
             name: "Nha Trang",
-            img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+            img: "https://i.pinimg.com/736x/b9/95/a6/b995a625c2be0f26a7b7070eaaad530a.jpg",
             price: "Từ 999.000đ"
         },
         {
             name: "Hà Nội",
-            img: "https://images.unsplash.com/photo-1552820728-8b83bb6b773f",
+            img: "https://i.pinimg.com/1200x/39/e5/dc/39e5dc178fdf6d5649a356b2db5fba47.jpg",
             price: "Từ 799.000đ"
+        },
+        {
+            name: "Đà lạt",
+            img: "https://i.pinimg.com/736x/46/c4/33/46c433882688c09281f5a88d39571c1b.jpg",
+            price: "Từ 999.000đ"
         }
+    ];
+
+    const promoCodes = [
+        { code: "TVLKBANMOI10", desc: "✈️ Giảm 10.000 cho lần đặt đầu tiên" },
+        { code: "TVLKBANMOI15", desc: "✈️ Giảm 15.000 cho khách mới" },
+        { code: "TVLKBANMOI20", desc: "✈️ Giảm 20.000 cho lần đầu bay" },
+        { code: "WELCOMEFLY", desc: "✈️ Ưu đãi chào mừng khách mới" },
+        { code: "FIRSTTRIP", desc: "✈️ Giảm giá cho chuyến đi đầu tiên" }
     ];
 
     const [activeIndex, setActiveIndex] = useState(0);
@@ -133,6 +146,11 @@ function Home() {
 
         loadWeather();
     }, [form.from, form.to, form.departureDate, cityWeatherMap]);
+
+    const handleCopy = (code) => {
+        navigator.clipboard.writeText(code);
+        alert("Đã copy mã: " + code);
+    };
 
     /* ================= RENDER ================= */
     return (
@@ -218,8 +236,41 @@ function Home() {
                                     onClick={() => setShowPassenger(!showPassenger)}
                                 >
                                     {passengerText()}
-                                    <span className="arrow">▾</span>
+                                    <span>▾</span>
                                 </div>
+
+                                {showPassenger && (
+                                    <div className="passenger-panel">
+                                        {["adult", "child", "infant"].map(type => (
+                                            <div className="passenger-row" key={type}>
+                                                <span>
+                                                    {type === "adult" && "Người lớn"}
+                                                    {type === "child" && "Trẻ em"}
+                                                    {type === "infant" && "Em bé"}
+                                                </span>
+                                                <div className="counter">
+                                                    <button
+                                                        onClick={() =>
+                                                            setForm(p => ({
+                                                                ...p,
+                                                                [type]: Math.max(0, p[type] - 1)
+                                                            }))
+                                                        }
+                                                    >−</button>
+                                                    <span>{form[type]}</span>
+                                                    <button
+                                                        onClick={() =>
+                                                            setForm(p => ({
+                                                                ...p,
+                                                                [type]: p[type] + 1
+                                                            }))
+                                                        }
+                                                    >+</button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             <button className="btn-search">🔍</button>
@@ -288,27 +339,25 @@ function Home() {
                         <h4 className="fw-bold mb-3">🎁 Mã Ưu Đãi Tặng Bạn Mới</h4>
 
                         <div className="promo-list">
-                            {[1, 2, 3, 4, 5].map((_, i) => (
-                                <div className="promo-item" key={i}>
+                            {promoCodes.map((promo, i) => (
+                                <div className="promo-item" key={promo.code}>
                                     <div className="promo-left">
-                                        <span className="promo-icon">✈️</span>
-                                        <div>
-                                            <h6 className="fw-bold mb-1">
-                                                Giảm đến 20.000 cho lần đặt đầu tiên
-                                            </h6>
-                                            <small className="text-muted">
-                                                Áp dụng trên ứng dụng
-                                            </small>
-                                        </div>
+                                        {promo.desc}
                                     </div>
 
                                     <div className="promo-code-box">
-                                        <span className="promo-code">TVLKBANMOI</span>
-                                        <button className="btn-copy">Copy</button>
+                                        <span className="promo-code">{promo.code}</span>
+                                        <button
+                                            className="btn btn-copy btn-info"
+                                            onClick={() => handleCopy(promo.code)}
+                                        >
+                                            Copy
+                                        </button>
                                     </div>
                                 </div>
                             ))}
                         </div>
+
                     </div>
 
                 </div>
@@ -364,7 +413,7 @@ function Home() {
                         },
                         {
                             title: "Du lịch tiết kiệm cho gia đình",
-                            img: "https://images.unsplash.com/photo-1491553895911-0055eca6402d"
+                            img: "https://i.pinimg.com/736x/62/cc/cb/62cccb838eae9810e2d750f7ec0070b2.jpg"
                         }
                     ].map((n, i) => (
                         <div className="col-md-4" key={i}>
