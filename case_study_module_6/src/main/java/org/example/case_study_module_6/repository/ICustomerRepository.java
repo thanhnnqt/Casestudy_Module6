@@ -1,5 +1,6 @@
 package org.example.case_study_module_6.repository;
 
+import org.example.case_study_module_6.entity.Account;
 import org.example.case_study_module_6.entity.Customer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,14 +12,15 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ICustomerRepository extends JpaRepository<Customer, Long> {
     boolean existsByPhoneNumber(String phoneNumber);
-
+    Customer findByAccount(Account account);
     Customer findTopByOrderByIdDesc();
 
     // Hàm này bạn đã có nhưng chưa dùng bên Service
     boolean existsByIdentityCard(String identityCard);
 
     boolean existsByCustomerCode(String customerCode);
-
+    boolean existsByAccountId(Long accountId);
+    Customer findByEmail(String email);
     // Thêm hàm kiểm tra trùng Email
     boolean existsByEmail(String email);
 

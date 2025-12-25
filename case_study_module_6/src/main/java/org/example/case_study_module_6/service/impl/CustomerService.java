@@ -145,4 +145,23 @@ public class CustomerService implements ICustomerService {
             return "KH" + (lastCustomer.getId() + 1);
         }
     }
+    @Override
+    public Customer findByAccount(Account account) {
+        return customerRepository.findByAccount(account);
+    }
+
+    @Override
+    public Customer findByEmail(String email) {
+        return customerRepository.findByEmail(email);
+    }
+
+    @Override
+    public void save(Customer customer) {
+        customerRepository.save(customer);
+    }
+
+    @Override
+    public boolean existsByAccountId(Long accountId) {
+        return customerRepository.existsByAccountId(accountId);
+    }
 }
