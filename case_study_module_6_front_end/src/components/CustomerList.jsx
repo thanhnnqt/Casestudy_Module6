@@ -1,240 +1,238 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Modal, Button } from 'react-bootstrap';
-import { getAllCustomers, deleteCustomer } from '../services/CustomerService';
+import { getAllCustomers } from '../services/CustomerService';
 import "../modules/flight/components/FlightList.css";
 
 const CustomerList = () => {
     const [customers, setCustomers] = useState([]);
-    const [keyword, setKeyword] = useState('');
 
+    // State tìm kiếm
+    const [searchParams, setSearchParams] = useState({
+        name: '',
+        phone: '',
+        identity: ''
+    });
 
-    // State cho Modal Xóa
-    const [showModal, setShowModal] = useState(false);
-    const [selectedCustomer, setSelectedCustomer] = useState(null);
+    // State phân trang
+    const [currentPage, setCurrentPage] = useState(0); // Trang hiện tại (bắt đầu từ 0)
+    const [totalPages, setTotalPages] = useState(0);   // Tổng số trang
+    const [totalElements, setTotalElements] = useState(0); // Tổng số bản ghi tìm thấy
 
     // Load dữ liệu
     const fetchCustomers = useCallback(async () => {
         try {
-            const data = await getAllCustomers(keyword);
-            setCustomers(data || []);
-            // eslint-disable-next-line no-unused-vars
+            // Gửi params tìm kiếm + trang hiện tại
+            const params = {
+                ...searchParams,
+                page: currentPage,
+                size: 10
+            };
+
+            const data = await getAllCustomers(params);
+
+            // Cập nhật state từ phản hồi của Spring Boot Page
+            setCustomers(data.content || []); // Dữ liệu nằm trong 'content'
+            setTotalPages(data.totalPages);
+            setTotalElements(data.totalElements);
+
         } catch (error) {
             toast.error('Lỗi: Không thể tải danh sách khách hàng!');
         }
-    }, [keyword]);
+    }, [searchParams, currentPage]);
 
     useEffect(() => {
         fetchCustomers();
     }, [fetchCustomers]);
 
-    // Hàm Modal
-    const handleShowDeleteModal = (customer) => {
-        setSelectedCustomer(customer);
-        setShowModal(true);
+    // Xử lý tìm kiếm (Reset về trang 0 khi tìm mới)
+    const handleSearchChange = (e) => {
+        const { name, value } = e.target;
+        setSearchParams(prev => ({ ...prev, [name]: value }));
+        setCurrentPage(0);
     };
 
-    const handleCloseModal = () => {
-        setShowModal(false);
-        setSelectedCustomer(null);
+    const handleSearchSubmit = () => {
+        setCurrentPage(0);
+        fetchCustomers();
+    }
+
+    const handleReset = () => {
+        setSearchParams({ name: '', phone: '', identity: '' });
+        setCurrentPage(0);
     };
 
-    const confirmDelete = async () => {
-        if (!selectedCustomer) return;
-        try {
-            await deleteCustomer(selectedCustomer.id);
-            toast.success(`Đã xóa khách hàng ${selectedCustomer.customerCode} thành công!`);
-            fetchCustomers();
-            handleCloseModal();
-        } catch (error) {
-            toast.error('Xóa thất bại! Vui lòng thử lại.');
-            handleCloseModal();
+    // Chuyển trang
+    const handlePageChange = (newPage) => {
+        if (newPage >= 0 && newPage < totalPages) {
+            setCurrentPage(newPage);
         }
     };
 
-    // Thống kê
+    // Thống kê (Chỉ tính trên trang hiện tại hoặc hiển thị tổng số bản ghi)
     const stats = {
-        total: customers.length,
+        total: totalElements, // Hiển thị tổng số bản ghi trong DB
         male: customers.filter(c => c.gender === 'NAM').length,
         female: customers.filter(c => c.gender === 'NU').length,
         others: customers.filter(c => c.gender === 'KHAC').length
     };
 
     return (
-        <div className="flight-list-container">
-            {/* Background Bầu trời */}
-            <div className="sky-container">
-                <i className="bi bi-cloud-fill cloud" style={{ top: '10%', fontSize: '120px', animationDuration: '45s', opacity: 0.4 }}></i>
-                <i className="bi bi-cloud-fill cloud" style={{ top: '60%', fontSize: '150px', animationDuration: '55s', animationDelay: '-5s', opacity: 0.2 }}></i>
+        <div className="p-4 bg-white" style={{ minHeight: '100vh' }}>
+
+            {/* Header */}
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 className="fw-bold mb-1 text-dark">Quản lý khách hàng</h2>
+                    <p className="text-muted mb-0">Danh sách phân trang</p>
+                </div>
+                <Link to="/customers/create" className="btn btn-primary shadow-sm fw-bold btn-sm px-3">
+                    <i className="bi bi-person-plus-fill me-2"></i>Thêm mới
+                </Link>
             </div>
 
-
-            {/* Main Content */}
-            <div className="main">
-                {/* Header */}
-                <div className="glass-card d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2 className="fw-bold mb-1 text-dark">Quản lý khách hàng</h2>
-                        <p className="text-muted mb-0">Danh sách và thông tin chi tiết</p>
-                    </div>
-                    <Link to="/customers/create" className="btn btn-gradient shadow-lg">
-                        <i className="bi bi-person-plus-fill me-2"></i>Thêm khách hàng
-                    </Link>
-                </div>
-
-                {/* Statistics Cards */}
-                <div className="row mb-4">
-                    <div className="col-md-3">
-                        <div className="glass-card stat-card" style={{ borderBottom: '5px solid #2ed573' }}>
-                            <i className="bi bi-people-fill stat-icon text-success"></i>
-                            <div className="stat-value">{stats.total}</div>
-                            <div className="stat-label">Tổng khách hàng</div>
-                        </div>
-                    </div>
-                    <div className="col-md-3">
-                        <div className="glass-card stat-card" style={{ borderBottom: '5px solid #1e90ff' }}>
-                            <i className="bi bi-gender-male stat-icon text-primary"></i>
-                            <div className="stat-value">{stats.male}</div>
-                            <div className="stat-label">Nam</div>
-                        </div>
-                    </div>
-                    <div className="col-md-3">
-                        <div className="glass-card stat-card" style={{ borderBottom: '5px solid #ff4757' }}>
-                            <i className="bi bi-gender-female stat-icon text-danger"></i>
-                            <div className="stat-value">{stats.female}</div>
-                            <div className="stat-label">Nữ</div>
-                        </div>
-                    </div>
-                    <div className="col-md-3">
-                        <div className="glass-card stat-card" style={{ borderBottom: '5px solid #ffa502' }}>
-                            <i className="bi bi-three-dots stat-icon text-warning"></i>
-                            <div className="stat-value">{stats.others}</div>
-                            <div className="stat-label">Khác</div>
+            {/* Statistics (Hiển thị thống kê tổng quan) */}
+            <div className="row mb-4 g-3">
+                <div className="col-md-3">
+                    <div className="card shadow-sm border-0 h-100 border-start border-4 border-success bg-light">
+                        <div className="card-body p-2 d-flex align-items-center justify-content-between">
+                            <span className="text-muted small fw-bold">TỔNG KHÁCH</span>
+                            <span className="fs-4 fw-bold text-success">{stats.total}</span>
                         </div>
                     </div>
                 </div>
-
-                {/* Filter Section */}
-                <div className="glass-card p-3 mb-4" style={{ position: 'relative', zIndex: 10 }}>
-                    <div className="row g-3 align-items-end">
-                        <div className="col-md-8">
-                            <label className="form-label text-muted small fw-bold">TÌM KIẾM</label>
-                            <div className="input-group">
-                                <span className="input-group-text border-0 bg-transparent"><i className="bi bi-search"></i></span>
-                                <input
-                                    className="form-control custom-input"
-                                    placeholder="Nhập tên, số điện thoại, mã khách hàng..."
-                                    value={keyword}
-                                    onChange={(e) => setKeyword(e.target.value)}
-                                />
-                            </div>
-                        </div>
-                        <div className="col-md-4">
-                            <button className="btn btn-primary w-100 fw-bold shadow-sm custom-input"
-                                    onClick={fetchCustomers} style={{ padding: '10px' }}>
-                                <i className="bi bi-filter me-1"></i> Làm mới dữ liệu
-                            </button>
-                        </div>
+                {/* Các thẻ thống kê khác chỉ mang tính chất tham khảo trên trang hiện tại */}
+                <div className="col-md-9">
+                    <div className="alert alert-light border shadow-sm mb-0 py-2 d-flex align-items-center">
+                        <i className="bi bi-info-circle text-primary me-2"></i>
+                        <small className="text-muted">Đang hiển thị trang <b>{currentPage + 1}</b> trên tổng số <b>{totalPages}</b> trang.</small>
                     </div>
                 </div>
+            </div>
 
-                {/* List of Customers */}
-                <div className="flight-list-wrapper">
-                    <div className="d-flex justify-content-between align-items-center mb-3 px-2">
-                        <h6 className="fw-bold mb-0" style={{ color: '#444' }}>
-                            Tìm thấy {customers.length} khách hàng
-                        </h6>
-                    </div>
-
-                    {customers.length === 0 ? (
-                        <div className="text-center py-5 glass-card">
-                            <i className="bi bi-person-x text-muted" style={{ fontSize: '3rem' }}></i>
-                            <p className="mt-3 text-muted fw-bold">Không tìm thấy khách hàng nào.</p>
+            {/* Filter Section */}
+            <div className="card shadow-sm border-0 p-3 mb-3 bg-white rounded">
+                <label className="form-label text-muted small fw-bold mb-2">BỘ LỌC TÌM KIẾM</label>
+                <div className="row g-2">
+                    <div className="col-md-4">
+                        <div className="input-group input-group-sm">
+                            <span className="input-group-text bg-light"><i className="bi bi-person"></i></span>
+                            <input className="form-control bg-light" placeholder="Họ và tên..." name="name" value={searchParams.name} onChange={handleSearchChange} />
                         </div>
-                    ) : (
-                        customers.map(c => (
-                            <div key={c.id} className="flight-card">
+                    </div>
+                    <div className="col-md-3">
+                        <div className="input-group input-group-sm">
+                            <span className="input-group-text bg-light"><i className="bi bi-telephone"></i></span>
+                            <input className="form-control bg-light" placeholder="Số điện thoại..." name="phone" value={searchParams.phone} onChange={handleSearchChange} />
+                        </div>
+                    </div>
+                    <div className="col-md-3">
+                        <div className="input-group input-group-sm">
+                            <span className="input-group-text bg-light"><i className="bi bi-card-heading"></i></span>
+                            <input className="form-control bg-light" placeholder="Số CCCD..." name="identity" value={searchParams.identity} onChange={handleSearchChange} />
+                        </div>
+                    </div>
+                    <div className="col-md-2 d-flex gap-1">
+                        <button className="btn btn-primary btn-sm w-100 fw-bold" onClick={handleSearchSubmit}>
+                            <i className="bi bi-search me-1"></i>Tìm
+                        </button>
+                        <button className="btn btn-light border btn-sm w-50" onClick={handleReset} title="Làm mới">
+                            <i className="bi bi-arrow-counterclockwise"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* List of Customers */}
+            <div className="bg-white rounded border shadow-sm mb-3">
+                <div className="p-2 border-bottom bg-light d-flex justify-content-between align-items-center">
+                    <h6 className="fw-bold mb-0 text-secondary small">DANH SÁCH KHÁCH HÀNG</h6>
+                    <span className="badge bg-white text-dark border">{customers.length} kết quả trang này</span>
+                </div>
+
+                {customers.length === 0 ? (
+                    <div className="text-center py-4">
+                        <p className="text-muted small mb-0">Không tìm thấy kết quả phù hợp.</p>
+                    </div>
+                ) : (
+                    <div className="list-group list-group-flush">
+                        {customers.map(c => (
+                            <div key={c.id} className="list-group-item p-2 hover-bg-light">
                                 <div className="row align-items-center g-0">
-                                    <div className="col-md-4 border-end pe-3">
-                                        <div className="d-flex align-items-center gap-3">
-                                            <div className="bg-light rounded-circle d-flex align-items-center justify-content-center text-primary fw-bold"
-                                                 style={{ width: '50px', height: '50px', fontSize: '1.2rem', border: '2px solid #a29bfe' }}>
-                                                {c.fullName.charAt(0)}
-                                            </div>
-                                            <div>
-                                                <div className="fc-airline-name">{c.fullName}</div>
-                                                <div className="d-flex gap-2 align-items-center mt-1">
-                                                    <span className="badge bg-secondary">{c.customerCode}</span>
-                                                    <span className="text-muted small">
-                                                        {c.gender === 'NAM' ? <i className="bi bi-gender-male text-primary"> Nam</i> :
-                                                            c.gender === 'NU' ? <i className="bi bi-gender-female text-danger"> Nữ</i> : 'Khác'}
-                                                    </span>
-                                                </div>
+                                    <div className="col-md-4 d-flex align-items-center gap-2">
+                                        <div className="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center text-primary fw-bold" style={{ width: '35px', height: '35px', fontSize: '0.9rem' }}>
+                                            {c.fullName.charAt(0)}
+                                        </div>
+                                        <div className="d-flex flex-column" style={{lineHeight: '1.2'}}>
+                                            <span className="fw-bold text-dark" style={{fontSize: '0.9rem'}}>{c.fullName}</span>
+                                            <div className="d-flex align-items-center gap-2">
+                                                <span className="badge bg-light text-secondary border px-1" style={{fontSize: '0.65rem'}}>{c.customerCode}</span>
+                                                <span className="small text-muted" style={{fontSize: '0.75rem'}}>
+                                                    {c.gender === 'NAM' ? 'Nam' : c.gender === 'NU' ? 'Nữ' : 'Khác'}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div className="col-md-5 px-4 border-end">
-                                        <div className="row">
-                                            <div className="col-6 mb-2">
-                                                <small className="text-muted d-block">Ngày sinh</small>
-                                                <span className="fw-medium">{c.dateOfBirth}</span>
+                                    <div className="col-md-6">
+                                        <div className="d-flex align-items-center justify-content-around">
+                                            <div className="d-flex align-items-center gap-1" title="Số điện thoại">
+                                                <i className="bi bi-telephone text-muted" style={{fontSize: '0.8rem'}}></i>
+                                                <span className="fw-medium font-monospace text-primary" style={{fontSize: '0.9rem'}}>{c.phoneNumber}</span>
                                             </div>
-                                            <div className="col-6 mb-2">
-                                                <small className="text-muted d-block">Số điện thoại</small>
-                                                <span className="fw-medium text-primary">{c.phoneNumber}</span>
-                                            </div>
-                                            <div className="col-6">
-                                                <small className="text-muted d-block">CMND/CCCD</small>
-                                                <span className="fw-medium">{c.identityCard}</span>
-                                            </div>
-                                            <div className="col-6">
-                                                <small className="text-muted d-block">Địa chỉ</small>
-                                                <span className="fw-medium text-truncate d-block" title={c.address}>{c.address || '---'}</span>
+                                            <div className="d-flex align-items-center gap-1" title="CCCD/CMND">
+                                                <i className="bi bi-person-vcard text-muted" style={{fontSize: '0.9rem'}}></i>
+                                                <span className="fw-medium font-monospace text-dark" style={{fontSize: '0.9rem'}}>{c.identityCard}</span>
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div className="col-md-3 ps-3">
-                                        <div className="d-flex flex-column align-items-end h-100 justify-content-center gap-2">
-                                            <Link to={`/customers/edit/${c.id}`} className="btn-edit-card w-100 text-center">
-                                                <i className="bi bi-pencil-square me-1"></i> Chỉnh sửa
-                                            </Link>
-                                            <button
-                                                onClick={() => handleShowDeleteModal(c)}
-                                                className="btn btn-outline-danger btn-sm w-100 rounded-pill border-0 fw-bold"
-                                                style={{backgroundColor: '#ffebee'}}
-                                            >
-                                                <i className="bi bi-trash me-1"></i> Xóa
-                                            </button>
-                                        </div>
+                                    <div className="col-md-2 text-end">
+                                        <Link to={`/customers/edit/${c.id}`} className="btn btn-outline-primary btn-sm border-0 py-1 px-2" title="Chỉnh sửa">
+                                            <i className="bi bi-pencil-square"></i>
+                                        </Link>
                                     </div>
                                 </div>
                             </div>
-                        ))
-                    )}
-                </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
-            {/* Modal */}
-            <Modal show={showModal} onHide={handleCloseModal} centered>
-                <Modal.Header closeButton className="bg-danger text-white">
-                    <Modal.Title><i className="bi bi-exclamation-triangle-fill me-2"></i>Xác nhận xóa</Modal.Title>
-                </Modal.Header>
-                <Modal.Body className="text-center py-4">
-                    <i className="bi bi-trash text-danger" style={{ fontSize: '3rem' }}></i>
-                    <p className="mt-3 fs-5">
-                        Bạn có chắc chắn muốn xóa khách hàng <br/>
-                        <strong className="text-danger">{selectedCustomer?.fullName}</strong> ({selectedCustomer?.customerCode})?
-                    </p>
-                    <p className="text-muted small">Hành động này không thể hoàn tác.</p>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseModal}>Hủy bỏ</Button>
-                    <Button variant="danger" onClick={confirmDelete}>Đồng ý xóa</Button>
-                </Modal.Footer>
-            </Modal>
+            {/* === THANH PHÂN TRANG (PAGINATION) === */}
+            {totalPages > 1 && (
+                <div className="d-flex justify-content-end">
+                    <nav>
+                        <ul className="pagination pagination-sm mb-0">
+                            {/* Nút Trước */}
+                            <li className={`page-item ${currentPage === 0 ? 'disabled' : ''}`}>
+                                <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
+                                    <i className="bi bi-chevron-left"></i>
+                                </button>
+                            </li>
+
+                            {/* Các số trang */}
+                            {[...Array(totalPages).keys()].map(page => {
+                                // Logic hiển thị rút gọn nếu quá nhiều trang (ví dụ chỉ hiện 5 trang gần nhất)
+                                if (totalPages > 5 && Math.abs(page - currentPage) > 2) return null;
+
+                                return (
+                                    <li key={page} className={`page-item ${currentPage === page ? 'active' : ''}`}>
+                                        <button className="page-link" onClick={() => handlePageChange(page)}>
+                                            {page + 1}
+                                        </button>
+                                    </li>
+                                );
+                            })}
+
+                            {/* Nút Sau */}
+                            <li className={`page-item ${currentPage === totalPages - 1 ? 'disabled' : ''}`}>
+                                <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
+                                    <i className="bi bi-chevron-right"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            )}
         </div>
     );
 };

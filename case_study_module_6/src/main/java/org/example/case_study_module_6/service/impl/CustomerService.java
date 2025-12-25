@@ -8,7 +8,8 @@ import org.example.case_study_module_6.entity.Customer;
 import org.example.case_study_module_6.repository.IAccountRepository;
 import org.example.case_study_module_6.repository.ICustomerRepository;
 import org.example.case_study_module_6.service.ICustomerService;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,8 +23,6 @@ import java.util.UUID;
 public class CustomerService implements ICustomerService {
     private final ICustomerRepository customerRepository;
     private final IAccountRepository accountRepository;
-//    private final PasswordEncoder passwordEncoder;
-
 
     @Override
     public List<Customer> getAllCustomers() {
@@ -31,11 +30,8 @@ public class CustomerService implements ICustomerService {
     }
 
     @Override
-    public List<Customer> searchCustomers(String keyword) {
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            return customerRepository.searchCustomer(keyword);
-        }
-        return customerRepository.findAll();
+    public Page<Customer> searchCustomers(String name, String phone, String identity, Pageable pageable) {
+        return customerRepository.searchCustomers(name, phone, identity, pageable);
     }
 
     @Override
@@ -45,19 +41,31 @@ public class CustomerService implements ICustomerService {
 
     @Override
     public Customer addCustomer(Customer customer) {
+        // 1. Kiểm tra Mã khách hàng
         if (customerRepository.existsByCustomerCode(customer.getCustomerCode())) {
             throw new RuntimeException("Mã khách hàng " + customer.getCustomerCode() + " đã tồn tại!");
         }
 
+        // 2. Kiểm tra Số điện thoại
         if (customerRepository.existsByPhoneNumber(customer.getPhoneNumber())) {
             throw new RuntimeException("Số điện thoại " + customer.getPhoneNumber() + " đã tồn tại!");
         }
 
+        // 3. Kiểm tra Email (Mới thêm)
+        if (customer.getEmail() != null && !customer.getEmail().isEmpty()) {
+            if (customerRepository.existsByEmail(customer.getEmail())) {
+                throw new RuntimeException("Email " + customer.getEmail() + " đã tồn tại!");
+            }
+        }
+
+        // 4. Kiểm tra CCCD (Đây là phần bạn bị thiếu trước đó)
+        if (customerRepository.existsByIdentityCard(customer.getIdentityCard())) {
+            throw new RuntimeException("CCCD/CMND " + customer.getIdentityCard() + " đã tồn tại!");
+        }
 
         if (customer.getCreatedAt() == null) {
             customer.setCreatedAt(LocalDateTime.now());
         }
-
 
         return customerRepository.save(customer);
     }
@@ -67,7 +75,7 @@ public class CustomerService implements ICustomerService {
         Customer existingCustomer = customerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với ID: " + id));
 
-        // Cập nhật thông tin (trừ mã KH và ngày tạo)
+        // Cập nhật thông tin
         existingCustomer.setFullName(customerDetails.getFullName());
         existingCustomer.setDateOfBirth(customerDetails.getDateOfBirth());
         existingCustomer.setGender(customerDetails.getGender());
@@ -75,6 +83,12 @@ public class CustomerService implements ICustomerService {
         existingCustomer.setIdentityCard(customerDetails.getIdentityCard());
         existingCustomer.setAddress(customerDetails.getAddress());
 
+        // Cập nhật Email
+        existingCustomer.setEmail(customerDetails.getEmail());
+
+        // Lưu ý: Khi update, nếu muốn kiểm tra trùng lặp chặt chẽ (ví dụ đổi SĐT sang số của người khác),
+        // bạn cần viết thêm logic check "trùng nhưng không phải chính mình".
+        // Ở mức cơ bản thì repository.save() sẽ tự cập nhật.
 
         return customerRepository.save(existingCustomer);
     }
@@ -87,27 +101,13 @@ public class CustomerService implements ICustomerService {
         customerRepository.deleteById(id);
     }
 
-
     @Override
     public Customer registerCustomer(RegisterRequest req) {
-
-//        if (accountRepository.existsByUsername(req.getUsername())) {
-//            throw new RuntimeException("Username đã tồn tại");
-//        }
-//
-//        if (accountRepository.existsByEmail(req.getEmail())) {
-//            throw new RuntimeException("Email đã tồn tại");
-//        }
-
-        // ===== ACCOUNT =====
+        // (Giữ nguyên logic cũ, có thể thêm set Email nếu trong RegisterRequest có)
         Account account = new Account();
         account.setUsername(req.getUsername());
-//        account.setEmail(req.getEmail());
-//        account.setPassword(passwordEncoder.encode(req.getPassword()));
-
         accountRepository.save(account);
 
-        // ===== CUSTOMER =====
         Customer customer = new Customer();
         customer.setCustomerCode("CUS-" + UUID.randomUUID().toString().substring(0, 8));
         customer.setFullName(req.getFullName());
@@ -116,35 +116,33 @@ public class CustomerService implements ICustomerService {
         customer.setPhoneNumber(req.getPhoneNumber());
         customer.setIdentityCard(req.getIdentityCard());
         customer.setAddress(req.getAddress());
+        // customer.setEmail(req.getEmail()); // Nếu RegisterRequest có email thì bỏ comment dòng này
         customer.setCreatedAt(LocalDateTime.now());
         customer.setAccount(account);
 
         return customerRepository.save(customer);
     }
 
-    @Override
-    public boolean existsByAccountId(Long accountId) {
-        return customerRepository.existsByAccountId(accountId);
-    }
+    // --- LOGIC SINH MÃ TỰ ĐỘNG ---
+    private String generateNextCustomerCode() {
+        // Lấy khách hàng cuối cùng
+        Customer lastCustomer = customerRepository.findTopByOrderByIdDesc();
 
-    public Optional<Customer> findByAccountId(Long accountId) {
-        return customerRepository.findByAccountId(accountId);
-    }
+        if (lastCustomer == null) {
+            return "KH1"; // Nếu chưa có ai, bắt đầu từ KH1
+        }
 
-    @Override
-    public Customer findByAccount(Account account) {
-        return customerRepository.findByAccount(account);
-    }
+        String lastCode = lastCustomer.getCustomerCode();
 
-    @Override
-    public Customer findByEmail(String email) {
-        return customerRepository.findByEmail(email);
-    }
-
-    @Override
-    public void save(Customer customer) {
-        customerRepository.save(customer);
+        // Giả sử mã luôn là "KH" + số. Ví dụ: KH1, KH10...
+        try {
+            // Cắt bỏ chữ "KH", lấy phần số
+            String numberPart = lastCode.substring(2);
+            int nextNumber = Integer.parseInt(numberPart) + 1;
+            return "KH" + nextNumber;
+        } catch (NumberFormatException | StringIndexOutOfBoundsException e) {
+            // Nếu mã cũ không đúng định dạng (VD: CUS-xyz), thì reset về KH + (ID + 1) cho an toàn
+            return "KH" + (lastCustomer.getId() + 1);
+        }
     }
 }
-
-

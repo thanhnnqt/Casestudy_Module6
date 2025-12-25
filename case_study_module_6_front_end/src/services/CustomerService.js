@@ -2,11 +2,13 @@ import axios from "axios";
 
 const API_URL = "http://localhost:8080/api/customers";
 
-// 1. Lấy danh sách (kèm tìm kiếm)
-export const getAllCustomers = async (keyword = "") => {
+// 1. Lấy danh sách (Hỗ trợ tìm kiếm nhiều trường)
+// params là object: { name: '...', phone: '...', identity: '...' }
+export const getAllCustomers = async (params = {}) => {
     try {
-        // Gọi: http://localhost:8080/api/customers?keyword=...
-        const response = await axios.get(`${API_URL}?keyword=${keyword}`);
+        const response = await axios.get(API_URL, { params });
+        // Server Spring Boot trả về đối tượng Page có cấu trúc:
+        // { content: [...], totalPages: 5, number: 0, ... }
         return response.data;
     } catch (error) {
         console.error("Lỗi khi lấy danh sách:", error);
@@ -14,7 +16,7 @@ export const getAllCustomers = async (keyword = "") => {
     }
 };
 
-// 2. Lấy chi tiết theo ID (để hiển thị lên form sửa)
+// 2. Lấy chi tiết
 export const getCustomerById = async (id) => {
     try {
         const response = await axios.get(`${API_URL}/${id}`);
