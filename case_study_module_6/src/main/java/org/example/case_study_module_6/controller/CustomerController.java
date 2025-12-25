@@ -1,9 +1,12 @@
 package org.example.case_study_module_6.controller;
 
-
 import org.example.case_study_module_6.entity.Customer;
 import org.example.case_study_module_6.service.ICustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,16 +19,26 @@ import java.util.Optional;
 public class CustomerController {
 
     @Autowired
-    private ICustomerService customerService; // Sử dụng Interface ở đây
+    private ICustomerService customerService;
 
-    // GET: Tìm kiếm và Lấy danh sách
+    // GET: Tìm kiếm đa năng
+    // URL ví dụ: /api/customers?name=Anh&phone=098&identity=123
     @GetMapping
-    public ResponseEntity<List<Customer>> getCustomers(@RequestParam(required = false) String keyword) {
-        List<Customer> customers = customerService.searchCustomers(keyword);
+    public ResponseEntity<Page<Customer>> getCustomers(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String phone,
+            @RequestParam(required = false) String identity,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size // Mặc định 10 khách/trang
+    ) {
+        // Sắp xếp mới nhất lên đầu (giả sử theo ID giảm dần)
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+
+        Page<Customer> customers = customerService.searchCustomers(name, phone, identity, pageable);
         return ResponseEntity.ok(customers);
     }
 
-    // GET: Chi tiết
+    // ... (Các hàm khác GET id, POST, PUT, DELETE giữ nguyên)
     @GetMapping("/{id}")
     public ResponseEntity<?> getCustomerById(@PathVariable Long id) {
         Optional<Customer> customer = customerService.getCustomerById(id);
@@ -33,7 +46,6 @@ public class CustomerController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // POST: Thêm mới
     @PostMapping
     public ResponseEntity<?> addCustomer(@RequestBody Customer customer) {
         try {
@@ -44,7 +56,6 @@ public class CustomerController {
         }
     }
 
-    // PUT: Cập nhật
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCustomer(@PathVariable Long id, @RequestBody Customer customer) {
         try {
@@ -55,7 +66,6 @@ public class CustomerController {
         }
     }
 
-    // DELETE: Xóa
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCustomer(@PathVariable Long id) {
         try {

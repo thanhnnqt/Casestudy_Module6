@@ -1,8 +1,9 @@
 package org.example.case_study_module_6.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.example.case_study_module_6.entity.Customer;
 
 import java.time.LocalDate;
 
@@ -10,17 +11,29 @@ import java.time.LocalDate;
 @Setter
 public class RegisterRequest {
 
-    // ===== ACCOUNT =====
+    @NotBlank(message = "Username không được để trống")
+    @Size(min = 4, message = "Username tối thiểu 4 ký tự")
     private String username;
-    private String email;
+
+    @Size(min = 6, message = "Mật khẩu tối thiểu 6 ký tự")
     private String password;
 
-    // ===== CUSTOMER =====
+    @NotBlank(message = "Họ tên không được để trống")
     private String fullName;
-    @JsonFormat(pattern = "yyyy-MM-dd")
+
+    @Past(message = "Ngày sinh không hợp lệ")
     private LocalDate dateOfBirth;
-    private String gender;      // Nam | Nữ | Khác
+
+    private Customer.Gender gender;
+
+    @Pattern(regexp = "^0\\d{9}$", message = "Số điện thoại không hợp lệ")
     private String phoneNumber;
+
+    @Pattern(regexp = "^(\\d{9}|\\d{12})$", message = "CCCD không hợp lệ")
     private String identityCard;
+
+    @Email(message = "Email không hợp lệ")
+    private String email;
+
     private String address;
 }
