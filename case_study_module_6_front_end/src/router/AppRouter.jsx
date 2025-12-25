@@ -32,23 +32,23 @@ function AppRouter() {
                 <Route path="/register" element={<Register/>}/>
 
 
-                <Route path="/detailemployee" element={<EmployeeInfo />} />
+                <Route path="/detailemployee" element={<EmployeeInfo/>}/>
                 {/*Route chuyến bay*/}
                 <Route path="/flights" element={<FlightList/>}/>
                 <Route path="/flights/create" element={<FlightForm/>}/>
                 <Route path="flights/edit/:id" element={<FlightForm/>}/>
 
                 {/* --- MỚI THÊM: Route Quản lý khách hàng --- */}
-                <Route path="/customers" element={<CustomerList />} />
-                <Route path="/customers/create" element={<CustomerForm />} />
-                <Route path="/customers/edit/:id" element={<CustomerForm />} />
+                <Route path="/customers" element={<CustomerList/>}/>
+                <Route path="/customers/create" element={<CustomerForm/>}/>
+                <Route path="/customers/edit/:id" element={<CustomerForm/>}/>
 
                 {/*Route booking*/}
-                <Route path="/search-flight" element={<FlightSearch />} />
-                <Route path="/select-flight" element={<FlightSelection />} />
-                <Route path="/booking-details" element={<BookingDetails />} />
-                <Route path="/management" element={<BookingManagement />} />
-                <Route path="/new-sale" element={<NewTicketSale />} />
+                <Route path="/search-flight" element={<FlightSearch/>}/>
+                <Route path="/select-flight" element={<FlightSelection/>}/>
+                <Route path="/booking-details" element={<BookingDetails/>}/>
+                <Route path="/management" element={<BookingManagement/>}/>
+                <Route path="/new-sale" element={<NewTicketSale/>}/>
 
 
                 {/*Route nhân viên*/}

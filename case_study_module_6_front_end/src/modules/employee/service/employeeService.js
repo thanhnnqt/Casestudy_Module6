@@ -43,6 +43,18 @@ export async function editEmployee(employee) {
     return false;
 }
 
+export async function getEmployeeListBySearch(field, keyword) {
+    try {
+        const res = await axios.get(
+            `${URL}/search?field=${field}&keyword=${keyword}`);
+        return res.data;
+    } catch (e) {
+        console.error(e.message);
+    }
+    return []
+
+}
+
 export async function addEmployee(employee) {
     try {
         const res = await axios.post(`${URL}`, employee);
