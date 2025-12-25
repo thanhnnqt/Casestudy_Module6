@@ -53,27 +53,29 @@ VALUES ('Nguyen Van Huy', 'Ha Noi', '0901000001', 'nv1@company.com', '1995-01-01
 
 /* ===================== CUSTOMERS (20) ===================== */
 INSERT INTO customers
-(full_name, date_of_birth, gender, phone_number, email, identity_card, address, total_spending, account_id)
-VALUES ('Nguyen Minh Quan', '1990-01-01', 'Nam', '0912000001', 'kh1@mail.com', '012345001', 'Ha Noi', 0, 7),
-       ('Tran Ngoc Anh', '1991-02-02', 'Nu', '0912000002', 'kh2@mail.com', '012345002', 'Ha Noi', 0, 8),
-       ('Le Hoang Nam', '1992-03-03', 'Nam', '0912000003', 'kh3@mail.com', '012345003', 'Da Nang', 0, 9),
-       ('Pham Thu Ha', '1993-04-04', 'Nu', '0912000004', 'kh4@mail.com', '012345004', 'Da Nang', 0, 10),
-       ('Hoang Gia Bao', '1994-05-05', 'Nam', '0912000005', 'kh5@mail.com', '012345005', 'Ho Chi Minh', 0, 11),
-       ('Do Thanh Thao', '1995-06-06', 'Nu', '0912000006', 'kh6@mail.com', '012345006', 'Ho Chi Minh', 0, 12),
-       ('Bui Duc Thinh', '1996-07-07', 'Nam', '0912000007', 'kh7@mail.com', '012345007', 'Can Tho', 0, 13),
-       ('Dang My Linh', '1997-08-08', 'Nu', '0912000008', 'kh8@mail.com', '012345008', 'Hai Phong', 0, 14),
-       ('Ngo Tien Dat', '1998-09-09', 'Nam', '0912000009', 'kh9@mail.com', '012345009', 'Hue', 0, 15),
-       ('Vu Anh Tuyet', '1999-10-10', 'Nu', '0912000010', 'kh10@mail.com', '012345010', 'Nha Trang', 0, 16),
-       ('Le Viet Hoang', '1990-02-10', 'Nam', '0912000011', 'kh11@mail.com', '012345011', 'Ha Nam', 0, 17),
-       ('Vu Thi Thu', '1991-03-11', 'Nu', '0912000012', 'kh12@mail.com', '012345012', 'Hai Duong', 0, 18),
-       ('Ha Duc Nhan', '1992-04-12', 'Nam', '0912000013', 'kh13@mail.com', '012345013', 'Hue', 0, 19),
-       ('Trinh Thi Diem', '1993-05-13', 'Nu', '0912000014', 'kh14@mail.com', '012345014', 'Ho Chi Minh', 0, 20),
-       ('Ngo Phong', '1994-06-14', 'Nam', '0912000015', 'kh15@mail.com', '012345015', 'Ha Noi', 0, 21),
-       ('Ly Phuong Linh', '1995-07-15', 'Nu', '0912000016', 'kh16@mail.com', '012345016', 'Ha Noi', 0, 22),
-       ('Vuong Quang Dai', '1996-08-16', 'Nam', '0912000017', 'kh17@mail.com', '012345017', 'Ha Noi', 0, 23),
-       ('Mai Quynh', '1997-09-17', 'Nu', '0912000018', 'kh18@mail.com', '012345018', 'Da Nang', 0, 24),
-       ('Ta Quoc Trung', '1998-10-18', 'Nam', '0912000019', 'kh19@mail.com', '012345019', 'Ho Chi Minh', 0, 25),
-       ('Vo Kim Ngan', '1999-11-19', 'Nu', '0912000020', 'kh20@mail.com', '012345020', 'Ho Chi Minh', 0, 26);
+(customer_code, full_name, date_of_birth, gender, phone_number, email, identity_card, address, total_spending, account_id)
+VALUES
+    ('KH1', 'Nguyen Minh Quan', '1990-01-01', 'NAM', '0912000001', 'kh1@mail.com', '012345001', 'Ha Noi', 0, 7),
+    ('KH2', 'Tran Ngoc Anh', '1991-02-02', 'NU', '0912000002', 'kh2@mail.com', '012345002', 'Ha Noi', 0, 8),
+    ('KH3', 'Le Hoang Nam', '1992-03-03', 'NAM', '0912000003', 'kh3@mail.com', '012345003', 'Da Nang', 0, 9),
+    ('KH4', 'Pham Thu Ha', '1993-04-04', 'NU', '0912000004', 'kh4@mail.com', '012345004', 'Da Nang', 0, 10),
+    ('KH5', 'Hoang Gia Bao', '1994-05-05', 'NAM', '0912000005', 'kh5@mail.com', '012345005', 'Ho Chi Minh', 0, 11),
+    ('KH6', 'Do Thanh Thao', '1995-06-06', 'NU', '0912000006', 'kh6@mail.com', '012345006', 'Ho Chi Minh', 0, 12),
+    ('KH7', 'Bui Duc Thinh', '1996-07-07', 'NAM', '0912000007', 'kh7@mail.com', '012345007', 'Can Tho', 0, 13),
+    ('KH8', 'Dang My Linh', '1997-08-08', 'NU', '0912000008', 'kh8@mail.com', '012345008', 'Hai Phong', 0, 14),
+    ('KH9', 'Ngo Tien Dat', '1998-09-09', 'NAM', '0912000009', 'kh9@mail.com', '012345009', 'Hue', 0, 15),
+    ('KH10', 'Vu Anh Tuyet', '1999-10-10', 'NU', '0912000010', 'kh10@mail.com', '012345010', 'Nha Trang', 0, 16),
+    ('KH11', 'Le Viet Hoang', '1990-02-10', 'NAM', '0912000011', 'kh11@mail.com', '012345011', 'Ha Nam', 0, 17),
+    ('KH12', 'Vu Thi Thu', '1991-03-11', 'NU', '0912000012', 'kh12@mail.com', '012345012', 'Hai Duong', 0, 18),
+    ('KH13', 'Ha Duc Nhan', '1992-04-12', 'NAM', '0912000013', 'kh13@mail.com', '012345013', 'Hue', 0, 19),
+    ('KH14', 'Trinh Thi Diem', '1993-05-13', 'NU', '0912000014', 'kh14@mail.com', '012345014', 'Ho Chi Minh', 0, 20),
+    ('KH15', 'Ngo Phong', '1994-06-14', 'NAM', '0912000015', 'kh15@mail.com', '012345015', 'Ha Noi', 0, 21),
+    ('KH16', 'Ly Phuong Linh', '1995-07-15', 'NU', '0912000016', 'kh16@mail.com', '012345016', 'Ha Noi', 0, 22),
+    ('KH17', 'Vuong Quang Dai', '1996-08-16', 'NAM', '0912000017', 'kh17@mail.com', '012345017', 'Ha Noi', 0, 23),
+    ('KH18', 'Mai Quynh', '1997-09-17', 'NU', '0912000018', 'kh18@mail.com', '012345018', 'Da Nang', 0, 24),
+    ('KH19', 'Ta Quoc Trung', '1998-10-18', 'NAM', '0912000019', 'kh19@mail.com', '012345019', 'Ho Chi Minh', 0, 25),
+    ('KH20', 'Vo Kim Ngan', '1999-11-19', 'NU', '0912000020', 'kh20@mail.com', '012345020', 'Ho Chi Minh', 0, 26);
+
 
 /* ===================== AIRPORTS (5) ===================== */
 INSERT INTO airports (code, name, city)

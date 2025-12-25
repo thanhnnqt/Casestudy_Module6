@@ -194,9 +194,10 @@ CREATE TABLE employees
 CREATE TABLE customers
 (
     id             BIGINT AUTO_INCREMENT PRIMARY KEY,
+    customer_code  VARCHAR(100),
     full_name      VARCHAR(100) NOT NULL,
     date_of_birth  DATE,
-    gender         ENUM('Nam', 'Nữ', 'Khác') DEFAULT 'Khác',
+    gender         ENUM('NAM', 'NU', 'KHAC') DEFAULT 'KHAC',
     phone_number   VARCHAR(15),
     email   VARCHAR(30),
     identity_card  VARCHAR(20),
