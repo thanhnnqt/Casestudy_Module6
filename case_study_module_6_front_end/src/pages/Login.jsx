@@ -3,6 +3,7 @@ import { login as loginApi, loginGoogle } from "../modules/login/service/authSer
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
+import { toast } from "react-toastify";
 
 function Login() {
     const [form, setForm] = useState({
@@ -23,9 +24,10 @@ function Login() {
         try {
             const { token } = await loginApi(form);
             await login(token);
+            toast.success("Đăng nhập thành công");
             navigate("/");
         } catch (err) {
-            alert(err.response?.data || "Sai tài khoản hoặc mật khẩu");
+            toast.error(err.response?.data || "Sai tài khoản hoặc mật khẩu");
         }
     };
 
@@ -34,9 +36,10 @@ function Login() {
         try {
             const { token } = await loginGoogle(credentialResponse.credential);
             await login(token);
+            toast.success("Đăng nhập Google thành công");
             navigate("/");
         } catch (err) {
-            alert(err.response?.data || "Đăng nhập Google thất bại");
+            toast.error(err.response?.data || "Đăng nhập Google thất bại");
         }
     };
 

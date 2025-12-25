@@ -1,5 +1,6 @@
 package org.example.case_study_module_6.service.impl;
 
+import org.example.case_study_module_6.dto.RegisterRequest;
 import org.example.case_study_module_6.entity.Account;
 import org.example.case_study_module_6.entity.Customer;
 import org.example.case_study_module_6.repository.*;
@@ -69,23 +70,19 @@ public class AccountService implements IAccountService {
     /**
      * Tạo CUSTOMER khi đăng ký
      */
-    public void createCustomerProfile(
-            Account account,
-            String fullName,
-            String phone,
-            String email,
-            String address
-    ) {
-        Customer customer = new Customer();
+    public void createCustomerProfile(Account account, RegisterRequest req) {
 
-        // 🔥 FIX 403 Ở ĐÂY
+        Customer customer = new Customer();
         customer.setCustomerCode("CUS_" + System.currentTimeMillis());
 
         customer.setAccount(account);
-        customer.setFullName(fullName);
-        customer.setPhoneNumber(phone);
-        customer.setEmail(email);
-        customer.setAddress(address);
+        customer.setFullName(req.getFullName());
+        customer.setDateOfBirth(req.getDateOfBirth());
+        customer.setGender(req.getGender());
+        customer.setPhoneNumber(req.getPhoneNumber());
+        customer.setIdentityCard(req.getIdentityCard());
+        customer.setEmail(req.getEmail());
+        customer.setAddress(req.getAddress());
         customer.setCreatedAt(LocalDateTime.now());
 
         customerRepository.save(customer);
