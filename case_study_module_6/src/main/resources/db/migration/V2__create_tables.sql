@@ -3,7 +3,8 @@ CREATE TABLE accounts
 (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
     username   VARCHAR(100) NOT NULL UNIQUE,
-    password   VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NULL,
+    provider ENUM('LOCAL','GOOGLE') DEFAULT 'LOCAL',
     enabled    BOOLEAN   DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     -- Đã BỎ cột role. Spring Security sẽ check id ở bảng Profile để biết quyền.
@@ -198,6 +199,7 @@ CREATE TABLE customers
     date_of_birth  DATE,
     gender         ENUM('Nam', 'Nữ', 'Khác') DEFAULT 'Khác',
     phone_number   VARCHAR(15),
+    email   VARCHAR(30),
     identity_card  VARCHAR(20),
     address        VARCHAR(255),
     total_spending DECIMAL(15, 2) DEFAULT 0,

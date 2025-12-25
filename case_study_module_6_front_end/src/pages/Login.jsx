@@ -1,12 +1,12 @@
 import { useState } from "react";
-import {login as loginApi, loginGoogle} from "../modules/login/service/authService.js";
+import { login as loginApi, loginGoogle } from "../modules/login/service/authService.js";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 
 function Login() {
     const [form, setForm] = useState({
-        identifier: "",
+        username: "",
         password: ""
     });
 
@@ -21,8 +21,8 @@ function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await loginApi(form);
-            login(res.token); // ✅ PHẢI CÓ TOKEN
+            const { token } = await loginApi(form);
+            await login(token);
             navigate("/");
         } catch (err) {
             alert(err.response?.data || "Sai tài khoản hoặc mật khẩu");
@@ -32,8 +32,8 @@ function Login() {
     // ===== LOGIN GOOGLE =====
     const handleGoogleSuccess = async (credentialResponse) => {
         try {
-            const res = await loginGoogle(credentialResponse.credential);
-            login(res.token);
+            const { token } = await loginGoogle(credentialResponse.credential);
+            await login(token);
             navigate("/");
         } catch (err) {
             alert(err.response?.data || "Đăng nhập Google thất bại");
@@ -45,9 +45,7 @@ function Login() {
             <div className="card shadow border-0" style={{ maxWidth: "420px", width: "100%" }}>
                 <div className="card-body p-4">
 
-                    <h4 className="fw-bold mb-4 text-center">
-                        Đăng nhập
-                    </h4>
+                    <h4 className="fw-bold mb-4 text-center">Đăng nhập</h4>
 
                     {/* ===== LOGIN LOCAL ===== */}
                     <form onSubmit={handleSubmit}>
@@ -56,10 +54,10 @@ function Login() {
                             <label className="form-label">Tài khoản</label>
                             <input
                                 type="text"
-                                name="identifier"
+                                name="username"
                                 className="form-control"
                                 placeholder="Username hoặc Email"
-                                value={form.identifier}
+                                value={form.username}
                                 onChange={handleChange}
                                 required
                             />

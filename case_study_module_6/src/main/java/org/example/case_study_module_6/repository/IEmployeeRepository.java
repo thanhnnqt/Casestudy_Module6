@@ -9,49 +9,5 @@ public interface IEmployeeRepository extends JpaRepository<Employee, Long> {
     List<Employee> findByEmployeeCodeContainingIgnoreCase(String employeeCode);
 
     List<Employee> findByFullNameContainingIgnoreCase(String fullName);
+    boolean existsByAccountId(Long accountId);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
