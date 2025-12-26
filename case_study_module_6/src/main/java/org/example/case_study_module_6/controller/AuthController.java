@@ -7,6 +7,7 @@ import org.example.case_study_module_6.dto.RegisterRequest;
 import org.example.case_study_module_6.entity.Account;
 import org.example.case_study_module_6.entity.Customer;
 import org.example.case_study_module_6.entity.Provider;
+import org.example.case_study_module_6.entity.VerificationToken;
 import org.example.case_study_module_6.service.impl.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,19 +25,25 @@ public class AuthController {
     private final CustomerService customerService;
     private final PasswordEncoder passwordEncoder;
     private final GoogleTokenVerifierService googleVerifier;
+    private final VerificationTokenService verificationTokenService;
+    private final EmailService emailService;
 
     public AuthController(
             JwtService jwtService,
             AccountService accountService,
             CustomerService customerService,
             PasswordEncoder passwordEncoder,
-            GoogleTokenVerifierService googleVerifier
+            GoogleTokenVerifierService googleVerifier,
+            VerificationTokenService verificationTokenService,
+            EmailService emailService
     ) {
         this.jwtService = jwtService;
         this.accountService = accountService;
         this.customerService = customerService;
         this.passwordEncoder = passwordEncoder;
         this.googleVerifier = googleVerifier;
+        this.verificationTokenService = verificationTokenService;
+        this.emailService = emailService;
     }
 
     // ================= LOGIN LOCAL =================
@@ -48,11 +55,11 @@ public class AuthController {
 
         Account account = accountService.findByUsername(username).orElse(null);
         if (account == null) {
-            return ResponseEntity.status(401).body("Account not found");
+            return ResponseEntity.status(401).body("Không tìm thấy tài khoản");
         }
 
-        if (!account.getEnabled()) {
-            return ResponseEntity.status(403).body("Account disabled");
+        if (!account.isEnabled()) {
+            return ResponseEntity.status(403).body("Tài khoản đã bị khóa hoặc chưa xác nhận Email");
         }
 
         if (account.getProvider() == Provider.GOOGLE) {
@@ -80,34 +87,49 @@ public class AuthController {
 
     // ================= REGISTER =================
     @PostMapping("/register")
-    @Transactional
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest req) {
 
+        Map<String, String> errors = new java.util.HashMap<>();
+
+        // 🔥 1️⃣ CHECK USERNAME
         if (accountService.existsByUsername(req.getUsername())) {
-            return ResponseEntity.badRequest().body("Tên đăng nhập đã tồn tại");
+            errors.put("username", "Tên đăng nhập đã tồn tại");
         }
+
+        // 1️⃣ email
+        if (customerService.existsByEmail(req.getEmail())) {
+            errors.put("email", "Email này đã được sử dụng");
+        }
+
+        // 2️⃣ phone
         if (req.getPhoneNumber() != null &&
                 customerService.existsByPhoneNumber(req.getPhoneNumber())) {
-            return ResponseEntity.badRequest().body("Số điện thoại đã tồn tại");
+            errors.put("phoneNumber", "Số điện thoại đã tồn tại");
         }
 
+        // 3️⃣ CCCD
         if (req.getIdentityCard() != null &&
                 customerService.existsByIdentityCard(req.getIdentityCard())) {
-            return ResponseEntity.badRequest().body("CCCD đã tồn tại");
+            errors.put("identityCard", "CCCD đã tồn tại");
         }
 
-        Account account = new Account();
-        account.setUsername(req.getUsername());
-        account.setPassword(passwordEncoder.encode(req.getPassword()));
-        account.setProvider(Provider.LOCAL);
-        account.setEnabled(true);
+        // 🔥 nếu có bất kỳ lỗi nào → trả hết về frontend
+        if (!errors.isEmpty()) {
+            return ResponseEntity.badRequest().body(errors);
+        }
 
-        Account saved = accountService.save(account);
+        // 4️⃣ tạo token
+        VerificationToken token =
+                verificationTokenService.createFromRegister(req);
 
-        accountService.createCustomerProfile(saved, req);
+        String verifyLink =
+                "http://localhost:5173/verify-email?token=" + token.getToken();
 
-        return ResponseEntity.ok("Register success");
+        emailService.sendVerificationEmail(req.getEmail(), verifyLink);
+
+        return ResponseEntity.ok("Vui lòng kiểm tra email để xác nhận tài khoản");
     }
+
 
     // ================= LOGIN GOOGLE =================
     @PostMapping("/google")
@@ -183,4 +205,27 @@ public class AuthController {
                 )
         );
     }
+    @GetMapping("/verify-email")
+    @Transactional
+    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+
+        VerificationToken vt = verificationTokenService.validate(token);
+        RegisterRequest req = vt.getRegisterRequest();
+
+        // LÚC NÀY MỚI TẠO ACCOUNT
+        Account account = new Account();
+        account.setUsername(req.getUsername());
+        account.setPassword(passwordEncoder.encode(req.getPassword()));
+        account.setProvider(Provider.LOCAL);
+        account.setEnabled(true);
+
+        account = accountService.save(account);
+
+        accountService.createCustomerProfile(account, req);
+
+        verificationTokenService.delete(vt);
+
+        return ResponseEntity.ok("Xác nhận email thành công");
+    }
+
 }

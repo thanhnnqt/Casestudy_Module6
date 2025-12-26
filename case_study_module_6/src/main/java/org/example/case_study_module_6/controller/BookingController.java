@@ -49,17 +49,11 @@ public class BookingController {
     // URL thực tế sẽ là: POST /api/bookings/sell-at-counter
     @PostMapping("/sell-at-counter")
     public ResponseEntity<?> sellAtCounter(@RequestBody CounterBookingRequest request) {
+        System.out.println("Dữ liệu nhận được: " + request.toString());
+        System.out.println("Danh sách khách: " + request.getPassengers());
         try {
-            Booking newBooking = bookingService.createBookingAtCounter(
-                    request.getFlightId(),
-                    request.getSeatClass(),
-                    request.getQuantity(),
-                    // --- SỬA 3 DÒNG NÀY ---
-                    request.getContactName(),  // Gọi getContactName()
-                    request.getContactEmail(),  // Gọi getContactEmail()
-                    request.getContactPhone()
-                    // ----------------------
-            );
+            // Gọi hàm service mới sửa (truyền nguyên cục request vào)
+            Booking newBooking = bookingService.createBookingAtCounter(request);
             return ResponseEntity.ok(newBooking);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

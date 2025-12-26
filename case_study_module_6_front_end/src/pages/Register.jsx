@@ -11,7 +11,6 @@ function Register() {
         email: "",
         password: "",
         confirmPassword: "",
-
         fullName: "",
         dateOfBirth: "",
         gender: "KHAC",
@@ -20,98 +19,94 @@ function Register() {
         address: ""
     });
 
+    // 🔥 field-level errors
     const [errors, setErrors] = useState({});
 
+    /* ================= CHANGE ================= */
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setForm({ ...form, [name]: value });
-        setErrors({ ...errors, [name]: null });
+        setForm(prev => ({ ...prev, [name]: value }));
+
+        // xoá lỗi của field khi user sửa
+        if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: null }));
+        }
     };
 
-    // ================= VALIDATE =================
+    const genders = [
+        { value: "NAM", label: "Nam" },
+        { value: "NU", label: "Nữ" },
+        { value: "KHAC", label: "Khác" }
+    ];
+
+    /* ================= CLIENT VALIDATE ================= */
     const validate = () => {
-        const newErrors = {};
+        const e = {};
 
-        // USERNAME
         if (!form.username || form.username.trim().length < 4) {
-            newErrors.username = "Tên đăng nhập phải có ít nhất 4 ký tự";
+            e.username = "Tên đăng nhập phải có ít nhất 4 ký tự";
         }
 
-        // EMAIL (optional)
         if (!form.email) {
-            newErrors.email = "Vui lòng nhập email";
+            e.email = "Vui lòng nhập email";
         } else if (!/^\S+@\S+\.\S+$/.test(form.email)) {
-            newErrors.email = "Email không hợp lệ";
+            e.email = "Email không hợp lệ";
         }
 
-        // PASSWORD
         if (!form.password || form.password.length < 6) {
-            newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+            e.password = "Mật khẩu phải có ít nhất 6 ký tự";
         }
 
-        // CONFIRM PASSWORD (BẮT BUỘC)
         if (!form.confirmPassword) {
-            newErrors.confirmPassword = "Vui lòng xác nhận mật khẩu";
+            e.confirmPassword = "Vui lòng xác nhận mật khẩu";
         } else if (form.password !== form.confirmPassword) {
-            newErrors.confirmPassword = "Mật khẩu xác nhận không khớp";
+            e.confirmPassword = "Mật khẩu xác nhận không khớp";
         }
 
-        // FULL NAME
-        const nameRegex =
-            /^([A-ZÀ-Ỹ][a-zà-ỹ]+)(\s[A-ZÀ-Ỹ][a-zà-ỹ]+)+$/;
-
-        if (!nameRegex.test(form.fullName.trim())) {
-            newErrors.fullName = "Họ tên phải viết hoa chữ cái đầu mỗi từ";
+        const nameRegex = /^([A-ZÀ-Ỹ][a-zà-ỹ]+)(\s[A-ZÀ-Ỹ][a-zà-ỹ]+)+$/;
+        if (!form.fullName || !nameRegex.test(form.fullName.trim())) {
+            e.fullName = "Họ tên phải viết hoa chữ cái đầu mỗi từ";
         }
 
-        // PHONE NUMBER (BẮT BUỘC)
         if (!form.phoneNumber) {
-            newErrors.phoneNumber = "Vui lòng nhập số điện thoại";
+            e.phoneNumber = "Vui lòng nhập số điện thoại";
         } else if (!/^0\d{9}$/.test(form.phoneNumber)) {
-            newErrors.phoneNumber = "Số điện thoại phải có dạng 0xxxxxxxxx";
+            e.phoneNumber = "Số điện thoại phải có dạng 0xxxxxxxxx";
         }
 
-        // IDENTITY CARD (BẮT BUỘC)
         if (!form.identityCard) {
-            newErrors.identityCard = "Vui lòng nhập CCCD";
+            e.identityCard = "Vui lòng nhập CCCD";
         } else if (!/^(\d{9}|\d{12})$/.test(form.identityCard)) {
-            newErrors.identityCard = "CCCD phải gồm 9 hoặc 12 chữ số";
+            e.identityCard = "CCCD phải gồm 9 hoặc 12 chữ số";
         }
 
-        // DATE OF BIRTH
         if (!form.dateOfBirth) {
-            newErrors.dateOfBirth = "Vui lòng chọn ngày sinh";
+            e.dateOfBirth = "Vui lòng chọn ngày sinh";
         } else {
             const dob = new Date(form.dateOfBirth);
             const today = new Date();
             let age = today.getFullYear() - dob.getFullYear();
-
             const m = today.getMonth() - dob.getMonth();
-            if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
-                age--;
-            }
-
-            if (age < 16) {
-                newErrors.dateOfBirth = "Tuổi phải lớn hơn hoặc bằng 16";
-            }
+            if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+            if (age < 16) e.dateOfBirth = "Tuổi phải ≥ 16";
         }
 
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+        setErrors(e);
+        return Object.keys(e).length === 0;
     };
 
-    // ================= SUBMIT =================
+    /* ================= SUBMIT ================= */
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setErrors({});
 
         if (!validate()) return;
 
         try {
             await registerApi({
                 username: form.username,
+                email: form.email,
                 password: form.password,
-                email: form.email || null,
-
                 fullName: form.fullName,
                 dateOfBirth: form.dateOfBirth,
                 gender: form.gender,
@@ -120,185 +115,179 @@ function Register() {
                 address: form.address || null
             });
 
-            toast.success("🎉 Đăng ký thành công! Vui lòng đăng nhập");
-            setTimeout(() => navigate("/login"), 1000);
+            toast.success("🎉 Vui lòng kiểm tra email để xác nhận tài khoản");
+            setTimeout(() => navigate("/login"), 1500);
 
         } catch (err) {
-            setErrors({
-                submit: err.response?.data || "Đăng ký thất bại"
-            });
+            // 🔥 BACKEND trả về Map<field, message>
+            if (err.response?.status === 400 && typeof err.response.data === "object") {
+                setErrors(err.response.data);
+            } else {
+                toast.error("Đăng ký thất bại");
+            }
         }
     };
 
+    const inputClass = (name) =>
+        `form-control ${errors[name] ? "is-invalid" : ""}`;
+
+    /* ================= RENDER ================= */
     return (
-        <div className="container my-5 pt-5" style={{ maxWidth: "520px" }}>
-            <div className="card shadow border-0 rounded-4">
-                <div className="card-body p-5">
+        <div className="container-fluid px-4 my-3">
+            <div className="row justify-content-center">
+                <div className="col-12">
+                    <div className="card shadow border-0 rounded-4">
+                        <div className="card-body p-3">
 
-                    <h4 className="fw-bold text-center mb-3">
-                        Đăng ký tài khoản
-                    </h4>
+                            <h5 className="fw-bold text-center mb-3">
+                                Đăng ký tài khoản
+                            </h5>
 
-                    <p className="text-muted text-center mb-4">
-                        Tạo tài khoản để đặt vé nhanh chóng
-                    </p>
+                            <form onSubmit={handleSubmit} noValidate>
+                                <div className="row">
 
-                    <form onSubmit={handleSubmit} noValidate>
+                                    {/* USERNAME */}
+                                    <div className="col-lg-4 col-md-6 mb-2">
+                                        <label className="form-label">Tên đăng nhập *</label>
+                                        <input
+                                            name="username"
+                                            className={inputClass("username")}
+                                            value={form.username}
+                                            onChange={handleChange}
+                                        />
+                                        <div className="invalid-feedback">{errors.username}</div>
+                                    </div>
 
-                        {/* USERNAME */}
-                        <div className="mb-3">
-                            <label className="form-label">Tên đăng nhập *</label>
-                            <input
-                                type="text"
-                                name="username"
-                                className={`form-control ${errors.username ? "is-invalid" : ""}`}
-                                value={form.username}
-                                onChange={handleChange}
-                            />
-                            <div className="invalid-feedback">{errors.username}</div>
-                        </div>
+                                    {/* EMAIL */}
+                                    <div className="col-lg-4 col-md-6 mb-2">
+                                        <label className="form-label">Email *</label>
+                                        <input
+                                            type="email"
+                                            name="email"
+                                            className={inputClass("email")}
+                                            value={form.email}
+                                            onChange={handleChange}
+                                        />
+                                        <div className="invalid-feedback">{errors.email}</div>
+                                    </div>
 
-                        {/* EMAIL */}
-                        <div className="mb-3">
-                            <label className="form-label">Email</label>
-                            <input
-                                type="email"
-                                name="email"
-                                className={`form-control ${errors.email ? "is-invalid" : ""}`}
-                                value={form.email}
-                                onChange={handleChange}
-                            />
-                            <div className="invalid-feedback">{errors.email}</div>
-                        </div>
+                                    {/* PHONE */}
+                                    <div className="col-lg-4 col-md-6 mb-2">
+                                        <label className="form-label">SĐT *</label>
+                                        <input
+                                            name="phoneNumber"
+                                            className={inputClass("phoneNumber")}
+                                            value={form.phoneNumber}
+                                            onChange={handleChange}
+                                        />
+                                        <div className="invalid-feedback">{errors.phoneNumber}</div>
+                                    </div>
 
-                        {/* PASSWORD */}
-                        <div className="mb-3">
-                            <label className="form-label">Mật khẩu *</label>
-                            <input
-                                type="password"
-                                name="password"
-                                className={`form-control ${errors.password ? "is-invalid" : ""}`}
-                                value={form.password}
-                                onChange={handleChange}
-                            />
-                            <div className="invalid-feedback">{errors.password}</div>
-                        </div>
+                                    {/* PASSWORD */}
+                                    <div className="col-lg-4 col-md-6 mb-2">
+                                        <label className="form-label">Mật khẩu *</label>
+                                        <input
+                                            type="password"
+                                            name="password"
+                                            className={inputClass("password")}
+                                            value={form.password}
+                                            onChange={handleChange}
+                                        />
+                                        <div className="invalid-feedback">{errors.password}</div>
+                                    </div>
 
-                        {/* CONFIRM PASSWORD */}
-                        <div className="mb-3">
-                            <label className="form-label">Xác nhận mật khẩu *</label>
-                            <input
-                                type="password"
-                                name="confirmPassword"
-                                className={`form-control ${errors.confirmPassword ? "is-invalid" : ""}`}
-                                value={form.confirmPassword}
-                                onChange={handleChange}
-                            />
-                            <div className="invalid-feedback">{errors.confirmPassword}</div>
-                        </div>
+                                    {/* CONFIRM */}
+                                    <div className="col-lg-4 col-md-6 mb-2">
+                                        <label className="form-label">Xác nhận *</label>
+                                        <input
+                                            type="password"
+                                            name="confirmPassword"
+                                            className={inputClass("confirmPassword")}
+                                            value={form.confirmPassword}
+                                            onChange={handleChange}
+                                        />
+                                        <div className="invalid-feedback">{errors.confirmPassword}</div>
+                                    </div>
 
-                        {/* FULL NAME */}
-                        <div className="mb-3">
-                            <label className="form-label">Họ và tên *</label>
-                            <input
-                                type="text"
-                                name="fullName"
-                                className={`form-control ${errors.fullName ? "is-invalid" : ""}`}
-                                value={form.fullName}
-                                onChange={handleChange}
-                            />
-                            <div className="invalid-feedback">{errors.fullName}</div>
-                        </div>
+                                    {/* FULL NAME */}
+                                    <div className="col-lg-4 col-md-6 mb-2">
+                                        <label className="form-label">Họ tên *</label>
+                                        <input
+                                            name="fullName"
+                                            className={inputClass("fullName")}
+                                            value={form.fullName}
+                                            onChange={handleChange}
+                                        />
+                                        <div className="invalid-feedback">{errors.fullName}</div>
+                                    </div>
 
-                        {/* PHONE */}
-                        <div className="mb-3">
-                            <label className="form-label">Số điện thoại *</label>
-                            <input
-                                type="text"
-                                name="phoneNumber"
-                                className={`form-control ${errors.phoneNumber ? "is-invalid" : ""}`}
-                                value={form.phoneNumber}
-                                onChange={handleChange}
-                            />
-                            <div className="invalid-feedback">{errors.phoneNumber}</div>
-                        </div>
+                                    {/* DOB */}
+                                    <div className="col-lg-4 col-md-6 mb-2">
+                                        <label className="form-label">Ngày sinh *</label>
+                                        <input
+                                            type="date"
+                                            name="dateOfBirth"
+                                            className={inputClass("dateOfBirth")}
+                                            value={form.dateOfBirth}
+                                            onChange={handleChange}
+                                        />
+                                        <div className="invalid-feedback">{errors.dateOfBirth}</div>
+                                    </div>
 
-                        {/* CCCD */}
-                        <div className="mb-3">
-                            <label className="form-label">CMND / CCCD *</label>
-                            <input
-                                type="text"
-                                name="identityCard"
-                                className={`form-control ${errors.identityCard ? "is-invalid" : ""}`}
-                                value={form.identityCard}
-                                onChange={handleChange}
-                            />
-                            <div className="invalid-feedback">{errors.identityCard}</div>
-                        </div>
+                                    {/* CCCD */}
+                                    <div className="col-lg-4 col-md-6 mb-2">
+                                        <label className="form-label">CCCD *</label>
+                                        <input
+                                            name="identityCard"
+                                            className={inputClass("identityCard")}
+                                            value={form.identityCard}
+                                            onChange={handleChange}
+                                        />
+                                        <div className="invalid-feedback">{errors.identityCard}</div>
+                                    </div>
 
-                        {/* DATE OF BIRTH */}
-                        <div className="mb-3">
-                            <label className="form-label">Ngày sinh *</label>
-                            <input
-                                type="date"
-                                name="dateOfBirth"
-                                className={`form-control ${errors.dateOfBirth ? "is-invalid" : ""}`}
-                                value={form.dateOfBirth}
-                                onChange={handleChange}
-                            />
-                            <div className="invalid-feedback">{errors.dateOfBirth}</div>
-                        </div>
+                                    {/* GENDER */}
+                                    <div className="col-lg-4 col-md-6 mb-2">
+                                        <label className="form-label d-block">Giới tính</label>
 
-                        {/* GENDER */}
-                        <div className="mb-3">
-                            <label className="form-label d-block">Giới tính</label>
-                            {[
-                                { label: "Nam", value: "NAM" },
-                                { label: "Nữ", value: "NU" },
-                                { label: "Khác", value: "KHAC" }
-                            ].map(g => (
-                                <div className="form-check form-check-inline" key={g.value}>
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="gender"
-                                        value={g.value}
-                                        checked={form.gender === g.value}
-                                        onChange={handleChange}
-                                    />
-                                    <label className="form-check-label">{g.label}</label>
+                                        {genders.map(g => (
+                                            <div className="form-check form-check-inline" key={g.value}>
+                                                <input
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="gender"
+                                                    value={g.value}
+                                                    checked={form.gender === g.value}
+                                                    onChange={handleChange}
+                                                />
+                                                <label className="form-check-label">
+                                                    {g.label}
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
+
+
+                                    {/* ADDRESS */}
+                                    <div className="col-12 mb-2">
+                                        <label className="form-label">Địa chỉ</label>
+                                        <textarea
+                                            rows="2"
+                                            name="address"
+                                            className="form-control"
+                                            value={form.address}
+                                            onChange={handleChange}
+                                        />
+                                    </div>
                                 </div>
-                            ))}
+
+                                <button className="btn btn-info w-100 fw-bold mt-3">
+                                    Đăng ký
+                                </button>
+                            </form>
+
                         </div>
-
-                        {/* ADDRESS */}
-                        <div className="mb-4">
-                            <label className="form-label">Địa chỉ</label>
-                            <textarea
-                                name="address"
-                                className="form-control"
-                                rows="3"
-                                value={form.address}
-                                onChange={handleChange}
-                            />
-                        </div>
-
-                        {errors.submit && (
-                            <div className="alert alert-danger">
-                                {errors.submit}
-                            </div>
-                        )}
-
-                        <button type="submit" className="btn btn-info w-100 fw-bold">
-                            Đăng ký
-                        </button>
-
-                        <div className="text-center mt-3">
-                            <span className="text-muted">Đã có tài khoản?</span>{" "}
-                            <a href="/login">Đăng nhập</a>
-                        </div>
-
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>

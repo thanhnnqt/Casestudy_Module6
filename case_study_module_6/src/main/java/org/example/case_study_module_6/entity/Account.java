@@ -27,9 +27,13 @@ public class Account {
     @Column(nullable = false)
     private Provider provider = Provider.LOCAL;
 
-    private Boolean enabled = true;
-
+    @Column(nullable = false)
+    private boolean enabled = true;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+//    @ManyToOne
+//    @JoinColumn(name = "role_id")
+//    private Role role;
 }
