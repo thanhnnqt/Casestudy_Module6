@@ -7,10 +7,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 // --- THÊM ĐOẠN NÀY VÀO LÀ HẾT ĐỎ ---
-import org.example.case_study_module_6.enums.BookingStatus;
-import org.example.case_study_module_6.enums.PaymentStatus;
-import org.example.case_study_module_6.enums.PaymentMethod;
-import org.example.case_study_module_6.enums.Channel;
+import org.example.case_study_module_6.enums.*;
 // -----------------------------------
 
 @Entity
@@ -40,6 +37,14 @@ public class Booking {
     @JoinColumn(name = "flight_id")
     private Flight flight;
 
+    @ManyToOne
+    @JoinColumn(name = "return_flight_id")
+    private Flight returnFlight; // Chuyến về (Nullable)
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "trip_type") // Tên cột trong DB
+    private TripType tripType;
+
     // --- CÁC TRƯỜNG ĐÃ THÊM ---
 
     @Enumerated(EnumType.STRING)
@@ -61,6 +66,8 @@ public class Booking {
 
     @Column(name = "contact_phone")
     private String contactPhone;
+
+
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
     private List<Ticket> tickets;
 }

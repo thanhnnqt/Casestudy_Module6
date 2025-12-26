@@ -15,3 +15,9 @@ ALTER TABLE bookings MODIFY COLUMN channel VARCHAR(50);
 ALTER TABLE bookings
     ADD CONSTRAINT fk_booking_flight
         FOREIGN KEY (flight_id) REFERENCES flights(id);
+
+-- Tạo vé khứ hồi
+ALTER TABLE bookings
+    ADD COLUMN return_flight_id BIGINT NULL,
+ADD CONSTRAINT fk_return_flight
+FOREIGN KEY (return_flight_id) REFERENCES flights(id);
