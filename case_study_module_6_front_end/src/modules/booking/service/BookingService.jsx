@@ -57,28 +57,8 @@ export const FlightService = {
     },
 
     // --- 8. [MỚI THÊM] BÁN VÉ TẠI QUẦY (Xử lý Payload chuẩn cho Java) ---
-    createCounterBooking: (values) => {
-        // Lấy danh sách hành khách từ form
-        const passengerList = values.passengers || [];
-
-        // Tạo payload chuẩn mà Backend (DTO) yêu cầu
-        const payload = {
-            flightId: values.flightId,
-
-            // Lấy hạng ghế từ người đầu tiên (mặc định ECONOMY nếu lỗi)
-            seatClass: passengerList.length > 0 ? passengerList[0].seatClass : "ECONOMY",
-
-            // Số lượng vé chính là số người trong list
-            quantity: passengerList.length,
-
-            contactName: values.contactName,
-            contactEmail: values.contactEmail,
-            contactPhone: values.contactPhone
-        };
-
-        console.log("Payload gửi đi bán tại quầy:", payload);
-
-        // Gọi đúng endpoint bán tại quầy
-        return axios.post(`${API_URL}/bookings/sell-at-counter`, payload);
+    createCounterBooking: (data) => {
+        console.log("Payload gửi đi bán tại quầy:", data); // Log lại để kiểm tra
+        return axios.post("http://localhost:8080/api/bookings/sell-at-counter", data);
     }
 };
