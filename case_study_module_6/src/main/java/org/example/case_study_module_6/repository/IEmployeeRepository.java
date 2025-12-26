@@ -6,8 +6,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
 
 public interface IEmployeeRepository extends JpaRepository<Employee, Long> {
 
@@ -31,4 +33,12 @@ public interface IEmployeeRepository extends JpaRepository<Employee, Long> {
             @Param("phoneNumber") String phoneNumber,
             Pageable pageable
     );
+
+    boolean existsByIdentificationId(String identificationId);
+    boolean existsByImgHash(String imgHash);
+    boolean existsByEmail(String email);
+    boolean existsByPhoneNumber(String phone);
+    boolean existsByImgHashAndIdNot(String imgHash, Long id);
+
+
 }

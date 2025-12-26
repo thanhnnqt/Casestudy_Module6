@@ -3,8 +3,8 @@ CREATE TABLE accounts
 (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
     username   VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(255) NULL,
-    provider ENUM('LOCAL','GOOGLE') DEFAULT 'LOCAL',
+    password   VARCHAR(255) NULL,
+    provider   ENUM('LOCAL','GOOGLE') DEFAULT 'LOCAL',
     enabled    BOOLEAN   DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     -- Đã BỎ cột role. Spring Security sẽ check id ở bảng Profile để biết quyền.
@@ -177,16 +177,17 @@ CREATE TABLE tickets
 -- Nếu Account ID tồn tại trong bảng này => ROLE_EMPLOYEE
 CREATE TABLE employees
 (
-    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
-    full_name     VARCHAR(100) NOT NULL,
-    address       VARCHAR(255),
-    phone_number  VARCHAR(20),
-    email         VARCHAR(100),
-    dob           DATE,
-    gender        ENUM('Nam', 'Nữ', 'Khác') DEFAULT 'Khác',
-    imgURL        VARCHAR(500),
-
-    account_id    BIGINT
+    id                BIGINT AUTO_INCREMENT PRIMARY KEY,
+    full_name         VARCHAR(100) NOT NULL,
+    address           VARCHAR(255),
+    phone_number      VARCHAR(20),
+    identification_id VARCHAR(20),
+    email             VARCHAR(100),
+    dob               DATE,
+    gender            ENUM('Nam', 'Nữ', 'Khác') DEFAULT 'Khác',
+    img_url           VARCHAR(500),
+    img_hash          VARCHAR(500),
+    account_id        BIGINT
 --                            FOREIGN KEY (account_id) REFERENCES accounts(id)
 );
 
@@ -199,7 +200,7 @@ CREATE TABLE customers
     date_of_birth  DATE,
     gender         ENUM('NAM', 'NU', 'KHAC') DEFAULT 'KHAC',
     phone_number   VARCHAR(15),
-    email   VARCHAR(30),
+    email          VARCHAR(30),
     identity_card  VARCHAR(20),
     address        VARCHAR(255),
     total_spending DECIMAL(15, 2) DEFAULT 0,
