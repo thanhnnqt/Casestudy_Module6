@@ -19,6 +19,7 @@ import NewTicketSale from "../modules/booking/components/NewTicketSale.jsx";
 import EmployeeList from "../modules/employee/components/EmployeeList.jsx";
 import EmployeeDetail from "../modules/employee/components/EmployeeDetail.jsx";
 import AddEmployee from "../modules/employee/components/AddEmployee.jsx";
+import VerifyEmail from "../pages/VerifyEmail.jsx";
 
 function AppRouter() {
     return (
@@ -32,6 +33,7 @@ function AppRouter() {
                 <Route path="/" element={<Home/>}/>
                 <Route path="/login" element={<Login/>}/>
                 <Route path="/register" element={<Register/>}/>
+                <Route path="/verify-email" element={<VerifyEmail />} />
 
 
 

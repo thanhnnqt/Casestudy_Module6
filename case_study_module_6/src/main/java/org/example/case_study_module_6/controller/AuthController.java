@@ -7,6 +7,7 @@ import org.example.case_study_module_6.dto.RegisterRequest;
 import org.example.case_study_module_6.entity.Account;
 import org.example.case_study_module_6.entity.Customer;
 import org.example.case_study_module_6.entity.Provider;
+import org.example.case_study_module_6.entity.VerificationToken;
 import org.example.case_study_module_6.service.impl.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,19 +25,25 @@ public class AuthController {
     private final CustomerService customerService;
     private final PasswordEncoder passwordEncoder;
     private final GoogleTokenVerifierService googleVerifier;
+    private final VerificationTokenService verificationTokenService;
+    private final EmailService emailService;
 
     public AuthController(
             JwtService jwtService,
             AccountService accountService,
             CustomerService customerService,
             PasswordEncoder passwordEncoder,
-            GoogleTokenVerifierService googleVerifier
+            GoogleTokenVerifierService googleVerifier,
+            VerificationTokenService verificationTokenService,
+            EmailService emailService
     ) {
         this.jwtService = jwtService;
         this.accountService = accountService;
         this.customerService = customerService;
         this.passwordEncoder = passwordEncoder;
         this.googleVerifier = googleVerifier;
+        this.verificationTokenService = verificationTokenService;
+        this.emailService = emailService;
     }
 
     // ================= LOGIN LOCAL =================
@@ -51,7 +58,7 @@ public class AuthController {
             return ResponseEntity.status(401).body("Account not found");
         }
 
-        if (!account.getEnabled()) {
+        if (!account.isEnabled()) {
             return ResponseEntity.status(403).body("Account disabled");
         }
 
@@ -83,30 +90,59 @@ public class AuthController {
     @Transactional
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest req) {
 
+        // 1️⃣ check trùng username (email)
         if (accountService.existsByUsername(req.getUsername())) {
-            return ResponseEntity.badRequest().body("Tên đăng nhập đã tồn tại");
+            return ResponseEntity
+                    .badRequest()
+                    .body("Email đã được đăng ký");
         }
+
+        // 2️⃣ check trùng SĐT
         if (req.getPhoneNumber() != null &&
                 customerService.existsByPhoneNumber(req.getPhoneNumber())) {
-            return ResponseEntity.badRequest().body("Số điện thoại đã tồn tại");
+            return ResponseEntity
+                    .badRequest()
+                    .body("Số điện thoại đã tồn tại");
         }
 
+        // 3️⃣ check trùng CCCD
         if (req.getIdentityCard() != null &&
                 customerService.existsByIdentityCard(req.getIdentityCard())) {
-            return ResponseEntity.badRequest().body("CCCD đã tồn tại");
+            return ResponseEntity
+                    .badRequest()
+                    .body("CCCD đã tồn tại");
         }
 
+        // 4️⃣ tạo account (CHƯA KÍCH HOẠT)
         Account account = new Account();
         account.setUsername(req.getUsername());
         account.setPassword(passwordEncoder.encode(req.getPassword()));
         account.setProvider(Provider.LOCAL);
-        account.setEnabled(true);
+        account.setEnabled(false); // 🔥 CHƯA VERIFY EMAIL
 
-        Account saved = accountService.save(account);
+        Account savedAccount = accountService.save(account);
 
-        accountService.createCustomerProfile(saved, req);
+        // 5️⃣ tạo customer profile
+        accountService.createCustomerProfile(savedAccount, req);
 
-        return ResponseEntity.ok("Register success");
+        // 6️⃣ tạo verification token
+        VerificationToken token =
+                verificationTokenService.create(savedAccount);
+
+        // 7️⃣ gửi mail xác nhận
+        String verifyLink =
+                "http://localhost:5173/verify-email?token=" + token.getToken();
+
+        // 👉 nếu chưa cấu hình mail, có thể log ra console
+        System.out.println("VERIFY LINK: " + verifyLink);
+
+        // 👉 khi có EmailService thì bật dòng dưới
+         emailService.sendVerificationEmail(req.getEmail(), verifyLink);
+
+        // 8️⃣ trả kết quả
+        return ResponseEntity.ok(
+                "Đăng ký thành công. Vui lòng kiểm tra email để xác nhận tài khoản"
+        );
     }
 
     // ================= LOGIN GOOGLE =================
@@ -182,5 +218,16 @@ public class AuthController {
                         "fullName", claims.get("fullName")
                 )
         );
+    }
+    @GetMapping("/verify-email")
+    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+
+        VerificationToken vt = verificationTokenService.validate(token);
+        Account account = vt.getAccount();
+
+        account.setEnabled(true);
+        accountService.save(account);
+
+        return ResponseEntity.ok("Xác nhận email thành công");
     }
 }

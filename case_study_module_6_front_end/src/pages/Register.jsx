@@ -115,24 +115,21 @@ function Register() {
     };
 
     return (
-        <div className="container my-5 pt-5">
+        <div className="container-fluid px-4 my-3">
             <div className="row justify-content-center">
-                <div className="col-lg-8 col-xl-7">
+                <div className="col-12">
                     <div className="card shadow border-0 rounded-4">
-                        <div className="card-body p-5">
+                        <div className="card-body p-3">
 
-                            <h4 className="fw-bold text-center mb-2">
+                            <h5 className="fw-bold text-center mb-2">
                                 Đăng ký tài khoản
-                            </h4>
-                            <p className="text-muted text-center mb-4">
-                                Tạo tài khoản để đặt vé nhanh chóng
-                            </p>
+                            </h5>
 
                             <form onSubmit={handleSubmit} noValidate>
-
-                                {/* ROW 1 */}
                                 <div className="row">
-                                    <div className="col-md-6 mb-3">
+
+                                    {/* USERNAME */}
+                                    <div className="col-lg-4 col-md-6 mb-2">
                                         <label className="form-label">Tên đăng nhập *</label>
                                         <input
                                             type="text"
@@ -144,7 +141,8 @@ function Register() {
                                         <div className="invalid-feedback">{errors.username}</div>
                                     </div>
 
-                                    <div className="col-md-6 mb-3">
+                                    {/* EMAIL */}
+                                    <div className="col-lg-4 col-md-6 mb-2">
                                         <label className="form-label">Email *</label>
                                         <input
                                             type="email"
@@ -155,11 +153,22 @@ function Register() {
                                         />
                                         <div className="invalid-feedback">{errors.email}</div>
                                     </div>
-                                </div>
 
-                                {/* ROW 2 */}
-                                <div className="row">
-                                    <div className="col-md-6 mb-3">
+                                    {/* PHONE */}
+                                    <div className="col-lg-4 col-md-6 mb-2">
+                                        <label className="form-label">SĐT *</label>
+                                        <input
+                                            type="text"
+                                            name="phoneNumber"
+                                            className={`form-control ${errors.phoneNumber ? "is-invalid" : ""}`}
+                                            value={form.phoneNumber}
+                                            onChange={handleChange}
+                                        />
+                                        <div className="invalid-feedback">{errors.phoneNumber}</div>
+                                    </div>
+
+                                    {/* PASSWORD */}
+                                    <div className="col-lg-4 col-md-6 mb-2">
                                         <label className="form-label">Mật khẩu *</label>
                                         <input
                                             type="password"
@@ -171,8 +180,9 @@ function Register() {
                                         <div className="invalid-feedback">{errors.password}</div>
                                     </div>
 
-                                    <div className="col-md-6 mb-3">
-                                        <label className="form-label">Xác nhận mật khẩu *</label>
+                                    {/* CONFIRM */}
+                                    <div className="col-lg-4 col-md-6 mb-2">
+                                        <label className="form-label">Xác nhận *</label>
                                         <input
                                             type="password"
                                             name="confirmPassword"
@@ -182,12 +192,10 @@ function Register() {
                                         />
                                         <div className="invalid-feedback">{errors.confirmPassword}</div>
                                     </div>
-                                </div>
 
-                                {/* ROW 3 */}
-                                <div className="row">
-                                    <div className="col-md-6 mb-3">
-                                        <label className="form-label">Họ và tên *</label>
+                                    {/* FULL NAME */}
+                                    <div className="col-lg-4 col-md-6 mb-2">
+                                        <label className="form-label">Họ tên *</label>
                                         <input
                                             type="text"
                                             name="fullName"
@@ -198,7 +206,8 @@ function Register() {
                                         <div className="invalid-feedback">{errors.fullName}</div>
                                     </div>
 
-                                    <div className="col-md-6 mb-3">
+                                    {/* DOB */}
+                                    <div className="col-lg-4 col-md-6 mb-2">
                                         <label className="form-label">Ngày sinh *</label>
                                         <input
                                             type="date"
@@ -209,24 +218,10 @@ function Register() {
                                         />
                                         <div className="invalid-feedback">{errors.dateOfBirth}</div>
                                     </div>
-                                </div>
 
-                                {/* ROW 4 */}
-                                <div className="row">
-                                    <div className="col-md-6 mb-3">
-                                        <label className="form-label">Số điện thoại *</label>
-                                        <input
-                                            type="text"
-                                            name="phoneNumber"
-                                            className={`form-control ${errors.phoneNumber ? "is-invalid" : ""}`}
-                                            value={form.phoneNumber}
-                                            onChange={handleChange}
-                                        />
-                                        <div className="invalid-feedback">{errors.phoneNumber}</div>
-                                    </div>
-
-                                    <div className="col-md-6 mb-3">
-                                        <label className="form-label">CMND / CCCD *</label>
+                                    {/* CCCD */}
+                                    <div className="col-lg-4 col-md-6 mb-2">
+                                        <label className="form-label">CCCD *</label>
                                         <input
                                             type="text"
                                             name="identityCard"
@@ -236,57 +231,54 @@ function Register() {
                                         />
                                         <div className="invalid-feedback">{errors.identityCard}</div>
                                     </div>
-                                </div>
 
-                                {/* GENDER */}
-                                <div className="mb-3">
-                                    <label className="form-label d-block">Giới tính</label>
-                                    {[
-                                        { label: "Nam", value: "NAM" },
-                                        { label: "Nữ", value: "NU" },
-                                        { label: "Khác", value: "KHAC" }
-                                    ].map(g => (
-                                        <div className="form-check form-check-inline" key={g.value}>
-                                            <input
-                                                className="form-check-input"
-                                                type="radio"
-                                                name="gender"
-                                                value={g.value}
-                                                checked={form.gender === g.value}
-                                                onChange={handleChange}
-                                            />
-                                            <label className="form-check-label">{g.label}</label>
-                                        </div>
-                                    ))}
-                                </div>
+                                    {/* GENDER */}
+                                    <div className="col-lg-4 col-md-6 mb-2">
+                                        <label className="form-label d-block">Giới tính</label>
 
-                                {/* ADDRESS */}
-                                <div className="mb-4">
-                                    <label className="form-label">Địa chỉ</label>
-                                    <textarea
-                                        name="address"
-                                        className="form-control"
-                                        rows="3"
-                                        value={form.address}
-                                        onChange={handleChange}
-                                    />
+                                        {[
+                                            { value: "NAM", label: "Nam" },
+                                            { value: "NU", label: "Nữ" },
+                                            { value: "KHAC", label: "Khác" }
+                                        ].map(g => (
+                                            <div className="form-check form-check-inline" key={g.value}>
+                                                <input
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="gender"
+                                                    value={g.value}
+                                                    checked={form.gender === g.value}
+                                                    onChange={handleChange}
+                                                />
+                                                <label className="form-check-label">
+                                                    {g.label}
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* ADDRESS */}
+                                    <div className="col-12 mb-2">
+                                        <label className="form-label">Địa chỉ</label>
+                                        <textarea
+                                            rows="2"
+                                            name="address"
+                                            className="form-control"
+                                            value={form.address}
+                                            onChange={handleChange}
+                                        />
+                                    </div>
                                 </div>
 
                                 {errors.submit && (
-                                    <div className="alert alert-danger">
+                                    <div className="alert alert-danger py-1 mt-2">
                                         {errors.submit}
                                     </div>
                                 )}
 
-                                <button type="submit" className="btn btn-info w-100 fw-bold">
+                                <button className="btn btn-info w-100 fw-bold mt-2">
                                     Đăng ký
                                 </button>
-
-                                <div className="text-center mt-3">
-                                    <span className="text-muted">Đã có tài khoản?</span>{" "}
-                                    <a href="/login">Đăng nhập</a>
-                                </div>
-
                             </form>
 
                         </div>
