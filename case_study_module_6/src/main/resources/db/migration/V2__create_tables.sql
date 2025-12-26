@@ -298,13 +298,8 @@ CREATE TABLE payments
 
 CREATE TABLE verification_tokens
 (
-    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
-    token       VARCHAR(255) NOT NULL UNIQUE,
-    account_id  BIGINT       NOT NULL,
-    expiry_date DATETIME     NOT NULL,
-
-    CONSTRAINT fk_verification_account
-        FOREIGN KEY (account_id)
-            REFERENCES accounts (id)
-            ON DELETE CASCADE
+    id               BIGINT AUTO_INCREMENT PRIMARY KEY,
+    token            VARCHAR(255) NOT NULL UNIQUE,
+    expiry_date      DATETIME     NOT NULL,
+    register_request TEXT
 );
