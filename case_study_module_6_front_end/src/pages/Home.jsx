@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "../styles/home.css";
+import {toast} from "react-toastify";
 
 function Home() {
     /* ================= CITY LIST ================= */
@@ -147,9 +148,13 @@ function Home() {
         loadWeather();
     }, [form.from, form.to, form.departureDate, cityWeatherMap]);
 
-    const handleCopy = (code) => {
-        navigator.clipboard.writeText(code);
-        alert("Đã copy mã: " + code);
+    const handleCopy = async (code) => {
+        try {
+            await navigator.clipboard.writeText(code);
+            toast.success(`🎉 Đã copy mã ưu đãi: ${code}`);
+        } catch (err) {
+            toast.error("❌ Không thể copy mã, vui lòng thử lại");
+        }
     };
 
     /* ================= RENDER ================= */

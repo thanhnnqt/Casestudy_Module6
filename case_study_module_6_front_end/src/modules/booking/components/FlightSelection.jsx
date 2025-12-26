@@ -1,146 +1,143 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { FlightService } from '../service/BookingService.jsx'; // Sửa lại đường dẫn import nếu cần
+import { FlightService } from '../service/BookingService.jsx';
 
 const FlightSelection = () => {
     const location = useLocation();
     const navigate = useNavigate();
-
-    // Lấy state an toàn
     const searchParams = location.state || {};
 
-    const [flights, setFlights] = useState([]);
-    const [selectedFlight, setSelectedFlight] = useState(null);
-    const [loading, setLoading] = useState(false); // Thêm loading
+    const [loading, setLoading] = useState(false);
+
+    // Danh sách chuyến bay
+    const [outboundList, setOutboundList] = useState([]);
+    const [inboundList, setInboundList] = useState([]);
+
+    // Vé đã chọn
+    const [selectedOutbound, setSelectedOutbound] = useState(null);
+    const [selectedInbound, setSelectedInbound] = useState(null);
 
     useEffect(() => {
-        // Nếu không có dữ liệu tìm kiếm (ví dụ F5 lại trang), quay về trang tìm kiếm
-        if (!searchParams.from || !searchParams.to || !searchParams.date) {
-            navigate('/search'); // Hoặc đường dẫn trang chủ của ông
+        if (!searchParams.from || !searchParams.to) {
+            navigate('/new-sale');
             return;
         }
+        fetchAllFlights();
+    }, [searchParams]);
 
+    const fetchAllFlights = async () => {
         setLoading(true);
-        FlightService.searchFlights(searchParams.from, searchParams.to, searchParams.date)
-            .then(res => {
-                // Spring Boot trả về Page thì lấy .content, List thì lấy data
-                const flightList = res.data.content ? res.data.content : res.data;
-                setFlights(flightList || []);
-            })
-            .catch(err => {
-                console.error("Lỗi tải chuyến bay:", err);
-                setFlights([]);
-            })
-            .finally(() => {
-                setLoading(false); // Tắt loading dù thành công hay thất bại
-            });
-    }, [searchParams, navigate]);
+        try {
+            // 1. Tìm chiều đi
+            const resOut = await FlightService.searchFlights(searchParams.from, searchParams.to, searchParams.date);
+            setOutboundList(resOut.data.content ? resOut.data.content : resOut.data);
 
-    // HÀM MỚI: Tính giá hiển thị (Lấy giá rẻ nhất trong các hạng ghế)
-    const getDisplayPrice = (flight) => {
-        if (!flight.seatDetails || flight.seatDetails.length === 0) return 0;
-        // Map ra mảng giá, sau đó tìm min
-        const prices = flight.seatDetails.map(s => s.price);
-        return Math.min(...prices);
+            // 2. Tìm chiều về (nếu là Khứ hồi)
+            if (searchParams.tripType === 'ROUND_TRIP' && searchParams.returnDate) {
+                // Đảo ngược From/To cho chiều về
+                const resIn = await FlightService.searchFlights(searchParams.to, searchParams.from, searchParams.returnDate);
+                setInboundList(resIn.data.content ? resIn.data.content : resIn.data);
+            }
+        } catch (err) {
+            console.error("Lỗi tìm kiếm:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getPrice = (flight) => {
+        if (!flight.seatDetails?.length) return 0;
+        return Math.min(...flight.seatDetails.map(s => s.price));
     };
 
     const handleContinue = () => {
-        if (!selectedFlight) return alert("Vui lòng chọn chuyến bay!");
-        navigate('/booking-details', { state: { flight: selectedFlight } });
+        // Validate
+        if (!selectedOutbound) return alert("Vui lòng chọn chuyến bay chiều đi!");
+
+        if (searchParams.tripType === 'ROUND_TRIP' && !selectedInbound) {
+            return alert("Vui lòng chọn chuyến bay chiều về!");
+        }
+
+        // Chuyển sang BookingDetails với ĐỦ thông tin
+        navigate('/booking-details', {
+            state: {
+                tripType: searchParams.tripType,
+                flightOut: selectedOutbound,
+                flightIn: selectedInbound // Có thể null nếu 1 chiều
+            }
+        });
     };
 
-    return (
-        <div className="booking-wrapper">
-            <h2>Kết Quả: {searchParams.from} ➝ {searchParams.to}</h2>
-            <p>
-                Ngày khởi hành:
-                <strong> {searchParams.date ? new Date(searchParams.date).toLocaleDateString('vi-VN') : '...'}</strong>
-            </p>
-
-            {loading ? (
-                <div className="center-align" style={{padding: '50px'}}>
-                    <h3>Đang tìm kiếm chuyến bay...</h3>
-                </div>
-            ) : (
-                <table>
-                    <thead>
-                    <tr>
-                        <th style={{width: '60px'}}>Hãng</th>
-                        <th>Chuyến bay</th>
-                        <th>Giờ bay</th>
-                        <th>Giá vé (Từ)</th>
-                        <th className="center-align">Chọn</th>
-                    </tr>
+    // Component con để render bảng (cho gọn code)
+    const FlightTable = ({ title, flights, selectedId, onSelect, color }) => (
+        <div className="card mb-4 shadow-sm">
+            <div className={`card-header text-white fw-bold`} style={{backgroundColor: color}}>
+                {title}
+            </div>
+            <div className="table-responsive">
+                <table className="table table-hover mb-0 align-middle">
+                    <thead className="table-light">
+                    <tr><th>Hãng</th><th>Số hiệu</th><th>Giờ bay</th><th className="text-end">Giá vé</th><th className="text-center">Chọn</th></tr>
                     </thead>
                     <tbody>
                     {flights.length === 0 ? (
-                        <tr>
-                            <td colSpan="5" className="center-align" style={{padding: '20px', color: 'red'}}>
-                                Không tìm thấy chuyến bay nào phù hợp!
-                            </td>
-                        </tr>
+                        <tr><td colSpan="5" className="text-center py-4 text-muted">Không tìm thấy chuyến bay.</td></tr>
                     ) : (
-                        flights.map(flight => {
-                            const price = getDisplayPrice(flight);
-                            return (
-                                <tr key={flight.id}
-                                    onClick={() => setSelectedFlight(flight)}
-                                    style={{
-                                        cursor: 'pointer',
-                                        backgroundColor: selectedFlight?.id === flight.id ? '#e6f7ff' : ''
-                                    }}>
-
-                                    <td className="center-align">
-                                        <div style={{fontSize: '24px'}}>✈</div>
-                                        <small>{flight.aircraft?.airline?.name || 'Vietnam Air'}</small>
-                                    </td>
-
-                                    <td>
-                                        <strong>{flight.flightNumber}</strong><br/>
-                                        <span style={{color: '#666'}}>{flight.aircraft?.name}</span>
-                                    </td>
-
-                                    <td>
-                                        <div style={{fontWeight: 'bold', color: '#007bff'}}>
-                                            {new Date(flight.departureTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
-                                        </div>
-                                        <div style={{fontSize: '0.9em', color: '#555'}}>
-                                            Đến: {new Date(flight.arrivalTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
-                                        </div>
-                                    </td>
-
-                                    {/* SỬA PHẦN HIỂN THỊ GIÁ */}
-                                    <td style={{color: '#d9534f', fontWeight: 'bold', fontSize: '1.1em'}}>
-                                        {price > 0 ? price.toLocaleString('vi-VN') : "Liên hệ"} đ
-                                    </td>
-
-                                    <td className="center-align">
-                                        <input
-                                            type="radio"
-                                            name="selectFlight"
-                                            checked={selectedFlight?.id === flight.id}
-                                            readOnly
-                                        />
-                                    </td>
-                                </tr>
-                            );
-                        })
+                        flights.map(f => (
+                            <tr key={f.id} onClick={() => onSelect(f)} style={{cursor:'pointer', backgroundColor: selectedId === f.id ? '#e8f4ff' : ''}}>
+                                <td>{f.aircraft?.airline?.name}</td>
+                                <td><span className="badge bg-secondary">{f.flightNumber}</span></td>
+                                <td>
+                                    <div>{new Date(f.departureTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+                                    <small className="text-muted">đến {new Date(f.arrivalTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</small>
+                                </td>
+                                <td className="text-end fw-bold text-danger">{getPrice(f).toLocaleString()} đ</td>
+                                <td className="text-center">
+                                    <input type="radio" checked={selectedId === f.id} readOnly style={{transform: 'scale(1.5)'}} />
+                                </td>
+                            </tr>
+                        ))
                     )}
                     </tbody>
                 </table>
-            )}
-
-            <div className="footer-action">
-                <button className="btn-booking btn-secondary" onClick={() => navigate(-1)}>Quay lại</button>
-                <button
-                    className="btn-booking btn-primary"
-                    onClick={handleContinue}
-                    disabled={!selectedFlight} // Disable nếu chưa chọn
-                    style={{opacity: !selectedFlight ? 0.6 : 1}}
-                >
-                    Tiếp tục Đặt vé
-                </button>
             </div>
+        </div>
+    );
+
+    return (
+        <div className="container mt-4" style={{maxWidth: '1000px'}}>
+            <h2 className="text-center mb-4" style={{color: '#0056b3'}}>Kết Quả Tìm Kiếm</h2>
+
+            {loading ? <div className="text-center p-5">Đang tải dữ liệu...</div> : (
+                <>
+                    {/* Bảng Chiều Đi */}
+                    <FlightTable
+                        title={`🛫 CHIỀU ĐI: ${searchParams.from} ➝ ${searchParams.to} (${new Date(searchParams.date).toLocaleDateString()})`}
+                        flights={outboundList}
+                        selectedId={selectedOutbound?.id}
+                        onSelect={setSelectedOutbound}
+                        color="#0d6efd" // Xanh dương
+                    />
+
+                    {/* Bảng Chiều Về (Chỉ hiện nếu Khứ hồi) */}
+                    {searchParams.tripType === 'ROUND_TRIP' && (
+                        <FlightTable
+                            title={`🛬 CHIỀU VỀ: ${searchParams.to} ➝ ${searchParams.from} (${new Date(searchParams.returnDate).toLocaleDateString()})`}
+                            flights={inboundList}
+                            selectedId={selectedInbound?.id}
+                            onSelect={setSelectedInbound}
+                            color="#198754" // Xanh lá
+                        />
+                    )}
+
+                    <div className="d-flex justify-content-between mt-4 pb-5">
+                        <button className="btn btn-secondary px-4" onClick={() => navigate(-1)}>⬅ Quay lại</button>
+                        <button className="btn btn-primary px-4 fw-bold" onClick={handleContinue}>
+                            Tiếp tục đặt vé ✅
+                        </button>
+                    </div>
+                </>
+            )}
         </div>
     );
 };

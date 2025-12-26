@@ -23,6 +23,16 @@ public interface IEmployeeService {
             int page,
             int size
     );
+
+    public boolean existsByIdentificationId(String id);
+
+    boolean existsByImgHash(String hash);
+
+    boolean existsByEmail(String email);
+
+    boolean existsByPhoneNumber(String phone);
+
+    boolean existsByImgHashAndIdNot(String hash, Long id);
 }
 
 

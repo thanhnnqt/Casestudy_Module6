@@ -56,4 +56,28 @@ public class EmployeeService implements IEmployeeService {
         );
     }
 
+    @Override
+    public boolean existsByIdentificationId(String id) {
+        return employeeRepository.existsByIdentificationId(id);
+    }
+
+    @Override
+    public boolean existsByImgHash(String hash) {
+        return employeeRepository.existsByImgHash(hash);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return employeeRepository.existsByEmail(email);
+    }
+
+    @Override
+    public boolean existsByPhoneNumber(String phone) {
+        return employeeRepository.existsByPhoneNumber(phone);
+    }
+
+    @Override
+    public boolean existsByImgHashAndIdNot(String hash, Long id) {
+        return employeeRepository.existsByImgHashAndIdNot(hash, id);
+    }
 }
