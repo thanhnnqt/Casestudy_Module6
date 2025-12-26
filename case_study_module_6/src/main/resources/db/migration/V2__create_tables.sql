@@ -3,11 +3,10 @@ CREATE TABLE accounts
 (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
     username   VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(255) NULL,
-    provider ENUM('LOCAL','GOOGLE') DEFAULT 'LOCAL',
-    enabled    BOOLEAN   DEFAULT TRUE,
+    password   VARCHAR(255) NULL,
+    provider   ENUM('LOCAL','GOOGLE') DEFAULT 'LOCAL',
+    enabled    BOOLEAN   DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    -- Đã BỎ cột role. Spring Security sẽ check id ở bảng Profile để biết quyền.
 );
 
 -- ================== 2. DANH MỤC CƠ BẢN ==================
@@ -177,16 +176,16 @@ CREATE TABLE tickets
 -- Nếu Account ID tồn tại trong bảng này => ROLE_EMPLOYEE
 CREATE TABLE employees
 (
-    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
-    full_name     VARCHAR(100) NOT NULL,
-    address       VARCHAR(255),
-    phone_number  VARCHAR(20),
-    email         VARCHAR(100),
-    dob           DATE,
-    gender        ENUM('Nam', 'Nữ', 'Khác') DEFAULT 'Khác',
-    imgURL        VARCHAR(500),
+    id           BIGINT AUTO_INCREMENT PRIMARY KEY,
+    full_name    VARCHAR(100) NOT NULL,
+    address      VARCHAR(255),
+    phone_number VARCHAR(20),
+    email        VARCHAR(100),
+    dob          DATE,
+    gender       ENUM('Nam', 'Nữ', 'Khác') DEFAULT 'Khác',
+    imgURL       VARCHAR(500),
 
-    account_id    BIGINT
+    account_id   BIGINT
 --                            FOREIGN KEY (account_id) REFERENCES accounts(id)
 );
 
@@ -198,15 +197,19 @@ CREATE TABLE customers
     full_name      VARCHAR(100) NOT NULL,
     date_of_birth  DATE,
     gender         ENUM('NAM', 'NU', 'KHAC') DEFAULT 'KHAC',
-    phone_number   VARCHAR(15),
-    email   VARCHAR(30),
-    identity_card  VARCHAR(20),
+    phone_number   VARCHAR(15) UNIQUE,
+    email          VARCHAR(30) UNIQUE,
+    identity_card  VARCHAR(20) UNIQUE,
     address        VARCHAR(255),
     total_spending DECIMAL(15, 2) DEFAULT 0,
     created_at     TIMESTAMP      DEFAULT CURRENT_TIMESTAMP,
 
-    account_id     BIGINT UNIQUE,
-    FOREIGN KEY (account_id) REFERENCES accounts (id)
+    account_id     BIGINT       NOT NULL UNIQUE,
+
+    CONSTRAINT fk_customer_account
+        FOREIGN KEY (account_id)
+            REFERENCES accounts (id)
+            ON DELETE CASCADE
 );
 
 -- Nếu Account ID tồn tại trong bảng này => ROLE_ADMIN
@@ -215,13 +218,17 @@ CREATE TABLE admins
     id           BIGINT AUTO_INCREMENT PRIMARY KEY,
     admin_code   VARCHAR(50)  NOT NULL UNIQUE,
     full_name    VARCHAR(100) NOT NULL,
-    email        VARCHAR(100),
-    phone_number VARCHAR(20),
+    email        VARCHAR(100) UNIQUE,
+    phone_number VARCHAR(20) UNIQUE,
     created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     account_id   BIGINT       NOT NULL UNIQUE,
-    FOREIGN KEY (account_id) REFERENCES accounts (id)
+
+    CONSTRAINT fk_admin_account
+        FOREIGN KEY (account_id)
+            REFERENCES accounts (id)
+            ON DELETE CASCADE
 );
 
 -- ================== 6. CMS ==================
@@ -287,4 +294,17 @@ CREATE TABLE payments
     CONSTRAINT fk_payment_account
         FOREIGN KEY (paid_by_account_id)
             REFERENCES accounts (id)
+);
+
+CREATE TABLE verification_tokens
+(
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    token       VARCHAR(255) NOT NULL UNIQUE,
+    account_id  BIGINT       NOT NULL,
+    expiry_date DATETIME     NOT NULL,
+
+    CONSTRAINT fk_verification_account
+        FOREIGN KEY (account_id)
+            REFERENCES accounts (id)
+            ON DELETE CASCADE
 );
