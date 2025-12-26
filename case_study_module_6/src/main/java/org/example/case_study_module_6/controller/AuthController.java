@@ -89,37 +89,45 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest req) {
 
-        // 1️⃣ check trùng email
+        Map<String, String> errors = new java.util.HashMap<>();
+
+        // 🔥 1️⃣ CHECK USERNAME
         if (accountService.existsByUsername(req.getUsername())) {
-            return ResponseEntity.badRequest().body("Email đã được đăng ký");
+            errors.put("username", "Tên đăng nhập đã tồn tại");
         }
 
-        // 2️⃣ check SĐT
+        // 1️⃣ email
+        if (customerService.existsByEmail(req.getEmail())) {
+            errors.put("email", "Email này đã được sử dụng");
+        }
+
+        // 2️⃣ phone
         if (req.getPhoneNumber() != null &&
                 customerService.existsByPhoneNumber(req.getPhoneNumber())) {
-            return ResponseEntity.badRequest().body("Số điện thoại đã tồn tại");
+            errors.put("phoneNumber", "Số điện thoại đã tồn tại");
         }
 
-        // 3️⃣ check CCCD
+        // 3️⃣ CCCD
         if (req.getIdentityCard() != null &&
                 customerService.existsByIdentityCard(req.getIdentityCard())) {
-            return ResponseEntity.badRequest().body("CCCD đã tồn tại");
+            errors.put("identityCard", "CCCD đã tồn tại");
         }
 
-        // 4️⃣ tạo verification token (CHỨA DATA REGISTER)
+        // 🔥 nếu có bất kỳ lỗi nào → trả hết về frontend
+        if (!errors.isEmpty()) {
+            return ResponseEntity.badRequest().body(errors);
+        }
+
+        // 4️⃣ tạo token
         VerificationToken token =
                 verificationTokenService.createFromRegister(req);
 
-        // 5️⃣ gửi mail
         String verifyLink =
                 "http://localhost:5173/verify-email?token=" + token.getToken();
 
-        System.out.println("VERIFY LINK: " + verifyLink);
         emailService.sendVerificationEmail(req.getEmail(), verifyLink);
 
-        return ResponseEntity.ok(
-                "Vui lòng kiểm tra email để xác nhận tài khoản"
-        );
+        return ResponseEntity.ok("Vui lòng kiểm tra email để xác nhận tài khoản");
     }
 
 

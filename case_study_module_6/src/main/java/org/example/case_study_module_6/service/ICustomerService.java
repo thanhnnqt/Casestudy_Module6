@@ -1,5 +1,6 @@
 package org.example.case_study_module_6.service;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import org.example.case_study_module_6.dto.RegisterRequest;
 import org.example.case_study_module_6.entity.Account;
@@ -35,4 +36,6 @@ public interface ICustomerService {
     boolean existsByPhoneNumber(@Pattern(regexp = "^0\\d{9}$", message = "Số điện thoại không hợp lệ") String phoneNumber);
 
     boolean existsByIdentityCard(@Pattern(regexp = "^(\\d{9}|\\d{12})$", message = "CCCD không hợp lệ") String identityCard);
+
+    boolean existsByEmail(@Email(message = "Email không hợp lệ") String email);
 }
