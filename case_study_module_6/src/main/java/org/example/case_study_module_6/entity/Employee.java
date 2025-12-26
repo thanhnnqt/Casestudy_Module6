@@ -18,9 +18,6 @@ public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false, unique = true, name = "employee_code")
-    private String employeeCode;
     @Column(name = "full_name")
     private String fullName;
     @Column(name = "address")
@@ -34,6 +31,7 @@ public class Employee {
     @Column(name = "gender")
     @Enumerated(EnumType.STRING)
     private Gender gender;
+    private String imgURL;
     //    @OneToOne
 //    @JoinColumn(name = "account_id", nullable = false, unique = true)
 //    private Account account;

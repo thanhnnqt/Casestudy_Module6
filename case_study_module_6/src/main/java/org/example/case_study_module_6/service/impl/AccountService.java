@@ -73,8 +73,7 @@ public class AccountService implements IAccountService {
     public void createCustomerProfile(Account account, RegisterRequest req) {
 
         Customer customer = new Customer();
-        customer.setCustomerCode("CUS_" + System.currentTimeMillis());
-
+        customer.setCustomerCode("KH" + System.currentTimeMillis());
         customer.setAccount(account);
         customer.setFullName(req.getFullName());
         customer.setDateOfBirth(req.getDateOfBirth());

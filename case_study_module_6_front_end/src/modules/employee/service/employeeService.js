@@ -43,6 +43,23 @@ export async function editEmployee(employee) {
     return false;
 }
 
+export async function getEmployeeListBySearch(fullName, phoneNumber, page = 0, size = 50) {
+    try {
+        const res = await axios.get(URL, {
+            params: {
+                fullName: fullName || "",
+                phoneNumber: phoneNumber || "",
+                page,
+                size
+            }
+        });
+        return res.data;
+    } catch (e) {
+        console.error("Search Employee Error:", e);
+        return {content: []};
+    }
+}
+
 export async function addEmployee(employee) {
     try {
         const res = await axios.post(`${URL}`, employee);

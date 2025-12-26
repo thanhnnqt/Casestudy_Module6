@@ -1,6 +1,7 @@
 package org.example.case_study_module_6.service;
 
 import org.example.case_study_module_6.entity.Employee;
+import org.springframework.data.domain.Page;
 
 
 import java.util.List;
@@ -16,4 +17,12 @@ public interface IEmployeeService {
 
     boolean existsByAccountId(Long accountId);
 
+    Page<Employee> searchEmployees(
+            String fullName,
+            String phoneNumber,
+            int page,
+            int size
+    );
 }
+
+

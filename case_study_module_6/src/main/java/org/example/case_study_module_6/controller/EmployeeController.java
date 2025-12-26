@@ -8,13 +8,12 @@ import org.example.case_study_module_6.entity.Account;
 import org.example.case_study_module_6.entity.Employee;
 import org.example.case_study_module_6.service.IAccountService;
 import org.example.case_study_module_6.service.IEmployeeService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -35,9 +34,16 @@ public class EmployeeController {
             @ApiResponse(responseCode = "200", description = "Lấy danh sách thành công!")
     })
     @GetMapping
-    public ResponseEntity<?> getAll() {
-        List<Employee> employeeList = employeeService.findAll();
-        return new ResponseEntity<>(employeeList, HttpStatus.OK);
+    public ResponseEntity<Page<Employee>> searchEmployees(
+            @RequestParam(required = false) String fullName,
+            @RequestParam(required = false) String phoneNumber,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "2") int size
+    ) {
+        Page<Employee> data =
+                employeeService.searchEmployees(fullName, phoneNumber, page, size);
+
+        return ResponseEntity.ok(data);
     }
 
     @DeleteMapping("/{id}")
@@ -59,19 +65,10 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody EmployeeDTO employeeDTO) {
-        Account account  = new Account();
+    public ResponseEntity<?> create(@RequestBody Employee employee) {
+        Account account = new Account();
         account.setId(32L);
-        Employee employee = new Employee();
-        employee.setEmployeeCode(employeeDTO.getEmployeeCode());
-        employee.setAddress(employeeDTO.getAddress());
-        employee.setFullName(employeeDTO.getFullName());
-        employee.setEmail(employeeDTO.getEmail());
-        employee.setDob(employeeDTO.getDOB());
-        employee.setGender(Employee.Gender.valueOf(employeeDTO.getGender()));
-        employee.setPhoneNumber(employeeDTO.getPhoneNumber());
         employee.setAccountId(account.getId());
-        System.out.println(employeeDTO.getDOB());
         employeeService.save(employee);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
