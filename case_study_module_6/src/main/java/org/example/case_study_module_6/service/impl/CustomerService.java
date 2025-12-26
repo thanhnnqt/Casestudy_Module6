@@ -44,9 +44,7 @@ public class CustomerService implements ICustomerService {
     @Override
     public Customer addCustomer(Customer customer) {
         // 1. Kiểm tra Mã khách hàng
-        if (customerRepository.existsByCustomerCode(customer.getCustomerCode())) {
-            throw new RuntimeException("Mã khách hàng " + customer.getCustomerCode() + " đã tồn tại!");
-        }
+        customer.setCustomerCode(generateNextCustomerCode());
 
         // 2. Kiểm tra Số điện thoại
         if (customerRepository.existsByPhoneNumber(customer.getPhoneNumber())) {
@@ -103,6 +101,7 @@ public class CustomerService implements ICustomerService {
         }
         customerRepository.deleteById(id);
     }
+    
 
     @Override
     public Customer registerCustomer(RegisterRequest req) {
