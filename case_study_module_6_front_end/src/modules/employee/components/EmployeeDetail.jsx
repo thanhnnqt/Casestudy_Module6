@@ -14,6 +14,7 @@ import * as Yup from "yup";
 import CryptoJS from "crypto-js";
 import {toast} from "react-toastify";
 
+
 const Required = () => <span className="text-danger"> *</span>;
 
 const EmployeeDetail = () => {
@@ -113,11 +114,11 @@ const EmployeeDetail = () => {
 
         const ok = await editEmployee(values);
         if (ok) {
+            setDetail(prev => ({ ...prev, imgHash: values.imgHash }));
+            toast.success("Cập nhật thành công");
             navigate("/employees");
-            toast.success("Cập nhật thông tin thành công")
         }
     };
-
 
     return (
         <div className="bg-light mt-3">
