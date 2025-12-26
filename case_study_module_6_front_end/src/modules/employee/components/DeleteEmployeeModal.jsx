@@ -8,31 +8,42 @@ const DeleteEmployeeModal = ({
                                  show,
                                  handleToggleModal,
                                  objectDelete,
-                                 reloadAfterDelete
+                                 reloadAfterDelete,
+                                 list,
+                                 setList
                              }) => {
 
     const navigate = useNavigate();
 
     const handleDeleteEmployee = async () => {
-        const isDeleteSucceed = await deleteEmployee(objectDelete?.id);
+        // const isDeleteSucceed = await deleteEmployee(objectDelete?.id);
+        //
+        // if (isDeleteSucceed) {
+        //     toast.success("Xóa nhân viên thành công!");
+        //     reloadAfterDelete();
+        //     handleToggleModal();
+        //     navigate("/employees");
+        // } else {
+        //     toast.error("Xóa nhân viên không thành công!");
+        // }
 
-        if (isDeleteSucceed) {
-            toast.success("Xóa nhân viên thành công!", {
-                position: "top-right",
-                theme: "colored",
-                autoClose: 3000
-            });
-            reloadAfterDelete();
-            handleToggleModal();
-            navigate("/employees");
-        } else {
-            toast.error("Xóa nhân viên không thành công!", {
-                position: "top-right",
-                theme: "colored",
-                autoClose: 3000
-            });
+        let isDeleteSucceed = false;
+
+        for (let i = 0; i < list.length; i++) {
+            if (list[i].id === objectDelete.id) {
+                list.splice(i, 1);
+                isDeleteSucceed = true;
+                break;
+            }
         }
-
+        if (isDeleteSucceed) {
+            toast.success("Xóa nhân viên thành công!")
+            handleToggleModal();
+        } else {
+            toast.success("Xóa nhân viên thất bại!")
+        }
+        setList([...list]);
+        navigate("/employees");
     };
 
     return (
