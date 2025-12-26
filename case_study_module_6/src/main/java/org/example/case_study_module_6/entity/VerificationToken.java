@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.case_study_module_6.dto.RegisterRequest;
+import org.example.case_study_module_6.dto.converter.RegisterRequestConverter;
 
 import java.time.LocalDateTime;
 
@@ -23,10 +25,11 @@ public class VerificationToken {
     @Column(nullable = false, unique = true)
     private String token;
 
-    @OneToOne
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
-
+    // ✅ CHỈ GIỮ CỘT NÀY
     @Column(name = "expiry_date", nullable = false)
     private LocalDateTime expiryDate;
+
+    @Convert(converter = RegisterRequestConverter.class)
+    @Column(columnDefinition = "TEXT")
+    private RegisterRequest registerRequest;
 }

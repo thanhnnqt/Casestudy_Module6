@@ -55,11 +55,11 @@ public class AuthController {
 
         Account account = accountService.findByUsername(username).orElse(null);
         if (account == null) {
-            return ResponseEntity.status(401).body("Account not found");
+            return ResponseEntity.status(401).body("Không tìm thấy tài khoản");
         }
 
         if (!account.isEnabled()) {
-            return ResponseEntity.status(403).body("Account disabled");
+            return ResponseEntity.status(403).body("Tài khoản đã bị khóa hoặc chưa xác nhận Email");
         }
 
         if (account.getProvider() == Provider.GOOGLE) {
@@ -87,63 +87,49 @@ public class AuthController {
 
     // ================= REGISTER =================
     @PostMapping("/register")
-    @Transactional
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest req) {
 
-        // 1️⃣ check trùng username (email)
+        Map<String, String> errors = new java.util.HashMap<>();
+
+        // 🔥 1️⃣ CHECK USERNAME
         if (accountService.existsByUsername(req.getUsername())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body("Email đã được đăng ký");
+            errors.put("username", "Tên đăng nhập đã tồn tại");
         }
 
-        // 2️⃣ check trùng SĐT
+        // 1️⃣ email
+        if (customerService.existsByEmail(req.getEmail())) {
+            errors.put("email", "Email này đã được sử dụng");
+        }
+
+        // 2️⃣ phone
         if (req.getPhoneNumber() != null &&
                 customerService.existsByPhoneNumber(req.getPhoneNumber())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body("Số điện thoại đã tồn tại");
+            errors.put("phoneNumber", "Số điện thoại đã tồn tại");
         }
 
-        // 3️⃣ check trùng CCCD
+        // 3️⃣ CCCD
         if (req.getIdentityCard() != null &&
                 customerService.existsByIdentityCard(req.getIdentityCard())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body("CCCD đã tồn tại");
+            errors.put("identityCard", "CCCD đã tồn tại");
         }
 
-        // 4️⃣ tạo account (CHƯA KÍCH HOẠT)
-        Account account = new Account();
-        account.setUsername(req.getUsername());
-        account.setPassword(passwordEncoder.encode(req.getPassword()));
-        account.setProvider(Provider.LOCAL);
-        account.setEnabled(false); // 🔥 CHƯA VERIFY EMAIL
+        // 🔥 nếu có bất kỳ lỗi nào → trả hết về frontend
+        if (!errors.isEmpty()) {
+            return ResponseEntity.badRequest().body(errors);
+        }
 
-        Account savedAccount = accountService.save(account);
-
-        // 5️⃣ tạo customer profile
-        accountService.createCustomerProfile(savedAccount, req);
-
-        // 6️⃣ tạo verification token
+        // 4️⃣ tạo token
         VerificationToken token =
-                verificationTokenService.create(savedAccount);
+                verificationTokenService.createFromRegister(req);
 
-        // 7️⃣ gửi mail xác nhận
         String verifyLink =
                 "http://localhost:5173/verify-email?token=" + token.getToken();
 
-        // 👉 nếu chưa cấu hình mail, có thể log ra console
-        System.out.println("VERIFY LINK: " + verifyLink);
+        emailService.sendVerificationEmail(req.getEmail(), verifyLink);
 
-        // 👉 khi có EmailService thì bật dòng dưới
-         emailService.sendVerificationEmail(req.getEmail(), verifyLink);
-
-        // 8️⃣ trả kết quả
-        return ResponseEntity.ok(
-                "Đăng ký thành công. Vui lòng kiểm tra email để xác nhận tài khoản"
-        );
+        return ResponseEntity.ok("Vui lòng kiểm tra email để xác nhận tài khoản");
     }
+
 
     // ================= LOGIN GOOGLE =================
     @PostMapping("/google")
@@ -220,14 +206,26 @@ public class AuthController {
         );
     }
     @GetMapping("/verify-email")
+    @Transactional
     public ResponseEntity<?> verifyEmail(@RequestParam String token) {
 
         VerificationToken vt = verificationTokenService.validate(token);
-        Account account = vt.getAccount();
+        RegisterRequest req = vt.getRegisterRequest();
 
+        // LÚC NÀY MỚI TẠO ACCOUNT
+        Account account = new Account();
+        account.setUsername(req.getUsername());
+        account.setPassword(passwordEncoder.encode(req.getPassword()));
+        account.setProvider(Provider.LOCAL);
         account.setEnabled(true);
-        accountService.save(account);
+
+        account = accountService.save(account);
+
+        accountService.createCustomerProfile(account, req);
+
+        verificationTokenService.delete(vt);
 
         return ResponseEntity.ok("Xác nhận email thành công");
     }
+
 }

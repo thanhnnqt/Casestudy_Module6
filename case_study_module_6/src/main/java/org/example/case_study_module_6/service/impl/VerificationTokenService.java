@@ -1,5 +1,6 @@
 package org.example.case_study_module_6.service.impl;
 
+import org.example.case_study_module_6.dto.RegisterRequest;
 import org.example.case_study_module_6.entity.Account;
 import org.example.case_study_module_6.entity.VerificationToken;
 import org.example.case_study_module_6.repository.IVerificationTokenRepository;
@@ -19,7 +20,6 @@ public class VerificationTokenService implements IVerificationTokenService {
     public VerificationToken create(Account account) {
         VerificationToken token = new VerificationToken();
         token.setToken(UUID.randomUUID().toString());
-        token.setAccount(account);
         token.setExpiryDate(LocalDateTime.now().plusMinutes(15));
         return repo.save(token);
     }
@@ -33,4 +33,20 @@ public class VerificationTokenService implements IVerificationTokenService {
         }
         return token;
     }
+
+    @Override
+    public void delete(VerificationToken vt) {
+        repo.delete(vt);
+    }
+
+    public VerificationToken createFromRegister(RegisterRequest req) {
+
+        VerificationToken vt = new VerificationToken();
+        vt.setToken(UUID.randomUUID().toString());
+        vt.setRegisterRequest(req);
+        vt.setExpiryDate(LocalDateTime.now().plusMinutes(15));
+
+        return repo.save(vt);
+    }
+
 }

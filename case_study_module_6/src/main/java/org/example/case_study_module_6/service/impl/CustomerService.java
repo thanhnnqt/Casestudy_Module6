@@ -184,6 +184,11 @@ public class CustomerService implements ICustomerService {
         return customerRepository.existsByIdentityCard(identityCard);
     }
 
+    @Override
+    public boolean existsByEmail(String email) {
+        return customerRepository.existsByEmail(email);
+    }
+
 
 }
 

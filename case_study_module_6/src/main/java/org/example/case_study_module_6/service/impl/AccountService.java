@@ -73,7 +73,6 @@ public class AccountService implements IAccountService {
     public void createCustomerProfile(Account account, RegisterRequest req) {
 
         Customer customer = new Customer();
-        customer.setCustomerCode("KH" + System.currentTimeMillis());
         customer.setAccount(account);
         customer.setFullName(req.getFullName());
         customer.setDateOfBirth(req.getDateOfBirth());
@@ -84,6 +83,14 @@ public class AccountService implements IAccountService {
         customer.setAddress(req.getAddress());
         customer.setCreatedAt(LocalDateTime.now());
 
+        // 1️⃣ LƯU TRƯỚC để lấy ID
+        customer = customerRepository.save(customer);
+
+        // 2️⃣ SINH MÃ THEO ID
+        String customerCode = String.format("KH" + customer.getId());
+        customer.setCustomerCode(customerCode);
+
+        // 3️⃣ UPDATE LẠI
         customerRepository.save(customer);
     }
 }
