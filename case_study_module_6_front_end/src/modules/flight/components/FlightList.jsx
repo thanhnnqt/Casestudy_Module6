@@ -208,22 +208,34 @@ const FlightList = () => {
             {/* Sidebar */}
             <div className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`} id="sidebar">
                 <div className="d-flex justify-content-between align-items-start w-100">
-                    <h4><i className="bi bi-airplane-engines"></i> <span>SkyAdmin</span></h4>
-                    <button className="btn-toggle" onClick={() => setSidebarCollapsed(!sidebarCollapsed)}><i className="bi bi-list"></i></button>
+                    <h4><i className="bi bi-airplane-engines"></i> <span>Admin</span></h4>
+                    <button className="btn-toggle" onClick={() => setSidebarCollapsed(!sidebarCollapsed)}>
+                        <i className="bi bi-list"></i>
+                    </button>
                 </div>
+
                 <div className="nav flex-column">
-                    <a href="#" className="nav-link active"><i className="bi bi-grid-1x2-fill"></i> <span>Tổng quan</span></a>
-                    <a href="#" className="nav-link"><i className="bi bi-ticket-perforated-fill"></i> <span>Đặt chỗ</span></a>
-                </div>
-                <div className="nav flex-column mt-3">
-                    <div className="nav-section-title px-3 text-uppercase text-muted small fw-bold">
-                        <i className="bi bi-person-fill me-2"></i> Nhân viên
-                    </div>
-                    <Link to="/employees" className="nav-link ps-4">
-                        <i className="bi bi-list-ul me-2"></i> <span>Danh sách nhân viên</span>
+                    {/* Mục 1 */}
+                    <a href="#" className="nav-link active">
+                        <i className="bi bi-grid-1x2-fill"></i> <span>Quản lý chuyến bay</span>
+                    </a>
+
+                    {/* Mục 2 */}
+                    <a href="#" className="nav-link">
+                        <i className="bi bi-ticket-perforated-fill"></i> <span>Đặt chỗ</span>
+                    </a>
+
+                    {/* Mục 3: Nhân viên (Đã sửa để giống hệt 2 mục trên) */}
+                    <Link to="/employees" className="nav-link">
+                        <i className="bi bi-people-fill"></i> <span>Quản lý nhân viên</span>
                     </Link>
                 </div>
-                <div className="mt-auto"><a href="#" className="nav-link text-danger"><i className="bi bi-box-arrow-left"></i> <span>Đăng xuất</span></a></div>
+
+                <div className="mt-auto">
+                    <a href="#" className="nav-link text-danger">
+                        <i className="bi bi-box-arrow-left"></i> <span>Đăng xuất</span>
+                    </a>
+                </div>
             </div>
 
             {/* Main Content */}
@@ -231,7 +243,7 @@ const FlightList = () => {
                 {/* Header */}
                 <div className="glass-card d-flex justify-content-between align-items-center mb-4 sticky-header">
                     <div>
-                        <h2 className="fw-bold mb-1 text-dark">Trung tâm điều hành</h2>
+                        <h2 className="fw-bold mb-1 text-dark">Trung tâm điều phối không lưu</h2>
                         <p className="text-muted mb-0">Giám sát lưu lượng bay thời gian thực</p>
                     </div>
                     <div className="d-flex gap-3">
@@ -243,7 +255,7 @@ const FlightList = () => {
 
                 {/* Stats Cards */}
                 <div className="row mb-4">
-                    <div className="col-md-3"><div className="glass-card stat-card" style={{borderBottom: '5px solid #2ed573'}}><i className="bi bi-airplane-fill stat-icon text-success"></i><div className="stat-value">{stats.total}</div><div className="stat-label">Hiển thị</div></div></div>
+                    <div className="col-md-3"><div className="glass-card stat-card" style={{borderBottom: '5px solid #2ed573'}}><i className="bi bi-airplane-fill stat-icon text-success"></i><div className="stat-value">{stats.total}</div><div className="stat-label">Tổng chuyến</div></div></div>
                     <div className="col-md-3"><div className="glass-card stat-card" style={{borderBottom: '5px solid #ff4757'}}><i className="bi bi-exclamation-triangle-fill stat-icon text-danger"></i><div className="stat-value">{stats.delayed}</div><div className="stat-label">Bị hoãn</div></div></div>
                     <div className="col-md-3"><div className="glass-card stat-card" style={{borderBottom: '5px solid #ffa502'}}><i className="bi bi-megaphone-fill stat-icon text-warning"></i><div className="stat-value">{stats.inFlight}</div><div className="stat-label">Đang bay</div></div></div>
                     <div className="col-md-3"><div className="glass-card stat-card" style={{borderBottom: '5px solid #1e90ff'}}><i className="bi bi-check-circle-fill stat-icon text-primary"></i><div className="stat-value">{stats.completed}</div><div className="stat-label">Đã hạ cánh</div></div></div>
