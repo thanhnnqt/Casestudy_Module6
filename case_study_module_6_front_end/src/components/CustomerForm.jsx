@@ -56,9 +56,16 @@ const CustomerForm = () => {
         if (!customer.phoneNumber.trim()) newErrors.phoneNumber = "Vui lòng nhập số điện thoại.";
         else if (!phoneRegex.test(customer.phoneNumber)) newErrors.phoneNumber = "SĐT không đúng định dạng VN.";
 
+        // Validate Email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (customer.email && !emailRegex.test(customer.email)) {
-            newErrors.email = "Email không đúng định dạng.";
+
+        // 1. Kiểm tra rỗng trước (dùng .trim() để chặn nhập toàn dấu cách)
+        if (!customer.email || !customer.email.trim()) {
+            newErrors.email = "Vui lòng nhập email.";
+        }
+        // 2. Nếu đã nhập thì kiểm tra định dạng
+        else if (!emailRegex.test(customer.email)) {
+            newErrors.email = "Email không đúng định dạng (VD: abc@gmail.com).";
         }
 
         const idCardRegex = /^(\d{9}|\d{12})$/;
@@ -129,7 +136,7 @@ const CustomerForm = () => {
 
                             {/* Các trường còn lại giữ nguyên */}
                             <div className="col-md-6">
-                                <label className="form-label text-muted small fw-bold">HỌ VÀ TÊN <span className="text-danger">*</span></label>
+                                <label className="form-label text-muted small fw-bold">Họ và tên <span className="text-danger">*</span></label>
                                 <input
                                     type="text"
                                     className={`form-control bg-light ${errors.fullName ? 'is-invalid' : ''}`}
@@ -142,7 +149,7 @@ const CustomerForm = () => {
                             </div>
 
                             <div className="col-md-6">
-                                <label className="form-label text-muted small fw-bold">NGÀY SINH <span className="text-danger">*</span></label>
+                                <label className="form-label text-muted small fw-bold">Ngày sinh <span className="text-danger">*</span></label>
                                 <input
                                     type="date"
                                     className={`form-control bg-light ${errors.dateOfBirth ? 'is-invalid' : ''}`}
@@ -154,7 +161,7 @@ const CustomerForm = () => {
                             </div>
 
                             <div className="col-md-6">
-                                <label className="form-label text-muted small fw-bold">GIỚI TÍNH</label>
+                                <label className="form-label text-muted small fw-bold">Giới tính</label>
                                 <select
                                     className="form-select bg-light"
                                     name="gender"
@@ -168,7 +175,7 @@ const CustomerForm = () => {
                             </div>
 
                             <div className="col-md-6">
-                                <label className="form-label text-muted small fw-bold">SỐ ĐIỆN THOẠI <span className="text-danger">*</span></label>
+                                <label className="form-label text-muted small fw-bold">Số điện thoại <span className="text-danger">*</span></label>
                                 <input
                                     type="text"
                                     className={`form-control bg-light ${errors.phoneNumber ? 'is-invalid' : ''}`}
@@ -181,7 +188,7 @@ const CustomerForm = () => {
                             </div>
 
                             <div className="col-md-6">
-                                <label className="form-label text-muted small fw-bold">EMAIL</label>
+                                <label className="form-label text-muted small fw-bold">Email <span className="text-danger">*</span></label>
                                 <input
                                     type="email"
                                     className={`form-control bg-light ${errors.email ? 'is-invalid' : ''}`}
@@ -207,7 +214,7 @@ const CustomerForm = () => {
                             </div>
 
                             <div className="col-12">
-                                <label className="form-label text-muted small fw-bold">ĐỊA CHỈ <span className="text-danger">*</span></label>
+                                <label className="form-label text-muted small fw-bold">Địa chỉ <span className="text-danger">*</span></label>
                                 <textarea
                                     className={`form-control bg-light ${errors.address ? 'is-invalid' : ''}`}
                                     name="address"

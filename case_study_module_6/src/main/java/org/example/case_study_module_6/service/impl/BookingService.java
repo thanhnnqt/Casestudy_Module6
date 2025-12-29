@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class BookingService {
@@ -181,7 +182,81 @@ public class BookingService {
 
         return savedBooking;
     }
+    // 1. Hàm Xóa Vé (Hoàn lại số lượng ghế)
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteBooking(Long id) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Booking ID: " + id));
 
+        List<Ticket> tickets = booking.getTickets();
+
+        // Hoàn trả số lượng ghế cho từng vé
+        for (Ticket ticket : tickets) {
+            Flight flight = ticket.getFlight();
+            SeatClass seatClass = ticket.getSeatClass();
+
+            // Tìm chi tiết ghế để cộng lại
+            Optional<FlightSeatDetail> seatDetailOpt = flightSeatDetailRepository.findByFlightIdAndSeatClass(flight.getId(), seatClass);
+            if(seatDetailOpt.isPresent()) {
+                FlightSeatDetail seatDetail = seatDetailOpt.get();
+                seatDetail.setAvailableSeats(seatDetail.getAvailableSeats() + 1);
+                flightSeatDetailRepository.save(seatDetail);
+            }
+        }
+
+        // Xóa vé trước (nếu không cascade)
+        ticketRepository.deleteAll(tickets);
+        // Xóa booking
+        bookingRepository.delete(booking);
+    }
+
+    // 2. Hàm Cập Nhật Thông Tin (Liên hệ & Tên khách)
+    @Transactional(rollbackFor = Exception.class)
+    public Booking updateBookingInfo(Long id, BookingRequestDTO request) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Booking ID: " + id));
+
+        // 1. Cập nhật thông tin liên hệ
+        booking.setContactName(request.getContactName());
+        booking.setContactPhone(request.getContactPhone());
+        booking.setContactEmail(request.getContactEmail());
+        booking.setPaymentMethod(PaymentMethod.valueOf(request.getPaymentMethod()));
+
+        // 2. Cập nhật tên hành khách (Logic phức tạp một chút vì phải map đúng vé)
+        List<Ticket> tickets = booking.getTickets();
+
+        // Lọc vé chiều đi
+        List<Ticket> ticketsOut = tickets.stream()
+                .filter(t -> t.getFlight().getId().equals(booking.getFlight().getId()))
+                .collect(Collectors.toList());
+
+        // Cập nhật tên khách chiều đi
+        if (request.getPassengersOut() != null && ticketsOut.size() == request.getPassengersOut().size()) {
+            for (int i = 0; i < ticketsOut.size(); i++) {
+                Ticket t = ticketsOut.get(i);
+                PassengerDTO p = request.getPassengersOut().get(i);
+                t.setPassengerName(p.getFullName());
+            }
+        }
+
+        // Cập nhật tên khách chiều về (nếu có)
+        if (booking.getReturnFlight() != null && request.getPassengersIn() != null) {
+            List<Ticket> ticketsIn = tickets.stream()
+                    .filter(t -> t.getFlight().getId().equals(booking.getReturnFlight().getId()))
+                    .collect(Collectors.toList());
+
+            if (ticketsIn.size() == request.getPassengersIn().size()) {
+                for (int i = 0; i < ticketsIn.size(); i++) {
+                    Ticket t = ticketsIn.get(i);
+                    PassengerDTO p = request.getPassengersIn().get(i);
+                    t.setPassengerName(p.getFullName());
+                }
+            }
+        }
+
+        ticketRepository.saveAll(tickets); // Lưu thay đổi vé
+        return bookingRepository.save(booking); // Lưu booking
+    }
     // =========================================================================
     // 3. CÁC HÀM PHỤ TRỢ (HELPER)
     // =========================================================================
@@ -249,6 +324,24 @@ public class BookingService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Booking ID: " + id));
         try {
             BookingStatus status = BookingStatus.valueOf(newStatus);
+            // --- [LOGIC MỚI] HOÀN TRẢ GHẾ KHI HỦY VÉ ---
+            if (status == BookingStatus.CANCELLED && booking.getStatus() != BookingStatus.CANCELLED) {
+                // Duyệt qua từng vé để trả lại ghế cho đúng chuyến bay và hạng ghế
+                for (Ticket ticket : booking.getTickets()) {
+                    Flight flight = ticket.getFlight();
+                    SeatClass seatClass = ticket.getSeatClass();
+
+                    // Tìm chi tiết ghế để cộng lại số lượng
+                    Optional<FlightSeatDetail> seatDetailOpt = flightSeatDetailRepository
+                            .findByFlightIdAndSeatClass(flight.getId(), seatClass);
+
+                    if (seatDetailOpt.isPresent()) {
+                        FlightSeatDetail seatDetail = seatDetailOpt.get();
+                        seatDetail.setAvailableSeats(seatDetail.getAvailableSeats() + 1); // Cộng thêm 1 ghế
+                        flightSeatDetailRepository.save(seatDetail);
+                    }
+                }
+            }
             booking.setStatus(status);
             if (status == BookingStatus.PAID) {
                 booking.setPaymentStatus(PaymentStatus.PAID);

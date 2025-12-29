@@ -8,13 +8,15 @@ export const FlightService = {
     // 1. Tìm chuyến bay
     searchFlights: (from, to, date) => {
         const params = {
-            date: date,
+            date: date,           // Khớp với @RequestParam("date")
+            origin: from,         // <--- SỬA THÀNH 'origin' để khớp với Backend
+            destination: to,      // <--- SỬA THÀNH 'destination' để khớp với Backend
             status: 'SCHEDULED',
             page: 0,
             size: 100
         };
 
-        console.log("Gọi API tìm vé theo ngày với params:", params);
+        console.log("Calling API with params:", params); // Log ra để kiểm tra
 
         return axios.get(`${API_URL}/flights/search-by-date`, {
             params: params,
@@ -29,7 +31,7 @@ export const FlightService = {
         return axios.get(`${API_URL}/flights/${id}`);
     },
 
-    // 3. Tạo Booking (Dành cho đặt Online - Nếu có dùng)
+    // 3. Tạo Booking (Online)
     createBooking: (bookingPayload) => {
         return axios.post(`${API_URL}/bookings`, bookingPayload);
     },
@@ -44,21 +46,31 @@ export const FlightService = {
         return axios.get(`${API_URL}/airports`);
     },
 
-    // 6. Lấy danh sách gợi ý số hiệu
+    // 6. Gợi ý số hiệu
     getFlightNumberSuggestions: () => {
         return axios.get(`${API_URL}/flights/suggestions/numbers`);
     },
 
-    // 7. Cập nhật trạng thái booking
+    // 7. Cập nhật trạng thái booking (Thanh toán/Hủy)
     updateBookingStatus: (id, status) => {
         return axios.put(`${API_URL}/bookings/${id}/status`, null, {
             params: { newStatus: status }
         });
     },
 
-    // --- 8. [MỚI THÊM] BÁN VÉ TẠI QUẦY (Xử lý Payload chuẩn cho Java) ---
+    // 8. BÁN VÉ TẠI QUẦY
     createCounterBooking: (data) => {
-        console.log("Payload gửi đi bán tại quầy:", data); // Log lại để kiểm tra
-        return axios.post("http://localhost:8080/api/bookings/sell-at-counter", data);
+        return axios.post(`${API_URL}/bookings/sell-at-counter`, data);
+    },
+
+    // 9. XÓA VÉ (DELETE) ---
+    deleteBooking: (id) => {
+        return axios.delete(`${API_URL}/bookings/${id}`);
+    },
+
+    // 10. CẬP NHẬT THÔNG TIN VÉ (Sửa tên, SĐT...) ---
+    updateBookingInfo: (data) => {
+        // Gửi request PUT kèm dữ liệu đã sửa lên server
+        return axios.put(`${API_URL}/bookings/${data.id}`, data);
     }
 };

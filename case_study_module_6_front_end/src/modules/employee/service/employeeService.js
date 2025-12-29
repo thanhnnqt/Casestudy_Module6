@@ -69,3 +69,42 @@ export async function addEmployee(employee) {
     }
     return false;
 }
+
+export async function checkIdentificationExists(value) {
+    const res = await axios.get(`${URL}/check-identification`, {
+        params: {value}
+    });
+    return res.data;
+}
+
+export async function checkImageHashExists(hash) {
+    try {
+        const res = await axios.get(`${URL}/check-image-hash`, {
+            params: {hash}
+        });
+        return res.data;
+    } catch {
+        return false;
+    }
+}
+
+export async function checkEmailExists(value) {
+    if (!value) return false;
+    const res = await axios.get(`${URL}/check-email`, {params: {value}});
+    return res.data;
+}
+
+export async function checkPhoneExists(value) {
+    if (!value) return false;
+    const res = await axios.get(`${URL}/check-phone`, {params: {value}});
+    return res.data;
+}
+
+export async function checkImageHashExistsExceptSelf(hash, id) {
+    const res = await axios.get(`${URL}/check-image-hash-except`, {
+        params: { hash, id }
+    });
+    return res.data;
+}
+
+
