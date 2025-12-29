@@ -40,39 +40,35 @@ INSERT INTO admins (admin_code, full_name, email, phone_number, account_id)
 VALUES ('AD01', 'System Admin', 'admin@system.com', '0900000000', 1);
 
 /* ===================== EMPLOYEES (5) ===================== */
-INSERT INTO employees (
-    full_name,
-    address,
-    phone_number,
-    identification_id,
-    email,
-    dob,
-    gender,
-    img_url,
-    img_hash,
-    account_id
-) VALUES
-      ('Nguyen Van Huy', 'Ha Noi', '0901000001', '012345001', 'nv1@company.com', '1995-01-01', 'Nam',
-       'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559419/anh1_pgptg9.jpg',
-       'd90f6840d0bbdcf1d7e39c8e1dd80cf9b3a9902e1cb4f95846c61d5539ff2218', 2),
+INSERT INTO employees (full_name,
+                       address,
+                       phone_number,
+                       identification_id,
+                       email,
+                       dob,
+                       gender,
+                       img_url,
+                       img_hash,
+                       account_id)
+VALUES ('Nguyen Van Huy', 'Ha Noi', '0901000001', '012345001', 'nv1@company.com', '1995-01-01', 'Nam',
+        'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559419/anh1_pgptg9.jpg',
+        'd90f6840d0bbdcf1d7e39c8e1dd80cf9b3a9902e1cb4f95846c61d5539ff2218', 2),
 
-      ('Tran Thi Mai', 'Ha Noi', '0901000002', '012345002', 'nv2@company.com', '1996-02-02', 'Nữ',
-       'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559640/anh2_qoopvg.webp',
-       'f6c6e01a98133927f0bcd0ba94fe257f29bbadb7ea88b962eb4e2e500a4b2a6e', 3),
+       ('Tran Thi Mai', 'Ha Noi', '0901000002', '012345002', 'nv2@company.com', '1996-02-02', 'Nữ',
+        'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559640/anh2_qoopvg.webp',
+        'f6c6e01a98133927f0bcd0ba94fe257f29bbadb7ea88b962eb4e2e500a4b2a6e', 3),
 
-      ('Le Minh Duc', 'Da Nang', '0901000003', '012345003', 'nv3@company.com', '1994-03-03', 'Nam',
-       'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559709/anh3_gqwraf.jpg',
-       '4ed91e6afb5fd4648358b22084582334344ade8c8119556a54c21d8312c4ba89', 4),
+       ('Le Minh Duc', 'Da Nang', '0901000003', '012345003', 'nv3@company.com', '1994-03-03', 'Nam',
+        'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559709/anh3_gqwraf.jpg',
+        '4ed91e6afb5fd4648358b22084582334344ade8c8119556a54c21d8312c4ba89', 4),
 
-      ('Pham Quang Hieu', 'Da Nang', '0901000004', '012345004', 'nv4@company.com', '1993-04-04', 'Nam',
-       'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559769/anh4_zcg3vw.webp',
-       '2d888ef44e15acfe54007cf2e788ae3a4f1edcd1814b7ff2b62b41baf7e6d040', 5),
+       ('Pham Quang Hieu', 'Da Nang', '0901000004', '012345004', 'nv4@company.com', '1993-04-04', 'Nam',
+        'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559769/anh4_zcg3vw.webp',
+        '2d888ef44e15acfe54007cf2e788ae3a4f1edcd1814b7ff2b62b41baf7e6d040', 5),
 
-      ('Hoang Thanh Tung', 'Ho Chi Minh', '0901000005', '012345005', 'nv5@company.com', '1992-05-05', 'Nam',
-       'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559859/anh6_lql0pq.webp',
-       '91e4aee2ffa010a2b0a36a8a4cf64decb7a0b59be5e3dc4e09361cfd1980ce86', 6);
-
-
+       ('Hoang Thanh Tung', 'Ho Chi Minh', '0901000005', '012345005', 'nv5@company.com', '1992-05-05', 'Nam',
+        'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559859/anh6_lql0pq.webp',
+        '91e4aee2ffa010a2b0a36a8a4cf64decb7a0b59be5e3dc4e09361cfd1980ce86', 6);
 
 
 /* ===================== CUSTOMERS (20) ===================== */
@@ -153,16 +149,16 @@ VALUES
 /* ===================== FLIGHTS (10) ===================== */
 INSERT INTO flights
 (flight_number, aircraft_id, departure_airport_id, arrival_airport_id, departure_time, arrival_time, status)
-VALUES ('VN201', 1, 1, 4, '2025-01-10 08:00', '2025-01-10 10:00', 'SCHEDULED'),
-       ('VN202', 2, 4, 1, '2025-01-11 14:00', '2025-01-11 16:30', 'SCHEDULED'),
-       ('VJ301', 3, 4, 3, '2025-01-12 09:00', '2025-01-12 10:20', 'SCHEDULED'),
-       ('QH901', 4, 3, 1, '2025-01-12 15:00', '2025-01-12 17:00', 'SCHEDULED'),
-       ('VN203', 1, 1, 3, '2025-01-13 07:30', '2025-01-13 09:00', 'SCHEDULED'),
-       ('VJ302', 3, 3, 4, '2025-01-14 18:00', '2025-01-14 19:30', 'SCHEDULED'),
-       ('VN204', 2, 4, 5, '2025-01-15 13:20', '2025-01-15 15:00', 'SCHEDULED'),
-       ('QH902', 4, 5, 4, '2025-01-16 06:00', '2025-01-16 07:40', 'SCHEDULED'),
-       ('VN205', 1, 5, 1, '2025-01-17 11:10', '2025-01-17 13:00', 'SCHEDULED'),
-       ('VJ303', 3, 1, 5, '2025-01-18 21:00', '2025-01-18 23:00', 'SCHEDULED');
+VALUES ('VN201', 1, 1, 4, '2026-01-10 08:00', '2026-01-10 10:00', 'SCHEDULED'),
+       ('VN202', 2, 4, 1, '2026-01-11 14:00', '2026-01-11 16:30', 'SCHEDULED'),
+       ('VJ301', 3, 4, 3, '2026-01-12 09:00', '2026-01-12 10:20', 'SCHEDULED'),
+       ('QH901', 4, 3, 1, '2026-01-12 15:00', '2026-01-12 17:00', 'SCHEDULED'),
+       ('VN203', 1, 1, 3, '2026-01-13 07:30', '2026-01-13 09:00', 'SCHEDULED'),
+       ('VJ302', 3, 3, 4, '2026-01-14 18:00', '2026-01-14 19:30', 'SCHEDULED'),
+       ('VN204', 2, 4, 5, '2026-01-15 13:20', '2026-01-15 15:00', 'SCHEDULED'),
+       ('QH902', 4, 5, 4, '2026-01-16 06:00', '2026-01-16 07:40', 'SCHEDULED'),
+       ('VN205', 1, 5, 1, '2026-01-17 11:10', '2026-01-17 13:00', 'SCHEDULED'),
+       ('VJ303', 3, 1, 5, '2026-01-18 21:00', '2026-01-18 23:00', 'SCHEDULED');
 
 /* ===================== SEAT CONFIG ===================== */
 INSERT INTO flight_seat_details (flight_id, seat_class, price, total_seats, available_seats)

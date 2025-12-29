@@ -77,7 +77,7 @@ const FlightSelection = () => {
             <div className="table-responsive">
                 <table className="table table-hover mb-0 align-middle">
                     <thead className="table-light">
-                    <tr><th>Hãng</th><th>Số hiệu</th><th>Giờ bay</th><th className="text-end">Giá vé</th><th className="text-center">Chọn</th></tr>
+                    <tr><th>Hãng</th><th>Số hiệu</th><th>Giờ bay</th><th className="text-end">Giá vé (Từ)</th><th className="text-center">Chọn</th></tr>
                     </thead>
                     <tbody>
                     {flights.length === 0 ? (

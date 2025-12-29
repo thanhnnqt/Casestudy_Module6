@@ -21,3 +21,4 @@ ALTER TABLE bookings
     ADD COLUMN return_flight_id BIGINT NULL,
 ADD CONSTRAINT fk_return_flight
 FOREIGN KEY (return_flight_id) REFERENCES flights(id);
+
