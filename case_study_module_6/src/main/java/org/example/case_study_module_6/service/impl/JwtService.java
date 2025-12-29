@@ -25,6 +25,9 @@ public class JwtService {
             Long customerId,
             String fullName
     ) {
+        if (customerId == null) {
+            throw new IllegalArgumentException("customerId is required to generate token");
+        }
         return Jwts.builder()
                 .setSubject(username)
                 .claim("role", role)

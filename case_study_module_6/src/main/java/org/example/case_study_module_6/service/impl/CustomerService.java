@@ -2,6 +2,7 @@ package org.example.case_study_module_6.service.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.example.case_study_module_6.dto.CustomerUpdateRequest;
 import org.example.case_study_module_6.dto.RegisterRequest;
 import org.example.case_study_module_6.entity.Account;
 import org.example.case_study_module_6.entity.Customer;
@@ -189,7 +190,18 @@ public class CustomerService implements ICustomerService {
         return customerRepository.existsByEmail(email);
     }
 
+    @Transactional
+    public void updateProfileById(Long customerId, CustomerUpdateRequest req) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng"));
 
+        customer.setFullName(req.getFullName());
+        customer.setPhoneNumber(req.getPhoneNumber());
+        customer.setIdentityCard(req.getIdentityCard());
+        customer.setGender(req.getGender());
+        customer.setDateOfBirth(req.getDateOfBirth());
+        customer.setAddress(req.getAddress());
+    }
 }
 
 

@@ -17,7 +17,9 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
+        const token =
+            localStorage.getItem("token") ||
+            sessionStorage.getItem("token");
         if (token) {
             const payload = decodeJwt(token);
             setUser({
@@ -31,8 +33,6 @@ export const AuthProvider = ({ children }) => {
     const login = (token) => {
         if (!token) throw new Error("Token is missing");
 
-        localStorage.setItem("token", token);
-
         const payload = decodeJwt(token);
 
         setUser({
@@ -45,9 +45,9 @@ export const AuthProvider = ({ children }) => {
 
     const logout = () => {
         localStorage.removeItem("token");
+        sessionStorage.removeItem("token");
         setUser(null);
     };
-
     return (
         <AuthContext.Provider value={{ user, login, logout }}>
             {children}
