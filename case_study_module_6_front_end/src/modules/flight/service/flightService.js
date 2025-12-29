@@ -6,15 +6,16 @@ export const getAllFlights = async (params) => {
     try {
         const response = await axios.get(URL_BE, {
             params,
-            // Cấu hình để Axios gửi array sort đúng chuẩn Spring Boot
-            // VD: sort=col1,asc&sort=col2,desc
             paramsSerializer: params => {
                 return qs.stringify(params, { arrayFormat: 'repeat' })
             }
         });
-        return response.data.content || [];
-        // eslint-disable-next-line no-unused-vars
-    } catch (e) { return []; }
+        // --- SỬA QUAN TRỌNG: TRẢ VỀ TOÀN BỘ DATA (gồm content, totalPages...) ---
+        return response.data;
+    } catch (e) {
+        console.error(e);
+        return { content: [], totalPages: 0 };
+    }
 };
 
 export const getFlightById = async (id) => (await axios.get(`${URL_BE}/${id}`)).data;
@@ -34,6 +35,5 @@ export const cancelFlight = async (id) => {
     try {
         const response = await axios.delete(`${URL_BE}/${id}`);
         return response.status === 200;
-        // eslint-disable-next-line no-unused-vars
     } catch (e) { return false; }
 };

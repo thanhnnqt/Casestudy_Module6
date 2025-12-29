@@ -85,18 +85,46 @@ VALUES ('HAN', 'Noi Bai', 'Ha Noi'),
        ('SGN', 'Tan Son Nhat', 'Ho Chi Minh'),
        ('PQC', 'Phu Quoc', 'Kien Giang');
 
-/* ===================== AIRLINES (3) ===================== */
+/* ===================== AIRLINES (7) ===================== */
 INSERT INTO airlines (code, name, logo_url)
-VALUES ('VN', 'Vietnam Airlines', 'https://example.com/vn.png'),
-       ('VJ', 'VietJet Air', 'https://example.com/vj.png'),
-       ('QH', 'Bamboo Airways', 'https://example.com/qh.png');
+VALUES
+    ('VN', 'Vietnam Airlines', 'https://danangairport.vn/files/media/202411/d8a44873-4441-4663-8b0b-415a687e7f89.jpg'),
+    ('VJ', 'VietJet Air', 'https://danangairport.vn/files/media/202411/VJ.jpg'),
+    ('QH', 'Bamboo Airways', 'https://danangairport.vn/files/media/202411/6b1deea9-2644-4164-bfef-e28b69b0f4a4.jpg'),
+    ('BL', 'Pacific Airlines', 'https://danangairport.vn/files/media/202501/pacific.jpg'),
+    ('7C', 'Jeju Air', 'https://danangairport.vn/files/media/202411/17ed00d1-5fe4-4a85-b847-01b5fed39345.jpg'),
+    ('AK', 'Air Asia', 'https://danangairport.vn/files/media/202411/AK.jpg'),
+    ('SQ', 'Singapore Airlines', 'https://danangairport.vn/files/media/202411/b6354f97-8558-4983-94f5-44f5c5fc7fff.jpg');
 
-/* ===================== AIRCRAFTS (4) ===================== */
+
+/* ===================== AIRCRAFTS (10+) ===================== */
 INSERT INTO aircrafts (name, registration_code, total_seats, airline_id)
-VALUES ('Airbus A321', 'VN-A321', 184, 1),
-       ('Boeing 787-9', 'VN-B787', 274, 1),
-       ('Airbus A320', 'VJ-A320', 180, 2),
-       ('Embraer E190', 'QH-E190', 110, 3);
+VALUES
+-- Vietnam Airlines (ID = 1)
+('Airbus A321', 'VN-A321', 184, 1),
+('Boeing 787-9 Dreamliner', 'VN-B789', 274, 1),
+('Airbus A350-900', 'VN-A350', 305, 1),
+
+-- VietJet Air (ID = 2)
+('Airbus A320', 'VJ-A320', 180, 2),
+('Airbus A321 Neo', 'VJ-A321N', 230, 2),
+
+-- Bamboo Airways (ID = 3)
+('Embraer E190', 'QH-E190', 110, 3),
+('Boeing 787-9 Dreamliner', 'QH-B789', 290, 3),
+
+-- Pacific Airlines (ID = 4)
+('Airbus A320-200', 'BL-A320', 174, 4),
+
+-- Jeju Air (ID = 5)
+('Boeing 737-800', '7C-B738', 189, 5),
+
+-- Air Asia (ID = 6)
+('Airbus A321', 'AK-A321', 220, 6),
+
+-- Singapore Airlines (ID = 7)
+('Airbus A350-900', 'SQ-A359', 300, 7);
+
 
 /* ===================== FLIGHTS (10) ===================== */
 INSERT INTO flights
