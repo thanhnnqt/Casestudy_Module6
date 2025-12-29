@@ -1,43 +1,67 @@
 /* ===================== INSERT ACCOUNTS (30) ===================== */
 INSERT INTO accounts (username, password, provider, enabled)
-VALUES ('admin', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+VALUES
+-- USER 1
+('demo1',
+ '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
+ 'LOCAL',
+ TRUE),
 
-       ('employee1', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('employee2', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('employee3', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('employee4', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('employee5', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+-- USER 2
+('demo2',
+ '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
+ 'LOCAL',
+ TRUE),
 
-       ('customer1', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('customer2', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('customer3', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('customer4', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('customer5', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('customer6', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('customer7', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('customer8', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('customer9', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('customer10', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('customer11', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('customer12', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('customer13', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('customer14', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('customer15', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('customer16', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('customer17', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('customer18', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('customer19', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('customer20', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+-- USER 3
+('demo3',
+ '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
+ 'LOCAL',
+ TRUE),
 
-       ('extra1', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('extra2', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('extra3', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-       ('extra4', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE);
+-- USER 4
+('demo4',
+ '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
+ 'LOCAL',
+ TRUE),
 
+-- USER 5
+('demo5',
+ '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
+ 'LOCAL',
+ TRUE),
+-- ADMIN
+('admin_demo',
+ '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
+ 'LOCAL',
+ TRUE),
+
+-- EMPLOYEE
+('employee_demo1',
+ '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
+ 'LOCAL',
+ TRUE),
+
+('employee_demo2',
+ '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
+ 'LOCAL',
+ TRUE);
 
 /* ===================== ADMINS (1) ===================== */
-INSERT INTO admins (admin_code, full_name, email, phone_number, account_id)
-VALUES ('AD01', 'System Admin', 'admin@system.com', '0900000000', 1);
+INSERT INTO admins (
+    admin_code,
+    full_name,
+    email,
+    phone_number,
+    account_id
+)
+VALUES (
+           'AD_DEMO',
+           'Demo System Admin',
+           'admin_demo@system.com',
+           '0909000000',
+           (SELECT id FROM accounts WHERE username = 'admin_demo')
+       );
 
 /* ===================== EMPLOYEES (5) ===================== */
 INSERT INTO employees (full_name,
@@ -72,29 +96,101 @@ VALUES ('Nguyen Van Huy', 'Ha Noi', '0901000001', '012345001', 'nv1@company.com'
 
 
 /* ===================== CUSTOMERS (20) ===================== */
-INSERT INTO customers
-(customer_code, full_name, date_of_birth, gender, phone_number, email, identity_card, address, total_spending,
- account_id)
-VALUES ('KH1', 'Nguyen Minh Quan', '1990-01-01', 'NAM', '0912000001', 'kh1@mail.com', '012345001', 'Ha Noi', 0, 7),
-       ('KH2', 'Tran Ngoc Anh', '1991-02-02', 'NU', '0912000002', 'kh2@mail.com', '012345002', 'Ha Noi', 0, 8),
-       ('KH3', 'Le Hoang Nam', '1992-03-03', 'NAM', '0912000003', 'kh3@mail.com', '012345003', 'Da Nang', 0, 9),
-       ('KH4', 'Pham Thu Ha', '1993-04-04', 'NU', '0912000004', 'kh4@mail.com', '012345004', 'Da Nang', 0, 10),
-       ('KH5', 'Hoang Gia Bao', '1994-05-05', 'NAM', '0912000005', 'kh5@mail.com', '012345005', 'Ho Chi Minh', 0, 11),
-       ('KH6', 'Do Thanh Thao', '1995-06-06', 'NU', '0912000006', 'kh6@mail.com', '012345006', 'Ho Chi Minh', 0, 12),
-       ('KH7', 'Bui Duc Thinh', '1996-07-07', 'NAM', '0912000007', 'kh7@mail.com', '012345007', 'Can Tho', 0, 13),
-       ('KH8', 'Dang My Linh', '1997-08-08', 'NU', '0912000008', 'kh8@mail.com', '012345008', 'Hai Phong', 0, 14),
-       ('KH9', 'Ngo Tien Dat', '1998-09-09', 'NAM', '0912000009', 'kh9@mail.com', '012345009', 'Hue', 0, 15),
-       ('KH10', 'Vu Anh Tuyet', '1999-10-10', 'NU', '0912000010', 'kh10@mail.com', '012345010', 'Nha Trang', 0, 16),
-       ('KH11', 'Le Viet Hoang', '1990-02-10', 'NAM', '0912000011', 'kh11@mail.com', '012345011', 'Ha Nam', 0, 17),
-       ('KH12', 'Vu Thi Thu', '1991-03-11', 'NU', '0912000012', 'kh12@mail.com', '012345012', 'Hai Duong', 0, 18),
-       ('KH13', 'Ha Duc Nhan', '1992-04-12', 'NAM', '0912000013', 'kh13@mail.com', '012345013', 'Hue', 0, 19),
-       ('KH14', 'Trinh Thi Diem', '1993-05-13', 'NU', '0912000014', 'kh14@mail.com', '012345014', 'Ho Chi Minh', 0, 20),
-       ('KH15', 'Ngo Phong', '1994-06-14', 'NAM', '0912000015', 'kh15@mail.com', '012345015', 'Ha Noi', 0, 21),
-       ('KH16', 'Ly Phuong Linh', '1995-07-15', 'NU', '0912000016', 'kh16@mail.com', '012345016', 'Ha Noi', 0, 22),
-       ('KH17', 'Vuong Quang Dai', '1996-08-16', 'NAM', '0912000017', 'kh17@mail.com', '012345017', 'Ha Noi', 0, 23),
-       ('KH18', 'Mai Quynh', '1997-09-17', 'NU', '0912000018', 'kh18@mail.com', '012345018', 'Da Nang', 0, 24),
-       ('KH19', 'Ta Quoc Trung', '1998-10-18', 'NAM', '0912000019', 'kh19@mail.com', '012345019', 'Ho Chi Minh', 0, 25),
-       ('KH20', 'Vo Kim Ngan', '1999-11-19', 'NU', '0912000020', 'kh20@mail.com', '012345020', 'Ho Chi Minh', 0, 26);
+-- demo1 → account_id = MAX(id) - 4
+INSERT INTO customers (
+    customer_code, full_name, date_of_birth, gender,
+    phone_number, email, identity_card,
+    address, total_spending, account_id
+)
+VALUES (
+           'KH_DEMO1',
+           'Nguyen Van Demo 1',
+           '1995-01-01',
+           'NAM',
+           '0911111111',
+           'demo1@mail.com',
+           '100000000001',
+           'Ha Noi',
+           0,
+           (SELECT id FROM accounts WHERE username = 'demo1')
+       );
+
+-- demo2
+INSERT INTO customers (
+    customer_code, full_name, date_of_birth, gender,
+    phone_number, email, identity_card,
+    address, total_spending, account_id
+)
+VALUES (
+           'KH_DEMO2',
+           'Nguyen Van Demo 2',
+           '1996-02-02',
+           'NU',
+           '0911111112',
+           'demo2@mail.com',
+           '100000000002',
+           'Hai Phong',
+           0,
+           (SELECT id FROM accounts WHERE username = 'demo2')
+       );
+
+-- demo3
+INSERT INTO customers (
+    customer_code, full_name, date_of_birth, gender,
+    phone_number, email, identity_card,
+    address, total_spending, account_id
+)
+VALUES (
+           'KH_DEMO3',
+           'Nguyen Van Demo 3',
+           '1997-03-03',
+           'NAM',
+           '0911111113',
+           'demo3@mail.com',
+           '100000000003',
+           'Da Nang',
+           0,
+           (SELECT id FROM accounts WHERE username = 'demo3')
+       );
+
+-- demo4
+INSERT INTO customers (
+    customer_code, full_name, date_of_birth, gender,
+    phone_number, email, identity_card,
+    address, total_spending, account_id
+)
+VALUES (
+           'KH_DEMO4',
+           'Nguyen Van Demo 4',
+           '1998-04-04',
+           'NU',
+           '0911111114',
+           'demo4@mail.com',
+           '100000000004',
+           'Ho Chi Minh',
+           0,
+           (SELECT id FROM accounts WHERE username = 'demo4')
+       );
+
+-- demo5
+INSERT INTO customers (
+    customer_code, full_name, date_of_birth, gender,
+    phone_number, email, identity_card,
+    address, total_spending, account_id
+)
+VALUES (
+           'KH_DEMO5',
+           'Nguyen Van Demo 5',
+           '1999-05-05',
+           'KHAC',
+           '0911111115',
+           'demo5@mail.com',
+           '100000000005',
+           'Can Tho',
+           0,
+           (SELECT id FROM accounts WHERE username = 'demo5')
+       );
+
 
 
 /* ===================== AIRPORTS (5) ===================== */
