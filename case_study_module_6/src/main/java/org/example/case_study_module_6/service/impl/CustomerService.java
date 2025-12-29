@@ -101,7 +101,7 @@ public class CustomerService implements ICustomerService {
         }
         customerRepository.deleteById(id);
     }
-    
+
 
     @Override
     public Customer registerCustomer(RegisterRequest req) {
@@ -182,6 +182,11 @@ public class CustomerService implements ICustomerService {
     @Override
     public boolean existsByIdentityCard(String identityCard) {
         return customerRepository.existsByIdentityCard(identityCard);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return customerRepository.existsByEmail(email);
     }
 
 

@@ -1,13 +1,12 @@
 package org.example.case_study_module_6.dto;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Data
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class PassengerDTO {
     private String fullName;
-    private String seatClass;
 }

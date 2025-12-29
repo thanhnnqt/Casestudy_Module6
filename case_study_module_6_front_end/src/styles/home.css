@@ -6,6 +6,7 @@ html, body, #root {
     min-height: 100%;
     background-color: #eaf3ff;
     overflow-x: hidden;
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 /* ================= HERO ================= */
@@ -15,10 +16,8 @@ html, body, #root {
     background-size: cover;
     background-position: center;
     position: relative;
-    z-index: 0;
 }
 
-/* 🔥 FIX: overlay KHÔNG được chặn click */
 .hero-overlay {
     min-height: inherit;
     background: linear-gradient(
@@ -27,10 +26,8 @@ html, body, #root {
             rgba(10, 35, 66, 0.4)
     );
     padding: 120px 0;
-
     position: relative;
     z-index: 1;
-    pointer-events: auto;
 }
 
 /* ================= TITLE ================= */
@@ -40,18 +37,6 @@ html, body, #root {
     font-weight: 700;
     text-align: center;
     margin-bottom: 40px;
-}
-
-/* ================= SEARCH BAR ================= */
-.search-bar {
-    background: rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(18px);
-    border-radius: 32px;
-    padding: 24px;
-    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.45);
-
-    position: relative;
-    z-index: 5;
 }
 
 /* ================= TRIP TYPE ================= */
@@ -76,17 +61,15 @@ html, body, #root {
     border-color: #0d6efd;
 }
 
-/* ================= FORM ROW ================= */
+/* ================= SEARCH FORM ================= */
 .search-row {
     display: flex;
     gap: 14px;
     align-items: flex-end;
-
     position: relative;
-    z-index: 10; /* 🔥 QUAN TRỌNG */
+    z-index: 10;
 }
 
-/* ================= FIELD ================= */
 .field {
     flex: 1;
     display: flex;
@@ -131,7 +114,7 @@ html, body, #root {
 /* ================= PASSENGER ================= */
 .passenger-field {
     position: relative;
-    z-index: 20; /* 🔥 đảm bảo click */
+    z-index: 20;
 }
 
 .passenger-input {
@@ -146,7 +129,6 @@ html, body, #root {
     cursor: pointer;
 }
 
-/* 🔥 dropdown hành khách */
 .passenger-panel {
     position: absolute;
     top: calc(100% + 8px);
@@ -156,11 +138,43 @@ html, body, #root {
     border-radius: 16px;
     padding: 12px;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
-
-    z-index: 999; /* 🔥 BẮT BUỘC CAO */
+    z-index: 999;
 }
 
-/* ================= BIG DESTINATION ================= */
+.passenger-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.counter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.counter button {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: #0d6efd;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* ================= WEATHER ================= */
+.weather-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 18px;
+    padding: 10px 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    color: #212529;
+}
+
+/* ================= DESTINATION BIG ================= */
 .destination-big-card {
     position: relative;
     height: 320px;
@@ -195,13 +209,62 @@ html, body, #root {
     color: #fff;
 }
 
-/* ================= PROMO LIST ================= */
+.destination-dots {
+    position: absolute;
+    bottom: 14px;
+    right: 16px;
+    display: flex;
+    gap: 8px;
+}
+
+.dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: rebeccapurple;
+    cursor: pointer;
+}
+
+.dot.active {
+    background: #fff;
+}
+
+/* ================= PROMO ================= */
 .promo-list {
     max-height: 320px;
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 12px;
+    padding-right: 6px;
+    overflow-y: hidden;
+    scrollbar-width: none;
+}
+
+.promo-list:hover {
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+.promo-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.promo-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.promo-list::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.35);
+    border-radius: 10px;
+}
+
+.promo-item {
+    background: #fff;
+    border-radius: 16px;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 /* ================= NEWS ================= */
@@ -209,11 +272,12 @@ html, body, #root {
     border-radius: 16px;
     overflow: hidden;
     background: #fff;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .news-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
 }
 
 .news-thumb {
@@ -230,76 +294,48 @@ html, body, #root {
     display: block;
 }
 
-/* ================= WEATHER ================= */
-.weather-card {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 18px;
-    padding: 10px 16px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-    color: #212529;
+.news-card .card-body {
+    padding: 14px 16px 18px;
 }
 
-/* ================= DOT ================= */
-.destination-dots {
-    position: absolute;
-    bottom: 14px;
-    right: 16px;
-    display: flex;
-    gap: 8px;
-    z-index: 5;
+.news-card h6 {
+    margin-top: 6px;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.4;
+    background: linear-gradient(
+            90deg,
+            #222 0%,
+            #FF512F 50%,
+            #222 100%
+    );
+    background-size: 200% auto;
+    color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
 }
 
-.dot {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background: rebeccapurple;
-    cursor: pointer;
+.news-card:hover h6 {
+    animation: shimmerText 2.5s linear infinite;
 }
 
-.dot.active {
-    background: #fff;
+@keyframes shimmerText {
+    from { background-position: 0% center; }
+    to { background-position: 200% center; }
 }
 
 /* ================= RESPONSIVE ================= */
 @media (max-width: 768px) {
+    .search-row {
+        flex-wrap: wrap;
+    }
+
     .destination-big-card {
         height: 220px;
     }
 
     .promo-list {
         max-height: none;
+        overflow-y: visible;
     }
-}
-.passenger-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.counter {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.counter button {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: none;
-    background: #0d6efd;
-    color: #fff;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.promo-item {
-    background: #fff;
-    border-radius: 16px;
-    padding: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }

@@ -3,7 +3,6 @@ package org.example.case_study_module_6.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.example.case_study_module_6.dto.EmployeeDTO;
 import org.example.case_study_module_6.entity.Account;
 import org.example.case_study_module_6.entity.Employee;
 import org.example.case_study_module_6.service.IAccountService;
@@ -13,8 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Controller
 @RestController
@@ -58,10 +55,13 @@ public class EmployeeController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<?> edit(@RequestBody Employee employee) {
-        System.out.println(employee);
-        boolean isEdited = employeeService.save(employee);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<?> updateEmployee(@PathVariable Long id, @RequestBody Employee employee) {
+        if (employeeService.existsByImgHashAndIdNot(employee.getImgHash(), id)) {
+            return ResponseEntity.badRequest().body("Ảnh đã tồn tại!");
+        }
+
+        employeeService.save(employee);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping
@@ -71,6 +71,36 @@ public class EmployeeController {
         employee.setAccountId(account.getId());
         employeeService.save(employee);
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @GetMapping("/check-identification")
+    public boolean checkIdentification(@RequestParam String value) {
+        return employeeService.existsByIdentificationId(value);
+    }
+
+    @GetMapping("/check-image-hash")
+    public ResponseEntity<Boolean> checkImageHashExists(@RequestParam String hash) {
+        boolean exists = employeeService.existsByImgHash(hash);
+        return ResponseEntity.ok(exists);
+    }
+
+    @GetMapping("/check-email")
+    public ResponseEntity<Boolean> checkEmail(@RequestParam String value) {
+        return ResponseEntity.ok(employeeService.existsByEmail(value));
+    }
+
+    @GetMapping("/check-phone")
+    public ResponseEntity<Boolean> checkPhone(@RequestParam String value) {
+        return ResponseEntity.ok(employeeService.existsByPhoneNumber(value));
+    }
+
+    @GetMapping("/check-image-hash-except")
+    public ResponseEntity<Boolean> checkImageHashExcept(
+            @RequestParam String hash,
+            @RequestParam Long id) {
+        boolean exists = employeeService.existsByImgHashAndIdNot(hash, id);
+        System.out.println(exists);
+        return ResponseEntity.ok(exists);
     }
 
 }

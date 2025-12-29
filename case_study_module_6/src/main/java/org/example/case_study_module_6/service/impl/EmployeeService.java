@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EmployeeService implements IEmployeeService {
@@ -55,5 +56,32 @@ public class EmployeeService implements IEmployeeService {
                 pageable
         );
     }
+
+    @Override
+    public boolean existsByIdentificationId(String id) {
+        return employeeRepository.existsByIdentificationId(id);
+    }
+
+    @Override
+    public boolean existsByImgHash(String hash) {
+        return employeeRepository.existsByImgHash(hash);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return employeeRepository.existsByEmail(email);
+    }
+
+    @Override
+    public boolean existsByPhoneNumber(String phone) {
+        return employeeRepository.existsByPhoneNumber(phone);
+    }
+
+    @Override
+    public boolean existsByImgHashAndIdNot(String hash, Long id) {
+        Optional<Employee> owner = employeeRepository.findByImgHash(hash);
+        return owner.isPresent() && !owner.get().getId().equals(id);
+    }
+
 
 }
