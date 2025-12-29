@@ -1,37 +1,22 @@
-import { useState } from "react";
-import { register as registerApi } from "../modules/login/service/authService.js";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "../../../modules/login/service/axiosConfig";
 import { toast } from "react-toastify";
 
-function Register() {
+export default function EditProfile() {
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
 
     const [form, setForm] = useState({
-        username: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
         fullName: "",
-        dateOfBirth: "",
-        gender: "KHAC",
         phoneNumber: "",
         identityCard: "",
+        gender: "KHAC",
+        dateOfBirth: "",
         address: ""
     });
 
-    // 🔥 field-level errors
     const [errors, setErrors] = useState({});
-
-    /* ================= CHANGE ================= */
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setForm(prev => ({ ...prev, [name]: value }));
-
-        // xoá lỗi của field khi user sửa
-        if (errors[name]) {
-            setErrors(prev => ({ ...prev, [name]: null }));
-        }
-    };
 
     const genders = [
         { value: "NAM", label: "Nam" },
@@ -39,29 +24,36 @@ function Register() {
         { value: "KHAC", label: "Khác" }
     ];
 
-    /* ================= CLIENT VALIDATE ================= */
+    /* ================= LOAD DATA ================= */
+    useEffect(() => {
+        axios.get("/api/customers/me")
+            .then(res => {
+                setForm({
+                    fullName: res.data.fullName || "",
+                    phoneNumber: res.data.phoneNumber || "",
+                    identityCard: res.data.identityCard || "",
+                    gender: res.data.gender || "KHAC",
+                    dateOfBirth: res.data.dateOfBirth || "",
+                    address: res.data.address || ""
+                });
+            })
+            .catch(() => toast.error("Không lấy được thông tin cá nhân"))
+            .finally(() => setLoading(false));
+    }, []);
+
+    /* ================= CHANGE ================= */
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setForm(prev => ({ ...prev, [name]: value }));
+
+        if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: null }));
+        }
+    };
+
+    /* ================= VALIDATE ================= */
     const validate = () => {
         const e = {};
-
-        if (!form.username || form.username.trim().length < 4) {
-            e.username = "Tên đăng nhập phải có ít nhất 4 ký tự";
-        }
-
-        if (!form.email) {
-            e.email = "Vui lòng nhập email";
-        } else if (!/^\S+@\S+\.\S+$/.test(form.email)) {
-            e.email = "Email không hợp lệ";
-        }
-
-        if (!form.password || form.password.length < 6) {
-            e.password = "Mật khẩu phải có ít nhất 6 ký tự";
-        }
-
-        if (!form.confirmPassword) {
-            e.confirmPassword = "Vui lòng xác nhận mật khẩu";
-        } else if (form.password !== form.confirmPassword) {
-            e.confirmPassword = "Mật khẩu xác nhận không khớp";
-        }
 
         const nameRegex = /^([A-ZÀ-Ỹ][a-zà-ỹ]+)(\s[A-ZÀ-Ỹ][a-zà-ỹ]+)+$/;
         if (!form.fullName || !nameRegex.test(form.fullName.trim())) {
@@ -103,33 +95,24 @@ function Register() {
         if (!validate()) return;
 
         try {
-            await registerApi({
-                username: form.username,
-                email: form.email,
-                password: form.password,
-                fullName: form.fullName,
-                dateOfBirth: form.dateOfBirth,
-                gender: form.gender,
-                phoneNumber: form.phoneNumber,
-                identityCard: form.identityCard,
-                address: form.address || null
-            });
-
-            toast.success("🎉 Vui lòng kiểm tra email để xác nhận tài khoản");
-            setTimeout(() => navigate("/login"), 1500);
-
+            await axios.put("/api/customers/me", form);
+            toast.success("✅ Cập nhật thông tin thành công");
+            navigate("/profile");
         } catch (err) {
-            // 🔥 BACKEND trả về Map<field, message>
             if (err.response?.status === 400 && typeof err.response.data === "object") {
                 setErrors(err.response.data);
             } else {
-                toast.error("Đăng ký thất bại");
+                toast.error("Cập nhật thất bại");
             }
         }
     };
 
     const inputClass = (name) =>
         `form-control ${errors[name] ? "is-invalid" : ""}`;
+
+    if (loading) {
+        return <p className="text-center mt-4">Đang tải...</p>;
+    }
 
     /* ================= RENDER ================= */
     return (
@@ -140,35 +123,22 @@ function Register() {
                         <div className="card-body p-3">
 
                             <h5 className="fw-bold text-center mb-3">
-                                Đăng ký tài khoản
+                                ✏️ Chỉnh sửa thông tin cá nhân
                             </h5>
 
                             <form onSubmit={handleSubmit} noValidate>
                                 <div className="row">
 
-                                    {/* USERNAME */}
+                                    {/* FULL NAME */}
                                     <div className="col-lg-4 col-md-6 mb-2">
-                                        <label className="form-label">Tên đăng nhập *</label>
+                                        <label className="form-label">Họ tên *</label>
                                         <input
-                                            name="username"
-                                            className={inputClass("username")}
-                                            value={form.username}
+                                            name="fullName"
+                                            className={inputClass("fullName")}
+                                            value={form.fullName}
                                             onChange={handleChange}
                                         />
-                                        <div className="invalid-feedback">{errors.username}</div>
-                                    </div>
-
-                                    {/* EMAIL */}
-                                    <div className="col-lg-4 col-md-6 mb-2">
-                                        <label className="form-label">Email *</label>
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            className={inputClass("email")}
-                                            value={form.email}
-                                            onChange={handleChange}
-                                        />
-                                        <div className="invalid-feedback">{errors.email}</div>
+                                        <div className="invalid-feedback">{errors.fullName}</div>
                                     </div>
 
                                     {/* PHONE */}
@@ -183,42 +153,16 @@ function Register() {
                                         <div className="invalid-feedback">{errors.phoneNumber}</div>
                                     </div>
 
-                                    {/* PASSWORD */}
+                                    {/* CCCD */}
                                     <div className="col-lg-4 col-md-6 mb-2">
-                                        <label className="form-label">Mật khẩu *</label>
+                                        <label className="form-label">CCCD *</label>
                                         <input
-                                            type="password"
-                                            name="password"
-                                            className={inputClass("password")}
-                                            value={form.password}
+                                            name="identityCard"
+                                            className={inputClass("identityCard")}
+                                            value={form.identityCard}
                                             onChange={handleChange}
                                         />
-                                        <div className="invalid-feedback">{errors.password}</div>
-                                    </div>
-
-                                    {/* CONFIRM */}
-                                    <div className="col-lg-4 col-md-6 mb-2">
-                                        <label className="form-label">Xác nhận mật khẩu *</label>
-                                        <input
-                                            type="password"
-                                            name="confirmPassword"
-                                            className={inputClass("confirmPassword")}
-                                            value={form.confirmPassword}
-                                            onChange={handleChange}
-                                        />
-                                        <div className="invalid-feedback">{errors.confirmPassword}</div>
-                                    </div>
-
-                                    {/* FULL NAME */}
-                                    <div className="col-lg-4 col-md-6 mb-2">
-                                        <label className="form-label">Họ tên *</label>
-                                        <input
-                                            name="fullName"
-                                            className={inputClass("fullName")}
-                                            value={form.fullName}
-                                            onChange={handleChange}
-                                        />
-                                        <div className="invalid-feedback">{errors.fullName}</div>
+                                        <div className="invalid-feedback">{errors.identityCard}</div>
                                     </div>
 
                                     {/* DOB */}
@@ -234,22 +178,9 @@ function Register() {
                                         <div className="invalid-feedback">{errors.dateOfBirth}</div>
                                     </div>
 
-                                    {/* CCCD */}
-                                    <div className="col-lg-4 col-md-6 mb-2">
-                                        <label className="form-label">CCCD *</label>
-                                        <input
-                                            name="identityCard"
-                                            className={inputClass("identityCard")}
-                                            value={form.identityCard}
-                                            onChange={handleChange}
-                                        />
-                                        <div className="invalid-feedback">{errors.identityCard}</div>
-                                    </div>
-
                                     {/* GENDER */}
                                     <div className="col-lg-4 col-md-6 mb-2">
                                         <label className="form-label d-block">Giới tính</label>
-
                                         {genders.map(g => (
                                             <div className="form-check form-check-inline" key={g.value}>
                                                 <input
@@ -260,13 +191,10 @@ function Register() {
                                                     checked={form.gender === g.value}
                                                     onChange={handleChange}
                                                 />
-                                                <label className="form-check-label">
-                                                    {g.label}
-                                                </label>
+                                                <label className="form-check-label">{g.label}</label>
                                             </div>
                                         ))}
                                     </div>
-
 
                                     {/* ADDRESS */}
                                     <div className="col-12 mb-2">
@@ -279,11 +207,22 @@ function Register() {
                                             onChange={handleChange}
                                         />
                                     </div>
+
                                 </div>
 
-                                <button className="btn btn-info w-100 fw-bold mt-3">
-                                    Đăng ký
-                                </button>
+                                <div className="d-flex gap-2 mt-3">
+                                    <button
+                                        type="button"
+                                        className="btn btn-secondary w-50"
+                                        onClick={() => navigate("/profile")}
+                                    >
+                                        Hủy
+                                    </button>
+
+                                    <button className="btn btn-info w-50 fw-bold">
+                                        Lưu thay đổi
+                                    </button>
+                                </div>
                             </form>
 
                         </div>
@@ -293,5 +232,3 @@ function Register() {
         </div>
     );
 }
-
-export default Register;
