@@ -6,62 +6,90 @@ const BookingDetails = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Lấy dữ liệu từ trang trước
-    // Lưu ý: Dùng 'tripType' để khớp với DTO của backend
-    const { tripType, flightOut, flightIn } = location.state || {};
+    // Lấy dữ liệu
+    const { tripType, flightOut: stateFlightOut, flightIn: stateFlightIn, editingBooking } = location.state || {};
+    const isEditMode = !!editingBooking;
 
-    // --- QUẢN LÝ TRẠNG THÁI (STATE) ---
+    // State dữ liệu chuyến bay
+    const [flightOut, setFlightOut] = useState(stateFlightOut || editingBooking?.flight);
+    const [flightIn, setFlightIn]   = useState(stateFlightIn || editingBooking?.returnFlight);
+
+    // State Form
     const [contactInfo, setContactInfo] = useState({ fullName: '', email: '', phone: '', paymentMethod: 'CASH' });
 
-    // Hạng ghế riêng cho từng chiều
-    const [classOut, setClassOut] = useState(() => flightOut?.seatDetails?.[0]?.seatClass || 'ECONOMY');
-    const [classIn, setClassIn] = useState(() => flightIn?.seatDetails?.[0]?.seatClass || 'ECONOMY');
+    // State hạng ghế (Mặc định lấy hạng ghế đầu tiên nếu có, hoặc ECONOMY)
+    const [classOut, setClassOut] = useState('ECONOMY');
+    const [classIn, setClassIn] = useState('ECONOMY');
 
-    // >>> TÁCH RIÊNG DANH SÁCH KHÁCH (QUAN TRỌNG) <<<
-    // Mặc định mỗi chiều có 1 khách ban đầu
+    // State hành khách
     const [passengersOut, setPassengersOut] = useState([{ fullName: '' }]);
     const [passengersIn, setPassengersIn] = useState([{ fullName: '' }]);
 
-    const [successData, setSuccessData] = useState(null);
     const [errorMessage, setErrorMessage] = useState(null);
 
+    // --- EFFECT: KHỞI TẠO DỮ LIỆU ---
     useEffect(() => {
-        if (!flightOut) {
-            navigate('/search-flight'); // Quay về nếu không có dữ liệu vé
+        if (isEditMode && editingBooking) {
+            // ... Logic điền dữ liệu khi sửa (Giữ nguyên) ...
+            setContactInfo({
+                fullName: editingBooking.contactName,
+                email: editingBooking.contactEmail || '',
+                phone: editingBooking.contactPhone,
+                paymentMethod: editingBooking.paymentMethod || 'CASH'
+            });
+
+            const ticketsOut = editingBooking.tickets.filter(t => t.flight.id === editingBooking.flight.id);
+            if (ticketsOut.length > 0) {
+                setPassengersOut(ticketsOut.map(t => ({ fullName: t.passengerName })));
+                setClassOut(ticketsOut[0].seatClass);
+            }
+
+            if (editingBooking.returnFlight) {
+                const ticketsIn = editingBooking.tickets.filter(t => t.flight.id === editingBooking.returnFlight.id);
+                setPassengersIn(ticketsIn.map(t => ({ fullName: t.passengerName })));
+                setClassIn(ticketsIn[0].seatClass);
+            }
+        } else {
+            // Logic khi tạo mới
+            if (!stateFlightOut && !editingBooking) {
+                navigate('/search-flight');
+            }
+            // Nếu là tạo mới, set mặc định hạng ghế là hạng đầu tiên trong danh sách (để tránh lỗi ECONOMY không có)
+            if (stateFlightOut && stateFlightOut.seatDetails?.length > 0) {
+                setClassOut(stateFlightOut.seatDetails[0].seatClass);
+            }
+            if (stateFlightIn && stateFlightIn.seatDetails?.length > 0) {
+                setClassIn(stateFlightIn.seatDetails[0].seatClass);
+            }
         }
-    }, [flightOut, navigate]);
+    }, [isEditMode, editingBooking, stateFlightOut, stateFlightIn, navigate]);
 
-    // --- LOGIC TÍNH TOÁN GIÁ & GHẾ TRỐNG ---
 
-    // 1. Lấy thông tin ghế chi tiết
-    const seatOutDetail = flightOut?.seatDetails.find(s => s.seatClass === classOut);
-    const seatInDetail = flightIn?.seatDetails.find(s => s.seatClass === classIn);
+    // --- TÍNH TOÁN (Giữ nguyên logic) ---
+    const seatOutDetail = flightOut?.seatDetails?.find(s => s.seatClass === classOut);
+    const seatInDetail = flightIn?.seatDetails?.find(s => s.seatClass === classIn);
 
-    // 2. Lấy giá và số ghế trống tối đa của từng chiều
     const priceOut = seatOutDetail ? seatOutDetail.price : 0;
     const priceIn = seatInDetail ? seatInDetail.price : 0;
 
     const maxOut = seatOutDetail ? seatOutDetail.availableSeats : 0;
     const maxIn = seatInDetail ? seatInDetail.availableSeats : 0;
 
-    // 3. Tính tổng tiền = (Giá đi * Số khách đi) + (Giá về * Số khách về)
-    // Lưu ý: Chỉ tính tiền chiều về nếu có chuyến về (flightIn)
-    const totalAmount = (priceOut * passengersOut.length) + (flightIn ? (priceIn * passengersIn.length) : 0);
+    const totalAmount = isEditMode && editingBooking
+        ? editingBooking.totalAmount
+        : (priceOut * passengersOut.length) + (flightIn ? (priceIn * passengersIn.length) : 0);
 
-    // --- XỬ LÝ SỰ KIỆN: CHIỀU ĐI ---
+    // --- HANDLERS ---
     const handleQtyOutChange = (e) => {
+        if(isEditMode) return;
         const qty = parseInt(e.target.value);
         if (isNaN(qty) || qty < 1) return;
+        // Kiểm tra số ghế còn lại của hạng đang chọn
+        if (qty > maxOut) return alert(`Hạng ${classOut} chỉ còn ${maxOut} ghế!`);
 
-        if (qty > maxOut) {
-            setErrorMessage(`Chiều đi chỉ còn ${maxOut} ghế hạng ${classOut}!`);
-            return;
-        }
-
-        // Cập nhật mảng khách chiều đi
         const newArr = [...passengersOut];
-        while (newArr.length < qty) newArr.push({ fullName: '' }); // Thêm khách nếu tăng số lượng
-        while (newArr.length > qty) newArr.pop(); // Bớt khách nếu giảm số lượng
+        while (newArr.length < qty) newArr.push({ fullName: '' });
+        while (newArr.length > qty) newArr.pop();
         setPassengersOut(newArr);
     };
 
@@ -71,17 +99,12 @@ const BookingDetails = () => {
         setPassengersOut(newArr);
     };
 
-    // --- XỬ LÝ SỰ KIỆN: CHIỀU VỀ ---
     const handleQtyInChange = (e) => {
+        if(isEditMode) return;
         const qty = parseInt(e.target.value);
         if (isNaN(qty) || qty < 1) return;
+        if (qty > maxIn) return alert(`Hạng ${classIn} chỉ còn ${maxIn} ghế!`);
 
-        if (qty > maxIn) {
-            setErrorMessage(`Chiều về chỉ còn ${maxIn} ghế hạng ${classIn}!`);
-            return;
-        }
-
-        // Cập nhật mảng khách chiều về
         const newArr = [...passengersIn];
         while (newArr.length < qty) newArr.push({ fullName: '' });
         while (newArr.length > qty) newArr.pop();
@@ -94,55 +117,31 @@ const BookingDetails = () => {
         setPassengersIn(newArr);
     };
 
-    // --- GỬI ĐƠN HÀNG (SUBMIT) ---
     const handleSubmit = () => {
-        // 1. Kiểm tra thông tin liên hệ
-        if (!contactInfo.fullName || !contactInfo.phone) {
-            return setErrorMessage("Vui lòng nhập đầy đủ thông tin người liên hệ!");
-        }
+        if (!contactInfo.fullName || !contactInfo.phone) return setErrorMessage("Thiếu thông tin liên hệ");
 
-        // 2. Kiểm tra tên hành khách
-        if (passengersOut.some(p => !p.fullName.trim())) {
-            return setErrorMessage("Vui lòng nhập đầy đủ tên hành khách Chiều Đi!");
-        }
-        if (flightIn && passengersIn.some(p => !p.fullName.trim())) {
-            return setErrorMessage("Vui lòng nhập đầy đủ tên hành khách Chiều Về!");
-        }
-
-        // 3. Chuẩn bị dữ liệu gửi xuống Backend
         const payload = {
+            id: isEditMode ? editingBooking.id : null,
             flightId: flightOut.id,
             returnFlightId: flightIn ? flightIn.id : null,
-            tripType: tripType, // Đã sửa thành tripType để khớp với backend
-
-            // Gửi hạng ghế riêng
+            tripType: tripType || (flightIn ? 'ROUND_TRIP' : 'ONE_WAY'),
             seatClassOut: classOut,
             seatClassIn: flightIn ? classIn : null,
-
             contactName: contactInfo.fullName,
             contactPhone: contactInfo.phone,
             contactEmail: contactInfo.email,
             paymentMethod: contactInfo.paymentMethod,
-
-            // >>> QUAN TRỌNG: Gửi 2 danh sách khách riêng biệt <<<
             passengersOut: passengersOut.map(p => ({ fullName: p.fullName })),
             passengersIn: flightIn ? passengersIn.map(p => ({ fullName: p.fullName })) : null
         };
 
-        // 4. Gọi API tạo đơn hàng
-        FlightService.createBooking(payload)
-            .then(res => {
-                setSuccessData({
-                    bookingCode: res.data.bookingCode,
-                    contactName: contactInfo.fullName,
-                    totalPrice: totalAmount // Hiển thị tổng tiền chính xác
-                });
-            })
-            .catch(err => {
-                console.error("Lỗi đặt vé:", err);
-                const msg = err.response?.data || "Lỗi hệ thống hoặc hết vé!";
-                setErrorMessage(typeof msg === 'string' ? msg : JSON.stringify(msg));
-            });
+        const apiCall = isEditMode
+            ? FlightService.updateBookingInfo(payload)
+            : FlightService.createBooking(payload);
+
+        apiCall.then(() => {
+            navigate('/management', { state: { updated: isEditMode, newBooking: !isEditMode } });
+        }).catch(err => setErrorMessage(err.response?.data || "Lỗi xử lý"));
     };
 
     if (!flightOut) return null;
@@ -150,214 +149,136 @@ const BookingDetails = () => {
     return (
         <div className="booking-wrapper" style={{fontFamily: 'Arial, sans-serif', padding: '20px', maxWidth: '1200px', margin: '0 auto'}}>
             <h2 style={{color: '#0056b3', borderBottom: '2px solid #eee', paddingBottom: '10px'}}>
-                Xác Nhận & Thanh Toán
+                {isEditMode ? 'Cập Nhật Thông Tin Vé' : 'Xác Nhận & Thanh Toán'}
             </h2>
 
             <div style={{display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '30px'}}>
-
-                {/* === CỘT TRÁI: THÔNG TIN VÉ & CẤU HÌNH === */}
+                {/* --- CỘT TRÁI --- */}
                 <div className="left-col">
                     <fieldset style={{border: '1px solid #ddd', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)'}}>
                         <legend style={{fontWeight: 'bold', color: '#555', fontSize:'1.1em'}}>✈ Tùy chọn Vé</legend>
 
-                        {/* --- KHỐI 1: CHIỀU ĐI --- */}
+                        {/* === CHIỀU ĐI === */}
                         <div className="mb-4 p-3 bg-white border rounded">
                             <h5 className="text-primary fw-bold">🛫 CHIỀU ĐI: {flightOut.flightNumber}</h5>
-                            <div className="text-muted small mb-2">
-                                {flightOut.departureAirport.city} ➝ {flightOut.arrivalAirport.city} | {new Date(flightOut.departureTime).toLocaleString('vi-VN')}
-                            </div>
+                            <div className="text-muted small mb-2">{flightOut.departureAirport?.city} ➝ {flightOut.arrivalAirport?.city} | {flightOut.departureTime}</div>
 
-                            <div className="row align-items-center">
-                                <div className="col-8">
-                                    <label className="fw-bold small">Hạng ghế:</label>
-                                    <select className="form-control" value={classOut} onChange={(e) => setClassOut(e.target.value)}>
-                                        {flightOut.seatDetails.map(s => (
-                                            <option key={s.id} value={s.seatClass} disabled={s.availableSeats === 0}>
-                                                {s.seatClass} - {s.price.toLocaleString()} đ (Còn {s.availableSeats})
+                            <div className="mb-2">
+                                <label className="small fw-bold">Hạng ghế:</label>
+                                {/* SỬA LẠI ĐOẠN NÀY: Dùng Select để chọn và hiển thị số ghế */}
+                                <select
+                                    className="form-control"
+                                    value={classOut}
+                                    onChange={(e) => setClassOut(e.target.value)}
+                                    disabled={isEditMode} // Không cho đổi hạng ghế khi đang Sửa (để bảo toàn giá)
+                                >
+                                    {flightOut.seatDetails?.map((seat) => (
+                                        <option key={seat.id} value={seat.seatClass} disabled={seat.availableSeats <= 0}>
+                                            {seat.seatClass} - {seat.price.toLocaleString()} đ (Còn {seat.availableSeats} ghế)
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="small fw-bold">Số khách:</label>
+                                <input type="number" className="form-control" value={passengersOut.length} onChange={handleQtyOutChange} disabled={isEditMode} />
+                            </div>
+                        </div>
+
+                        {/* === CHIỀU VỀ === */}
+                        {flightIn && (
+                            <div className="mb-4 p-3 bg-white border rounded">
+                                <h5 className="text-success fw-bold">🛬 CHIỀU VỀ: {flightIn.flightNumber}</h5>
+                                <div className="text-muted small mb-2">{flightIn.departureAirport?.city} ➝ {flightIn.arrivalAirport?.city} | {flightIn.departureTime}</div>
+                                <div className="mb-2">
+                                    <label className="small fw-bold">Hạng ghế:</label>
+                                    {/* SỬA LẠI ĐOẠN NÀY TƯƠNG TỰ */}
+                                    <select
+                                        className="form-control"
+                                        value={classIn}
+                                        onChange={(e) => setClassIn(e.target.value)}
+                                        disabled={isEditMode}
+                                    >
+                                        {flightIn.seatDetails?.map((seat) => (
+                                            <option key={seat.id} value={seat.seatClass} disabled={seat.availableSeats <= 0}>
+                                                {seat.seatClass} - {seat.price.toLocaleString()} đ (Còn {seat.availableSeats} ghế)
                                             </option>
                                         ))}
                                     </select>
                                 </div>
-                                <div className="col-4">
-                                    <label className="fw-bold small">Số khách:</label>
-                                    <input
-                                        type="number"
-                                        className="form-control"
-                                        min="1"
-                                        max={maxOut}
-                                        value={passengersOut.length}
-                                        onChange={handleQtyOutChange}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* --- KHỐI 2: CHIỀU VỀ (Chỉ hiện nếu có) --- */}
-                        {flightIn && (
-                            <div className="mb-4 p-3 bg-white border rounded">
-                                <h5 className="text-success fw-bold">🛬 CHIỀU VỀ: {flightIn.flightNumber}</h5>
-                                <div className="text-muted small mb-2">
-                                    {flightIn.departureAirport.city} ➝ {flightIn.arrivalAirport.city} | {new Date(flightIn.departureTime).toLocaleString('vi-VN')}
-                                </div>
-
-                                <div className="row align-items-center">
-                                    <div className="col-8">
-                                        <label className="fw-bold small">Hạng ghế:</label>
-                                        <select className="form-control" value={classIn} onChange={(e) => setClassIn(e.target.value)}>
-                                            {flightIn.seatDetails.map(s => (
-                                                <option key={s.id} value={s.seatClass} disabled={s.availableSeats === 0}>
-                                                    {s.seatClass} - {s.price.toLocaleString()} đ (Còn {s.availableSeats})
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <div className="col-4">
-                                        <label className="fw-bold small">Số khách:</label>
-                                        <input
-                                            type="number"
-                                            className="form-control"
-                                            min="1"
-                                            max={maxIn}
-                                            value={passengersIn.length}
-                                            onChange={handleQtyInChange}
-                                        />
-                                    </div>
+                                <div>
+                                    <label className="small fw-bold">Số khách:</label>
+                                    <input type="number" className="form-control" value={passengersIn.length} onChange={handleQtyInChange} disabled={isEditMode} />
                                 </div>
                             </div>
                         )}
 
-                        {/* --- BẢNG TỔNG TIỀN --- */}
-                        <div style={{backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '8px', border: '1px dashed #ccc'}}>
-                            <div className="d-flex justify-content-between mb-1">
-                                <span>Chiều đi ({classOut}): {priceOut.toLocaleString()} x {passengersOut.length}</span>
-                                <span className="fw-bold">{(priceOut * passengersOut.length).toLocaleString()} đ</span>
-                            </div>
-
-                            {flightIn && (
-                                <div className="d-flex justify-content-between mb-1">
-                                    <span>Chiều về ({classIn}): {priceIn.toLocaleString()} x {passengersIn.length}</span>
-                                    <span className="fw-bold">{(priceIn * passengersIn.length).toLocaleString()} đ</span>
-                                </div>
-                            )}
-
-                            <hr style={{margin:'10px 0'}}/>
-
-                            <div className="d-flex justify-content-between align-items-center">
-                                <span className="fw-bold text-dark" style={{fontSize:'1.1em'}}>TỔNG CỘNG:</span>
-                                <strong style={{fontSize: '1.6em', color: '#d9534f'}}>{totalAmount.toLocaleString()} VND</strong>
-                            </div>
+                        {/* TỔNG TIỀN */}
+                        <div className="bg-light p-3 border rounded d-flex justify-content-between align-items-center">
+                            <span className="fw-bold">TỔNG CỘNG:</span>
+                            <span className="text-danger fw-bold fs-4">{totalAmount.toLocaleString()} VND</span>
                         </div>
                     </fieldset>
                 </div>
 
-                {/* === CỘT PHẢI: NHẬP THÔNG TIN KHÁCH === */}
+                {/* --- CỘT PHẢI: GIỮ NGUYÊN FORM --- */}
                 <div className="right-col">
-                    {/* Người liên hệ */}
-                    <fieldset className="mb-4" style={{border: '1px solid #ddd', padding: '15px', borderRadius: '8px', backgroundColor: '#eef6fc'}}>
-                        <legend style={{fontWeight: 'bold', color: '#0056b3', fontSize: '1em'}}>👤 Người liên hệ</legend>
-                        <input type="text" className="form-control mb-2" placeholder="Họ tên" value={contactInfo.fullName} onChange={(e) => setContactInfo({...contactInfo, fullName: e.target.value})} />
-                        <input type="text" className="form-control mb-2" placeholder="Số điện thoại" value={contactInfo.phone} onChange={(e) => setContactInfo({...contactInfo, phone: e.target.value})} />
-                        <input type="text" className="form-control" placeholder="Email" value={contactInfo.email} onChange={(e) => setContactInfo({...contactInfo, email: e.target.value})} />
+                    <fieldset className="mb-4 p-3 border rounded bg-white">
+                        <legend className="fw-bold text-primary">👤 Người liên hệ</legend>
+                        <input type="text" className="form-control mb-2" value={contactInfo.fullName} onChange={e => setContactInfo({...contactInfo, fullName: e.target.value})} placeholder="Họ tên" />
+                        <input type="text" className="form-control mb-2" value={contactInfo.phone} onChange={e => setContactInfo({...contactInfo, phone: e.target.value})} placeholder="SĐT" />
+                        <input type="text" className="form-control" value={contactInfo.email} onChange={e => setContactInfo({...contactInfo, email: e.target.value})} placeholder="Email" />
                     </fieldset>
 
-                    {/* DANH SÁCH KHÁCH CHIỀU ĐI */}
-                    <fieldset className="mb-4" style={{border: '1px solid #ddd', padding: '15px', borderRadius: '8px'}}>
-                        <legend style={{fontWeight: 'bold', color: '#0d6efd', fontSize: '1em'}}>
-                            👥 Khách Chiều Đi ({passengersOut.length})
-                        </legend>
-                        <div style={{maxHeight: '250px', overflowY: 'auto', paddingRight:'5px'}}>
-                            {passengersOut.map((p, index) => (
+                    <fieldset className="mb-4 p-3 border rounded bg-white">
+                        <legend className="fw-bold text-info">👥 Khách Chiều Đi</legend>
+                        {passengersOut.map((p, index) => (
+                            <div key={index} className="mb-2">
+                                <input type="text" className="form-control" value={p.fullName} onChange={e => handleNameOutChange(index, e.target.value)} style={{textTransform:'uppercase'}} placeholder={`Khách ${index+1}`} />
+                            </div>
+                        ))}
+                    </fieldset>
+
+                    {flightIn && (
+                        <fieldset className="mb-4 p-3 border rounded bg-white">
+                            <legend className="fw-bold text-warning">👥 Khách Chiều Về</legend>
+                            {passengersIn.map((p, index) => (
                                 <div key={index} className="mb-2">
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        placeholder={`Họ tên khách ${index+1} (Chiều đi)`}
-                                        value={p.fullName}
-                                        onChange={(e) => handleNameOutChange(index, e.target.value)}
-                                        style={{textTransform: 'uppercase'}}
-                                    />
+                                    <input type="text" className="form-control" value={p.fullName} onChange={e => handleNameInChange(index, e.target.value)} style={{textTransform:'uppercase'}} placeholder={`Khách ${index+1}`} />
                                 </div>
                             ))}
-                        </div>
-                    </fieldset>
-
-                    {/* DANH SÁCH KHÁCH CHIỀU VỀ (Nếu có) */}
-                    {flightIn && (
-                        <fieldset className="mb-4" style={{border: '1px solid #ddd', padding: '15px', borderRadius: '8px'}}>
-                            <legend style={{fontWeight: 'bold', color: '#198754', fontSize: '1em'}}>
-                                👥 Khách Chiều Về ({passengersIn.length})
-                            </legend>
-                            <div style={{maxHeight: '250px', overflowY: 'auto', paddingRight:'5px'}}>
-                                {passengersIn.map((p, index) => (
-                                    <div key={index} className="mb-2">
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            placeholder={`Họ tên khách ${index+1} (Chiều về)`}
-                                            value={p.fullName}
-                                            onChange={(e) => handleNameInChange(index, e.target.value)}
-                                            style={{textTransform: 'uppercase'}}
-                                        />
-                                    </div>
-                                ))}
-                            </div>
                         </fieldset>
                     )}
 
-                    {/* Thanh toán & Submit */}
-                    <fieldset style={{border: '1px solid #ddd', padding: '15px', borderRadius: '8px'}}>
-                        <legend style={{fontWeight: 'bold', color: '#555', fontSize: '1em'}}>💳 Thanh toán</legend>
-                        <select className="form-control" value={contactInfo.paymentMethod} onChange={(e) => setContactInfo({...contactInfo, paymentMethod: e.target.value})}>
+                    <fieldset className="mb-4 p-3 border rounded bg-white">
+                        <legend className="fw-bold">💳 Thanh toán</legend>
+                        <select className="form-control" value={contactInfo.paymentMethod} onChange={e => setContactInfo({...contactInfo, paymentMethod: e.target.value})}>
                             <option value="CASH">Tiền mặt tại quầy</option>
                             <option value="BANK_TRANSFER">Chuyển khoản</option>
                         </select>
                     </fieldset>
 
                     <div className="mt-4">
-                        <button onClick={handleSubmit} className="btn btn-success w-100 py-2 fw-bold" style={{fontSize: '1.1em'}}>
-                            XÁC NHẬN & THANH TOÁN
+                        <button onClick={handleSubmit} className={`btn w-100 py-2 fw-bold ${isEditMode ? 'btn-warning' : 'btn-success'}`}>
+                            {isEditMode ? 'CẬP NHẬT VÉ' : 'XÁC NHẬN & THANH TOÁN'}
                         </button>
-                        <button onClick={() => navigate(-1)} className="btn btn-outline-secondary w-100 mt-2">
-                            Quay lại
-                        </button>
+                        <button onClick={() => navigate(-1)} className="btn btn-outline-secondary w-100 mt-2">Quay lại</button>
                     </div>
                 </div>
             </div>
 
-            {/* --- MODAL THÀNH CÔNG --- */}
-            {successData && (
-                <div style={overlayStyle}>
-                    <div style={modalStyle}>
-                        <div style={{fontSize: '3em', marginBottom: '10px'}}>🎉</div>
-                        <h3 className="text-success fw-bold">THÀNH CÔNG!</h3>
-                        <div className="alert alert-light border mt-3 text-start">
-                            <p className="mb-1"><strong>Mã đặt chỗ:</strong> <span className="text-primary fs-5">{successData.bookingCode}</span></p>
-                            <p className="mb-1"><strong>Người liên hệ:</strong> {successData.contactName}</p>
-                            <p className="mb-0"><strong>Tổng tiền:</strong> <span className="text-danger fw-bold">{successData.totalPrice.toLocaleString()} VND</span></p>
-                        </div>
-                        <button onClick={() => navigate('/management', {state: {newBooking: true}})} className="btn btn-primary px-4 mt-2">
-                            Về trang quản lý
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            {/* --- MODAL LỖI --- */}
+            {/* Modal Lỗi */}
             {errorMessage && (
-                <div style={overlayStyle}>
-                    <div style={modalStyle}>
-                        <h3 className="text-danger fw-bold">LỖI!</h3>
-                        <p className="text-muted my-3">{errorMessage}</p>
-                        <button onClick={() => setErrorMessage(null)} className="btn btn-secondary px-4">Đóng</button>
+                <div style={{position:'fixed', top:0, left:0, width:'100%', height:'100%', background:'rgba(0,0,0,0.5)', display:'flex', justifyContent:'center', alignItems:'center'}}>
+                    <div className="bg-white p-4 rounded shadow text-center">
+                        <h3 className="text-danger">Thông báo</h3>
+                        <p>{errorMessage}</p>
+                        <button onClick={() => setErrorMessage(null)} className="btn btn-secondary">Đóng</button>
                     </div>
                 </div>
             )}
         </div>
     );
 };
-
-// Style cho Modal
-const overlayStyle = { position:'fixed', top:0, left:0, width:'100%', height:'100%', background:'rgba(0,0,0,0.5)', zIndex: 1000, display:'flex', justifyContent:'center', alignItems:'center' };
-const modalStyle = { background:'white', padding:'30px', borderRadius:'12px', textAlign:'center', maxWidth:'400px', width:'90%', boxShadow: '0 5px 15px rgba(0,0,0,0.2)' };
 
 export default BookingDetails;
