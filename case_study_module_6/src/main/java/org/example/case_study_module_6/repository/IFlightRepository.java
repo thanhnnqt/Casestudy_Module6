@@ -16,6 +16,8 @@ import java.util.List;
 
 public interface IFlightRepository extends JpaRepository<Flight, Long>, JpaSpecificationExecutor<Flight> {
 
+    boolean existsByFlightNumber(String flightNumber);
+
     // 1. Query tìm kiếm nâng cao (Đã cập nhật)
     @Query("SELECT DISTINCT f FROM Flight f " +
             "JOIN f.seatDetails s " +
