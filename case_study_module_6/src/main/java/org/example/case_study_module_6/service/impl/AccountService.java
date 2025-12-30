@@ -67,10 +67,16 @@ public class AccountService implements IAccountService {
         return employeeRepository.findByAccountId(acc.getId()).orElse(null);
     }
 
+    private String generateCustomerCode() {
+        long count = customerRepository.count() + 1;
+        return "KH" + String.format("%d", count);
+    }
+
     // ================= REGISTER =================
     public void createCustomerProfile(Account account, RegisterRequest req) {
 
         Customer c = new Customer();
+        c.setCustomerCode(generateCustomerCode());
         c.setAccount(account);
         c.setFullName(req.getFullName());
         c.setEmail(req.getEmail());
