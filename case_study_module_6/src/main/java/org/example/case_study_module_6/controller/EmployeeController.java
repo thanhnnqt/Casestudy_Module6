@@ -151,4 +151,13 @@ public class EmployeeController {
         return ResponseEntity.ok("Updated");
     }
 
+    @GetMapping("/exists-username")
+    public ResponseEntity<Boolean> existsUsername(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam String username
+    ) {
+        boolean exists = accountService.existsByUsername(username);
+        return ResponseEntity.ok(exists);
+    }
+
 }
