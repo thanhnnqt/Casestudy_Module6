@@ -104,6 +104,7 @@ const AddEmployee = () => {
     };
 
     const handleSubmit = async (values) => {
+        console.log(values)
         if (!selectedFile) return toast.error("Vui lòng chọn ảnh nhân viên");
 
         const hash = await createImageHash(selectedFile);
@@ -259,14 +260,27 @@ const AddEmployee = () => {
                                     </div>
                                 </div>
 
-                                <div className="d-flex justify-content-end border-top pt-3 gap-3 mt-3">
-                                    <Button variant="secondary" onClick={() => navigate("/employees")}>
-                                        Quay lại
-                                    </Button>
-                                    <Button type="submit" variant="primary" disabled={uploading}>
-                                        {uploading ? "Đang lưu..." : "Lưu"}
-                                    </Button>
+                                <div className="d-flex justify-content-end border-top pt-3 mt-3">
+                                    <div className="d-flex gap-2 w-auto">
+                                        <Button
+                                            variant="secondary"
+                                            className="px-3"
+                                            onClick={() => navigate("/employees")}
+                                        >
+                                            Quay lại
+                                        </Button>
+
+                                        <Button
+                                            type="submit"
+                                            variant="primary"
+                                            className="px-3"
+                                            disabled={uploading}
+                                        >
+                                            {uploading ? "Đang lưu..." : "Lưu"}
+                                        </Button>
+                                    </div>
                                 </div>
+
 
                             </Form>
                         </Formik>

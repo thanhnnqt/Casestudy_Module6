@@ -250,14 +250,29 @@ const EmployeeDetail = () => {
                                         </div>
                                     </div>
 
-                                    <div className="d-flex justify-content-end border-top pt-3 gap-3 mt-3">
-                                        <Button variant="secondary" onClick={() => navigate("/employees")}>
-                                            Quay lại
-                                        </Button>
-                                        <Button type="submit" variant="primary" disabled={uploading}>
-                                            {uploading ? "Đang lưu..." : "Lưu"}
-                                        </Button>
+                                    <div className="d-flex justify-content-end border-top pt-3 mt-3">
+                                        <div className="d-flex gap-2">
+                                            <Button
+                                                variant="secondary"
+                                                className="px-3"
+                                                onClick={() => navigate("/employees")}
+                                                style={{ width: "auto" }}
+                                            >
+                                                Quay lại
+                                            </Button>
+
+                                            <Button
+                                                type="submit"
+                                                variant="primary"
+                                                className="px-3"
+                                                style={{ width: "auto" }}
+                                                disabled={uploading}
+                                            >
+                                                {uploading ? "Đang lưu..." : "Lưu"}
+                                            </Button>
+                                        </div>
                                     </div>
+
 
                                 </Form>
                             )}
