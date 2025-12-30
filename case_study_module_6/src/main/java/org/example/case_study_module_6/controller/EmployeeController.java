@@ -99,6 +99,7 @@ public class EmployeeController {
         employee.setImgURL(employeeDTO.getImgURL());
         Employee employeeCreated = employeeService.save(employee);
         String token = authHeader.substring(7);
+        System.out.println(token);
         var claims = jwtService.extractClaims(token);
 
         Long accountId = claims.get("accountId", Long.class);

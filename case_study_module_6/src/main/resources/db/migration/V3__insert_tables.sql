@@ -64,35 +64,39 @@ VALUES (
        );
 
 /* ===================== EMPLOYEES (5) ===================== */
-INSERT INTO employees (full_name,
-                       address,
-                       phone_number,
-                       identification_id,
-                       email,
-                       dob,
-                       gender,
-                       img_url,
-                       img_hash,
-                       account_id)
-VALUES ('Nguyen Van Huy', 'Ha Noi', '0901000001', '012345001', 'nv1@company.com', '1995-01-01', 'Nam',
-        'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559419/anh1_pgptg9.jpg',
-        'd90f6840d0bbdcf1d7e39c8e1dd80cf9b3a9902e1cb4f95846c61d5539ff2218', 2),
+/* ===================== EMPLOYEES (5) UPDATED WITH CORRECT SHA-256 ===================== */
+INSERT INTO employees (
+    full_name,
+    address,
+    phone_number,
+    identification_id,
+    email,
+    dob,
+    gender,
+    img_url,
+    img_hash,
+    account_id
+) VALUES
+      ('Nguyen Van Huy', 'Ha Noi', '0901000001', '012345001', 'nv1@company.com', '1995-01-01', 'Nam',
+       'https://res.cloudinary.com/dfduj6hiv/image/upload/v1767062658/g3tnflpe4umkdcejpprx.webp',
+       '32fb526959373d9b54a651a97c3ed216cb39c3bdfa546db0d3acc3b4a404cc9a', 2),
 
       ('Tran Thi Mai', 'Ha Noi', '0901000002', '012345002', 'nv2@company.com', '1996-02-02', 'Nữ',
-       'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559640/anh2_qoopvg.webp',
-       'f6c6e01a98133927f0bcd0ba94fe257f29bbadb7ea88b962eb4e2e500a4b2a6e', 3),
+       'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766978920/l7rivvz2cshrpb3ra5on.webp',
+       '5c0193f8bf8c2f1b354efde78a512f194407a527041a3a91f05e54bf62f3bc48', 3),
 
       ('Le Minh Duc', 'Da Nang', '0901000003', '012345003', 'nv3@company.com', '1994-03-03', 'Nam',
-       'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559709/anh3_gqwraf.jpg',
-       '4ed91e6afb5fd4648358b22084582334344ade8c8119556a54c21d8312c4ba89', 4),
+       'https://res.cloudinary.com/dfduj6hiv/image/upload/v1767062643/g3xye2yoji9hhmlvsv3z.webp',
+       'b27dcd4d20be284d8580c73576f40760d47576a89d7a2f33dc1b159c828c5645', 4),
 
       ('Pham Quang Hieu', 'Da Nang', '0901000004', '012345004', 'nv4@company.com', '1993-04-04', 'Nam',
-       'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559769/anh4_zcg3vw.webp',
-       '2d888ef44e15acfe54007cf2e788ae3a4f1edcd1814b7ff2b62b41baf7e6d040', 5),
+       'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766998277/c1qhxssyiheavo02izwi.jpg',
+       '781550e149fd178a77efc4857adb0ff378e24f7b3e3d78c6c33d26c1a01ee326', 5),
 
       ('Hoang Thanh Tung', 'Ho Chi Minh', '0901000005', '012345005', 'nv5@company.com', '1992-05-05', 'Nam',
-       'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559859/anh6_lql0pq.webp',
-       '91e4aee2ffa010a2b0a36a8a4cf64decb7a0b59be5e3dc4e09361cfd1980ce86', 6);
+       'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766977350/xkfrcvws16poasyijcxh.webp',
+       '7d49041c6049c40b7b8391ce5d83498d3f0af0f8c02f041e178e4ed856247a43', 6);
+
 
 
 
@@ -105,7 +109,7 @@ INSERT INTO customers (
     address, total_spending, account_id
 )
 VALUES (
-           'KH_DEMO1',
+           'KH1',
            'Nguyen Van Demo 1',
            '1995-01-01',
            'NAM',
@@ -124,7 +128,7 @@ INSERT INTO customers (
     address, total_spending, account_id
 )
 VALUES (
-           'KH_DEMO2',
+           'KH2',
            'Nguyen Van Demo 2',
            '1996-02-02',
            'NU',
@@ -143,7 +147,7 @@ INSERT INTO customers (
     address, total_spending, account_id
 )
 VALUES (
-           'KH_DEMO3',
+           'KH3',
            'Nguyen Van Demo 3',
            '1997-03-03',
            'NAM',
@@ -162,7 +166,7 @@ INSERT INTO customers (
     address, total_spending, account_id
 )
 VALUES (
-           'KH_DEMO4',
+           'KH4',
            'Nguyen Van Demo 4',
            '1998-04-04',
            'NU',
@@ -181,7 +185,7 @@ INSERT INTO customers (
     address, total_spending, account_id
 )
 VALUES (
-           'KH_DEMO5',
+           'KH5',
            'Nguyen Van Demo 5',
            '1999-05-05',
            'KHAC',
