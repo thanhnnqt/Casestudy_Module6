@@ -185,4 +185,42 @@ public class AuthController {
         authService.changePassword(username, req.getOldPassword(), req.getNewPassword());
         return ResponseEntity.ok("Đổi mật khẩu thành công");
     }
+    @GetMapping("/me")
+    public ResponseEntity<?> me(
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        String token = authHeader.substring(7);
+        var claims = jwtService.extractClaims(token);
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "username", claims.getSubject(),
+                        "role", claims.get("role"),
+                        "customerId", claims.get("customerId"),
+                        "fullName", claims.get("fullName")
+                )
+        );
+    }
+    @GetMapping("/verify-email")
+    @Transactional
+    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+
+        VerificationToken vt = verificationTokenService.validate(token);
+        RegisterRequest req = vt.getRegisterRequest();
+
+        // LÚC NÀY MỚI TẠO ACCOUNT
+        Account account = new Account();
+        account.setUsername(req.getUsername());
+        account.setPassword(passwordEncoder.encode(req.getPassword()));
+        account.setProvider(Provider.LOCAL);
+        account.setEnabled(true);
+
+        account = accountService.save(account);
+
+        accountService.createCustomerProfile(account, req);
+
+        verificationTokenService.delete(vt);
+
+        return ResponseEntity.ok("Xác nhận email thành công");
+    }
 }
