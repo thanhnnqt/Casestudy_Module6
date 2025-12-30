@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { login as loginApi, loginGoogle } from "../modules/login/service/authService.js";
 import { useAuth } from "../context/AuthContext";
-import {Link, useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { toast } from "react-toastify";
 
@@ -18,28 +18,52 @@ function Login() {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    // ===== LOGIN LOCAL =====
+    // ================= LOGIN LOCAL =================
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const { token } = await loginApi(form);
-            localStorage.setItem("token", token);
-            await login(token);
+
+            // 🔥 login() trả về role
+            const role = await login(token);
+
             toast.success("Đăng nhập thành công");
-            navigate("/");
+
+            // 🔥 PHÂN TRANG THEO ROLE
+            switch (role) {
+                case "ROLE_ADMIN":
+                    navigate("/admin");
+                    break;
+                case "ROLE_EMPLOYEE":
+                    navigate("/employee");
+                    break;
+                default:
+                    navigate("/"); // ROLE_USER
+            }
         } catch (err) {
             toast.error(err.response?.data || "Sai tài khoản hoặc mật khẩu");
         }
     };
 
-    // ===== LOGIN GOOGLE =====
+    // ================= LOGIN GOOGLE =================
     const handleGoogleSuccess = async (credentialResponse) => {
         try {
             const { token } = await loginGoogle(credentialResponse.credential);
-            localStorage.setItem("token", token);
-            await login(token);
+
+            const role = await login(token);
+
             toast.success("Đăng nhập Google thành công");
-            navigate("/");
+
+            switch (role) {
+                case "ROLE_ADMIN":
+                    navigate("/admin");
+                    break;
+                case "ROLE_EMPLOYEE":
+                    navigate("/employee");
+                    break;
+                default:
+                    navigate("/");
+            }
         } catch (err) {
             toast.error(err.response?.data || "Đăng nhập Google thất bại");
         }
@@ -54,7 +78,6 @@ function Login() {
 
                     {/* ===== LOGIN LOCAL ===== */}
                     <form onSubmit={handleSubmit}>
-
                         <div className="mb-3">
                             <label className="form-label">Tài khoản</label>
                             <input
@@ -87,10 +110,12 @@ function Login() {
                         >
                             Đăng nhập
                         </button>
+
                         <div className="text-end mb-3">
                             <Link
                                 to="/forgot-password"
-                                className="text-decoration-none text-muted">
+                                className="text-decoration-none text-muted"
+                            >
                                 Quên mật khẩu?
                             </Link>
                         </div>
@@ -105,7 +130,7 @@ function Login() {
                     <div className="d-flex justify-content-center">
                         <GoogleLogin
                             onSuccess={handleGoogleSuccess}
-                            onError={() => alert("Google Login thất bại")}
+                            onError={() => toast.error("Google Login thất bại")}
                         />
                     </div>
 
