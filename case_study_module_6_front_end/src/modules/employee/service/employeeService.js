@@ -149,18 +149,22 @@ export const updateEmployeeImage = async (id, imgURL, imgHash) => {
 };
 
 export async function checkUsernameExists(username) {
-    const token = localStorage.getItem("token");
     try {
-        const res = await axios.get(`${URL}/exists-username?username=${username}`, {
-            headers: {
-                Authorization: `Bearer ${token}`
+        const token = localStorage.getItem("token");
+        const res = await axios.get(
+            `${URL}/exists-username?username=${username}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
             }
-        });
-        return res.data; // true/false
+        );
+        return res.data;
     } catch {
         return false;
     }
 }
+
 
 
 
