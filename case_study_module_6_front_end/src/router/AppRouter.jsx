@@ -24,6 +24,8 @@ import ForgotPassword from "../pages/ForgotPassword.jsx";
 import ResetPassword from "../pages/ResetPassword.jsx";
 import ChangePassword from "../pages/ChangePassword.jsx";
 import EditProfile from "../modules/customer/service/EditProfile.jsx";
+import PaymentResult from "../pages/PaymentResult.jsx";
+import AdminInbox from "../components/chat/AdminInbox";
 
 
 function AppRouter() {
@@ -43,6 +45,7 @@ function AppRouter() {
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/change-password" element={<PrivateRoute><ChangePassword /></PrivateRoute>}/>
                 <Route path="/profile/edit" element={<PrivateRoute><EditProfile /></PrivateRoute>}/>
+                <Route path="/payment-result" element={<PaymentResult />} />
 
                 {/* Route chuyến bay */}
                 <Route path="/flights" element={<FlightList/>}/>
@@ -79,6 +82,7 @@ function AppRouter() {
                 <Route path="/booking-details" element={<BookingDetails />} />
                 <Route path="/management" element={<BookingManagement />} />
                 <Route path="/new-sale" element={<NewTicketSale />} />
+                <Route path="/admin/chat" element={<PrivateRoute role="ADMIN"><AdminInbox /></PrivateRoute>}/>
 
             </Route>
 

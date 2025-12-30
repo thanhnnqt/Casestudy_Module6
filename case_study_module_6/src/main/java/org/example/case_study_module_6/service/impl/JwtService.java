@@ -44,4 +44,19 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody();
     }
+    public String getUsernameFromToken(String token) {
+        return extractClaims(token).getSubject();
+    }
+
+    public String getRoleFromToken(String token) {
+        return extractClaims(token).get("role", String.class);
+    }
+
+    public Long getCustomerIdFromToken(String token) {
+        return extractClaims(token).get("customerId", Long.class);
+    }
+
+    public String getFullNameFromToken(String token) {
+        return extractClaims(token).get("fullName", String.class);
+    }
 }

@@ -313,3 +313,114 @@ CREATE TABLE password_reset_tokens
     expired_at DATETIME     NOT NULL,
     used       BOOLEAN DEFAULT FALSE
 );
+
+-- ================== 7.1 CHAT CONVERSATIONS ==================
+
+CREATE TABLE chat_conversations
+(
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+
+    -- Customer (luôn là customer)
+    customer_account_id BIGINT NOT NULL,
+
+    -- Người xử lý (admin hoặc employee)
+    staff_account_id    BIGINT,
+    staff_role          VARCHAR(20), -- ADMIN / EMPLOYEE
+
+    -- Trạng thái hội thoại
+    status ENUM(
+        'OPEN',
+        'ASSIGNED',
+        'CLOSED'
+    ) DEFAULT 'OPEN',
+
+    last_message_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    -- ===== FOREIGN KEY =====
+    CONSTRAINT fk_conversation_customer
+        FOREIGN KEY (customer_account_id)
+            REFERENCES accounts(id)
+            ON DELETE CASCADE,
+
+    CONSTRAINT fk_conversation_staff
+        FOREIGN KEY (staff_account_id)
+            REFERENCES accounts(id)
+            ON DELETE SET NULL,
+
+    -- Mỗi customer chỉ có 1 conversation đang mở
+    UNIQUE (customer_account_id),
+
+    INDEX idx_conv_customer (customer_account_id),
+    INDEX idx_conv_staff (staff_account_id),
+    INDEX idx_conv_last_msg (last_message_at)
+);
+
+-- ================== 7.2 CHAT MESSAGES (VERSION FULL) ==================
+
+CREATE TABLE chat_messages
+(
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+
+    conversation_id BIGINT NOT NULL,
+
+    sender_account_id   BIGINT       NOT NULL,
+    sender_username     VARCHAR(100) NOT NULL,
+    sender_role         VARCHAR(20)  NOT NULL,
+
+    receiver_account_id BIGINT       NOT NULL,
+    receiver_username   VARCHAR(100) NOT NULL,
+    receiver_role       VARCHAR(20)  NOT NULL,
+
+    content             TEXT         NOT NULL,
+    read_status         BOOLEAN      DEFAULT FALSE,
+
+    created_at          TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+
+    -- ===== FOREIGN KEY =====
+    CONSTRAINT fk_chat_message_conversation
+        FOREIGN KEY (conversation_id)
+            REFERENCES chat_conversations(id)
+            ON DELETE CASCADE,
+
+    CONSTRAINT fk_chat_message_sender
+        FOREIGN KEY (sender_account_id)
+            REFERENCES accounts (id)
+            ON DELETE CASCADE,
+
+    CONSTRAINT fk_chat_message_receiver
+        FOREIGN KEY (receiver_account_id)
+            REFERENCES accounts (id)
+            ON DELETE CASCADE,
+
+    -- ===== INDEX =====
+    INDEX idx_msg_conversation (conversation_id),
+    INDEX idx_msg_receiver_read (receiver_account_id, read_status),
+    INDEX idx_msg_created_at (created_at)
+);
+
+
+-- ================== 7.3 CHAT READ RECEIPTS ==================
+
+CREATE TABLE chat_read_receipts
+(
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+
+    message_id BIGINT NOT NULL,
+    account_id BIGINT NOT NULL,
+
+    read_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_receipt_message
+        FOREIGN KEY (message_id)
+            REFERENCES chat_messages(id)
+            ON DELETE CASCADE,
+
+    CONSTRAINT fk_receipt_account
+        FOREIGN KEY (account_id)
+            REFERENCES accounts(id)
+            ON DELETE CASCADE,
+
+    UNIQUE (message_id, account_id)
+);

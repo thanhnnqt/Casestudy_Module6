@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import "../styles/home.css";
 import {toast} from "react-toastify";
+import ChatBox from "../components/chat/ChatBox.jsx";
+import { useAuth } from "../context/AuthContext";
 
 function Home() {
     /* ================= CITY LIST ================= */
@@ -40,6 +42,14 @@ function Home() {
     /* WEATHER STATE */
     const [weatherFrom, setWeatherFrom] = useState(null);
     const [weatherTo, setWeatherTo] = useState(null);
+
+    const { user } = useAuth();
+    const [openChat, setOpenChat] = useState(false);
+
+    const admin = {
+        id: 1,
+        username: "admin"
+    };
 
     /* ================= HANDLER ================= */
     const handleChange = (e) => {
@@ -434,6 +444,38 @@ function Home() {
                     ))}
                 </div>
             </section>
+            {/* ================= CHAT FLOATING ================= */}
+            {user && (
+                <>
+                    {/* Nút mở chat */}
+                    <button
+                        onClick={() => setOpenChat(true)}
+                        style={{
+                            position: "fixed",
+                            bottom: 20,
+                            right: 20,
+                            width: 60,
+                            height: 60,
+                            borderRadius: "50%",
+                            backgroundColor: "#0d6efd",
+                            color: "#fff",
+                            fontSize: 24,
+                            border: "none",
+                            zIndex: 9999
+                        }}
+                    >
+                        💬
+                    </button>
+
+                    {/* Chat box */}
+                    {openChat && (
+                        <ChatBox
+                            admin={admin}
+                            onClose={() => setOpenChat(false)}
+                        />
+                    )}
+                </>
+            )}
         </>
     );
 }

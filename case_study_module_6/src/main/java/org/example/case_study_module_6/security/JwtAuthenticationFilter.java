@@ -26,7 +26,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return request.getRequestURI().startsWith("/auth/")
+        String uri = request.getRequestURI();
+
+        return uri.startsWith("/auth/")
+                || uri.startsWith("/ws-chat")
                 || HttpMethod.OPTIONS.matches(request.getMethod());
     }
 
@@ -55,14 +58,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 throw new RuntimeException("Token không chứa role");
             }
 
-// Đảm bảo role chỉ có 1 prefix ROLE_
             if (!role.startsWith("ROLE_")) {
                 role = "ROLE_" + role;
             }
 
+            Long accountId = claims.get("accountId", Long.class);
+
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
-                            username,
+                            accountId,   // 👈 principal = accountId
                             null,
                             List.of(new SimpleGrantedAuthority(role))
                     );

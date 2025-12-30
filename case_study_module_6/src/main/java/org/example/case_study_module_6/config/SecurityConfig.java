@@ -42,8 +42,20 @@ public class SecurityConfig {
                         .requestMatchers("/v1/api/employees/**")
                         .hasAnyRole("EMPLOYEE", "ADMIN")
 
+                        .requestMatchers("/api/customers/me")
+                        .hasAnyRole("CUSTOMER", "EMPLOYEE", "ADMIN")
+
                         .requestMatchers("/api/customers/**")
                         .hasAnyRole("EMPLOYEE", "ADMIN")
+
+                        .requestMatchers("/api/payment/**").permitAll()
+
+                        .requestMatchers(
+                                "/auth/**",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/ws-chat/**"
+                        ).permitAll()
 
                         .anyRequest().authenticated()
                 )
