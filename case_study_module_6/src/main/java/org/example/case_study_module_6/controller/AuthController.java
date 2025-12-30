@@ -77,19 +77,19 @@ public class AuthController {
         String fullName = account.getUsername();
 
         switch (role) {
-            case "ROLE_ADMIN" -> {
+            case "ADMIN" -> {
                 Admin admin = accountService.findAdminByAccount(account);
                 if (admin == null) return ResponseEntity.status(403).body("Không có quyền ADMIN");
                 profileId = admin.getId();
                 fullName = admin.getFullName();
             }
-            case "ROLE_EMPLOYEE" -> {
+            case "EMPLOYEE" -> {
                 Employee emp = accountService.findEmployeeByAccount(account);
                 if (emp == null) return ResponseEntity.status(403).body("Không có quyền EMPLOYEE");
                 profileId = emp.getId();
                 fullName = emp.getFullName();
             }
-            default -> { // CUSTOMER
+            case "CUSTOMER" -> {
                 Customer customer = customerService.findByAccount(account);
                 if (customer == null) {
                     return ResponseEntity.status(400).body("Tài khoản chưa gắn khách hàng");
@@ -97,6 +97,7 @@ public class AuthController {
                 profileId = customer.getId();
                 fullName = customer.getFullName();
             }
+            default -> throw new RuntimeException("Role không hợp lệ");
         }
 
         String token = jwtService.generateToken(

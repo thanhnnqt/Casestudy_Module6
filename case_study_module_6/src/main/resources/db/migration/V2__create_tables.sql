@@ -186,8 +186,8 @@ CREATE TABLE employees
     gender            ENUM('Nam', 'Nữ', 'Khác') DEFAULT 'Khác',
     img_url           VARCHAR(500),
     img_hash          VARCHAR(500),
-    account_id        BIGINT
---                            FOREIGN KEY (account_id) REFERENCES accounts(id)
+    account_id        BIGINT,
+    FOREIGN KEY (account_id) REFERENCES accounts(id)
 );
 
 -- Nếu Account ID tồn tại trong bảng này => ROLE_CUSTOMER
@@ -205,7 +205,7 @@ CREATE TABLE customers
     total_spending DECIMAL(15, 2) DEFAULT 0,
     created_at     TIMESTAMP      DEFAULT CURRENT_TIMESTAMP,
 
-    account_id     BIGINT       NOT NULL UNIQUE,
+    account_id     BIGINT UNIQUE,
 
     CONSTRAINT fk_customer_account
         FOREIGN KEY (account_id)
