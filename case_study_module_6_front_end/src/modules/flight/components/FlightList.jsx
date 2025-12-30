@@ -216,6 +216,19 @@ const FlightList = () => {
                     </Link>
                 </div>
 
+                {/* Report */}
+                <div className="nav flex-column mt-3">
+                    <div className="nav-section-title px-3 text-uppercase text-muted small fw-bold">
+                        <i className="bi bi-bar-chart-fill me-2"></i>
+                        Báo cáo
+                    </div>
+
+                    <Link to="/report" className="nav-link ps-4">
+                        <i className="bi bi-graph-up-arrow me-2"></i>
+                        <span>Tạo báo cáo</span>
+                    </Link>
+                </div>
+
 
                 <div className="mt-auto"><a href="#" className="nav-link text-danger"><i
                     className="bi bi-box-arrow-left"></i> <span>Đăng xuất</span></a></div>

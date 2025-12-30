@@ -1,11 +1,21 @@
-.recharts-tooltip-wrapper {
-    pointer-events: none;
+/* Không đổi màu cột khi hover */
+.recharts-bar-rectangle {
+    transition: none !important;
 }
 
-.recharts-default-tooltip {
-    background-color: #ffffff !important;
-    color: #000 !important;
-    border: 1px solid #e0e0e0 !important;
-    border-radius: 8px !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.12) !important;
+/* Cột đang active vẫn giữ màu gradient */
+.recharts-active-bar .recharts-rectangle {
+    opacity: 1 !important;
+    fill: url(#revenueGradient) !important;
+}
+
+/* Ngăn các cột còn lại bị mờ đi */
+.recharts-bar-rectangle .recharts-rectangle {
+    opacity: 1 !important;
+}
+
+/* Tooltip active hiệu ứng không thay fill */
+.recharts-tooltip-cursor {
+    fill: transparent !important;
+    stroke: none !important;
 }

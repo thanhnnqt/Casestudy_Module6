@@ -20,6 +20,8 @@ import EmployeeList from "../modules/employee/components/EmployeeList.jsx";
 import EmployeeDetail from "../modules/employee/components/EmployeeDetail.jsx";
 import AddEmployee from "../modules/employee/components/AddEmployee.jsx";
 import VerifyEmail from "../pages/VerifyEmail.jsx";
+import Report from "../modules/employee/components/Report.jsx";
+import RevenueChart from "../modules/employee/components/RevenueChart.jsx";
 
 function AppRouter() {
     return (
@@ -46,6 +48,11 @@ function AppRouter() {
                 <Route path="/employees" element={<EmployeeList/>}/>
                 <Route path="/employees/edit/:id" element={<EmployeeDetail/>}/>
                 <Route path="/employees/add" element={<AddEmployee/>}/>
+                <Route path="/report" element={<Report/>}/>
+                <Route path="/revenue-chart" element={<RevenueChart data={[
+                    { month: "T1", revenue: 120000000 },
+                    { month: "T2", revenue: 200000000 },
+                ]}/>}/>
 
                 <Route path="/profile" element={
                     <PrivateRoute>

@@ -63,7 +63,7 @@ export async function getEmployeeListBySearch(fullName, phoneNumber, page = 0, s
 export async function addEmployee(employee) {
     try {
         const res = await axios.post(`${URL}`, employee);
-        return res.status === 201;
+        return res.data;
     } catch (e) {
         console.error(e.message)
     }
@@ -102,9 +102,17 @@ export async function checkPhoneExists(value) {
 
 export async function checkImageHashExistsExceptSelf(hash, id) {
     const res = await axios.get(`${URL}/check-image-hash-except`, {
-        params: { hash, id }
+        params: {hash, id}
     });
     return res.data;
 }
+
+
+export const updateEmployeeImage = async (id, imgURL, imgHash) => {
+    return await axios.patch(`${URL}/${id}/update-image`, null, {
+        params: {imageUrl: imgURL, imageHash: imgHash}
+    });
+};
+
 
 
