@@ -11,26 +11,24 @@ import java.util.Date;
 public class JwtService {
 
     private static final String SECRET_KEY =
-            "12345678901234567890123456789012";
-    private static final long EXPIRATION = 1000 * 60 * 60 * 24;
+            "12345678901234567890123456789012"; // >= 32 chars
+
+    private static final long EXPIRATION =
+            1000 * 60 * 60 * 24; // 24 giờ
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }
 
-    // ✅ ĐÚNG với AuthController
     public String generateToken(
             String username,
             String role,
             Long customerId,
             String fullName
     ) {
-        if (customerId == null) {
-            throw new IllegalArgumentException("customerId is required to generate token");
-        }
         return Jwts.builder()
                 .setSubject(username)
-                .claim("role", role)
+                .claim("role", role.replace("ROLE_", ""))
                 .claim("customerId", customerId)
                 .claim("fullName", fullName)
                 .setIssuedAt(new Date())

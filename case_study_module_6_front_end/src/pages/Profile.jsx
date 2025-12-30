@@ -26,6 +26,24 @@ export default function Profile() {
         fetchProfile();
     }, []);
 
+    /* ================= FORMAT ================= */
+    const formatGender = (gender) => {
+        switch (gender) {
+            case "NAM":
+                return "Nam";
+            case "NU":
+                return "Nữ";
+            default:
+                return "Khác";
+        }
+    };
+
+    const formatDate = (date) => {
+        if (!date) return "";
+        return new Date(date).toLocaleDateString("vi-VN");
+    };
+    /* ========================================== */
+
     if (loading) {
         return <p style={{ textAlign: "center" }}>Đang tải thông tin...</p>;
     }
@@ -66,12 +84,12 @@ export default function Profile() {
 
                 <div className="profile-row">
                     <span>Giới tính</span>
-                    <span>{customer.gender}</span>
+                    <span>{formatGender(customer.gender)}</span>
                 </div>
 
                 <div className="profile-row">
                     <span>Ngày sinh</span>
-                    <span>{customer.dateOfBirth}</span>
+                    <span>{formatDate(customer.dateOfBirth)}</span>
                 </div>
 
                 <div className="profile-row">
@@ -86,6 +104,7 @@ export default function Profile() {
                 >
                     🔑 Đổi mật khẩu
                 </button>
+
                 <button
                     className="btn-change-password"
                     style={{ background: "#52c41a", marginBottom: "12px" }}

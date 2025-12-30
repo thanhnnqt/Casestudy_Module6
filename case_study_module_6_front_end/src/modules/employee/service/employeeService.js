@@ -1,8 +1,9 @@
-import axios from "axios";
+import axios from "../../login/service/axiosConfig";
 
-const URL = "http://localhost:8080/v1/api/employees"
+const URL = "/v1/api/employees"
 
 export async function getEmployeeList() {
+    console.log("TOKEN SENT =", localStorage.getItem("token"));
     try {
         const res = await axios.get(`${URL}`);
         return res.data;

@@ -46,4 +46,6 @@ public interface IEmployeeRepository extends JpaRepository<Employee, Long> {
     boolean existsByPhoneNumber(String phone);
 
     Optional<Employee> findByImgHash(String hash);
+
+    Optional<Employee> findByAccountId(Long accountId);
 }

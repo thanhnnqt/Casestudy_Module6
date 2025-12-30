@@ -7,6 +7,7 @@ import org.example.case_study_module_6.entity.Account;
 import org.example.case_study_module_6.entity.Employee;
 import org.example.case_study_module_6.service.IAccountService;
 import org.example.case_study_module_6.service.IEmployeeService;
+import org.example.case_study_module_6.service.impl.JwtService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +21,12 @@ import org.springframework.web.bind.annotation.*;
 public class EmployeeController {
     final IEmployeeService employeeService;
     final IAccountService accountService;
+    final JwtService jwtService;
 
-    public EmployeeController(IEmployeeService employeeService, IAccountService accountService) {
+    public EmployeeController(IEmployeeService employeeService, IAccountService accountService, JwtService jwtService) {
         this.employeeService = employeeService;
         this.accountService = accountService;
+        this.jwtService = jwtService;
     }
 
     @Operation(summary = "Lấy danh sách toàn bộ nhân viên")
@@ -64,13 +67,21 @@ public class EmployeeController {
         return ResponseEntity.noContent().build();
     }
 
+    //ThanhNN sửa
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Employee employee) {
-        Account account = new Account();
-        account.setId(32L);
-        employee.setAccountId(account.getId());
+    public ResponseEntity<?> create(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody Employee employee
+    ) {
+        String token = authHeader.substring(7);
+        var claims = jwtService.extractClaims(token);
+
+        Long accountId = claims.get("accountId", Long.class);
+
+        employee.setAccountId(accountId);
         employeeService.save(employee);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("/check-identification")
