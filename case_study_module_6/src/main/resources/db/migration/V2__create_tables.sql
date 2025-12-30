@@ -57,6 +57,7 @@ CREATE TABLE flights
     FOREIGN KEY (arrival_airport_id) REFERENCES airports (id)
 );
 
+
 -- Bảng này quyết định giá và số lượng ghế từng hạng
 CREATE TABLE flight_seat_details
 (

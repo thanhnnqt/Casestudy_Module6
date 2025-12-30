@@ -40,39 +40,35 @@ INSERT INTO admins (admin_code, full_name, email, phone_number, account_id)
 VALUES ('AD01', 'System Admin', 'admin@system.com', '0900000000', 1);
 
 /* ===================== EMPLOYEES (5) ===================== */
-INSERT INTO employees (
-    full_name,
-    address,
-    phone_number,
-    identification_id,
-    email,
-    dob,
-    gender,
-    img_url,
-    img_hash,
-    account_id
-) VALUES
-      ('Nguyen Van Huy', 'Ha Noi', '0901000001', '012345001', 'nv1@company.com', '1995-01-01', 'Nam',
-       'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559419/anh1_pgptg9.jpg',
-       'd90f6840d0bbdcf1d7e39c8e1dd80cf9b3a9902e1cb4f95846c61d5539ff2218', 2),
+INSERT INTO employees (full_name,
+                       address,
+                       phone_number,
+                       identification_id,
+                       email,
+                       dob,
+                       gender,
+                       img_url,
+                       img_hash,
+                       account_id)
+VALUES ('Nguyen Van Huy', 'Ha Noi', '0901000001', '012345001', 'nv1@company.com', '1995-01-01', 'Nam',
+        'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766739909/yl5cfsnewqncz1rduvyp.webp',
+        'd90f6840d0bbdcf1d7e39c8e1dd80cf9b3a9902e1cb4f95846c61d5539ff2218', 2),
 
-      ('Tran Thi Mai', 'Ha Noi', '0901000002', '012345002', 'nv2@company.com', '1996-02-02', 'Nữ',
-       'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559640/anh2_qoopvg.webp',
-       'f6c6e01a98133927f0bcd0ba94fe257f29bbadb7ea88b962eb4e2e500a4b2a6e', 3),
+       ('Tran Thi Mai', 'Ha Noi', '0901000002', '012345002', 'nv2@company.com', '1996-02-02', 'Nữ',
+        'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766739876/jmgncqzshahjzmfizl8x.webp',
+        'f6c6e01a98133927f0bcd0ba94fe257f29bbadb7ea88b962eb4e2e500a4b2a6e', 3),
 
-      ('Le Minh Duc', 'Da Nang', '0901000003', '012345003', 'nv3@company.com', '1994-03-03', 'Nam',
-       'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559709/anh3_gqwraf.jpg',
-       '4ed91e6afb5fd4648358b22084582334344ade8c8119556a54c21d8312c4ba89', 4),
+       ('Le Minh Duc', 'Da Nang', '0901000003', '012345003', 'nv3@company.com', '1994-03-03', 'Nam',
+        'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766739290/rju4whh8jshokpnwwrac.jpg',
+        '4ed91e6afb5fd4648358b22084582334344ade8c8119556a54c21d8312c4ba89', 4),
 
-      ('Pham Quang Hieu', 'Da Nang', '0901000004', '012345004', 'nv4@company.com', '1993-04-04', 'Nam',
-       'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559769/anh4_zcg3vw.webp',
-       '2d888ef44e15acfe54007cf2e788ae3a4f1edcd1814b7ff2b62b41baf7e6d040', 5),
+       ('Pham Quang Hieu', 'Da Nang', '0901000004', '012345004', 'nv4@company.com', '1993-04-04', 'Nam',
+        'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766739900/ggmooyemcqhtuts579yx.webp',
+        '2d888ef44e15acfe54007cf2e788ae3a4f1edcd1814b7ff2b62b41baf7e6d040', 5),
 
-      ('Hoang Thanh Tung', 'Ho Chi Minh', '0901000005', '012345005', 'nv5@company.com', '1992-05-05', 'Nam',
-       'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766559859/anh6_lql0pq.webp',
-       '91e4aee2ffa010a2b0a36a8a4cf64decb7a0b59be5e3dc4e09361cfd1980ce86', 6);
-
-
+       ('Hoang Thanh Tung', 'Ho Chi Minh', '0901000005', '012345005', 'nv5@company.com', '1992-05-05', 'Nam',
+        'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766739248/evxvr8nbzwzjqtvqfsuz.jpg',
+        '91e4aee2ffa010a2b0a36a8a4cf64decb7a0b59be5e3dc4e09361cfd1980ce86', 6);
 
 
 /* ===================== CUSTOMERS (20) ===================== */
@@ -135,6 +131,77 @@ VALUES ('VN201', 1, 1, 4, '2025-01-10 08:00', '2025-01-10 10:00', 'SCHEDULED'),
        ('QH902', 4, 5, 4, '2025-01-16 06:00', '2025-01-16 07:40', 'SCHEDULED'),
        ('VN205', 1, 5, 1, '2025-01-17 11:10', '2025-01-17 13:00', 'SCHEDULED'),
        ('VJ303', 3, 1, 5, '2025-01-18 21:00', '2025-01-18 23:00', 'SCHEDULED');
+
+/* ===================== BOOKINGS (10) UPDATED ===================== */
+/* ===================== BOOKINGS FOR ANALYTICS TEST ===================== */
+INSERT INTO bookings
+(booking_code, booking_date, total_amount, status, channel, trip_type,
+ contact_email, contact_phone, payment_method, payment_status,
+ transaction_code, paid_at, customer_account_id, created_by_sales_id)
+VALUES
+-- Tuần này (2026-05-10 đang là tuần này)
+('BK101', '2026-05-10 09:00:00', 1000000, 'PAID', 'ONLINE', 'ONE_WAY',
+ 'test1@mail.com', '0901110001', 'BANK_TRANSFER', 'PAID', 'TXN101', '2026-05-10 09:05:00', 7, 2),
+('BK102', '2026-05-09 14:00:00', 1000000, 'PAID', 'ONLINE', 'ONE_WAY',
+ 'test2@mail.com', '0901110002', 'BANK_TRANSFER', 'PAID', 'TXN102', '2026-05-09 14:05:00', 8, 2),
+
+-- Tuần trước
+('BK103', '2026-05-02 11:00:00', 1000000, 'PAID', 'ONLINE', 'ONE_WAY',
+ 'test3@mail.com', '0901110003', 'BANK_TRANSFER', 'PAID', 'TXN103', '2026-05-02 11:05:00', 9, 2),
+('BK104', '2026-04-29 18:00:00', 1000000, 'PAID', 'ONLINE', 'ONE_WAY',
+ 'test4@mail.com', '0901110004', 'BANK_TRANSFER', 'PAID', 'TXN104', '2026-04-29 18:05:00', 10, 2),
+
+-- Tháng này (ngoài phạm vi tuần hiện tại)
+('BK105', '2026-05-03 10:00:00', 1000000, 'PAID', 'ONLINE', 'ONE_WAY',
+ 'test5@mail.com', '0901110005', 'BANK_TRANSFER', 'PAID', 'TXN105', '2026-05-03 10:05:00', 11, 2),
+('BK106', '2026-05-01 15:00:00', 1000000, 'PAID', 'ONLINE', 'ONE_WAY',
+ 'test6@mail.com', '0901110006', 'BANK_TRANSFER', 'PAID', 'TXN106', '2026-05-01 15:05:00', 12, 2),
+
+-- Tháng trước
+('BK107', '2026-04-15 12:00:00', 1000000, 'PAID', 'ONLINE', 'ONE_WAY',
+ 'test7@mail.com', '0901110007', 'BANK_TRANSFER', 'PAID', 'TXN107', '2026-04-15 12:05:00', 13, 2),
+('BK108', '2026-04-05 09:00:00', 1000000, 'PAID', 'ONLINE', 'ONE_WAY',
+ 'test8@mail.com', '0901110008', 'BANK_TRANSFER', 'PAID', 'TXN108', '2026-04-05 09:05:00', 14, 2),
+
+-- Quý này (ngoài tháng này)
+('BK109', '2026-06-10 08:00:00', 1000000, 'PAID', 'ONLINE', 'ONE_WAY',
+ 'test9@mail.com', '0901110009', 'BANK_TRANSFER', 'PAID', 'TXN109', '2026-06-10 08:05:00', 15, 2),
+('BK110', '2026-04-10 19:00:00', 1000000, 'PAID', 'ONLINE', 'ONE_WAY',
+ 'test10@mail.com', '0901110010', 'BANK_TRANSFER', 'PAID', 'TXN110', '2026-04-10 19:05:00', 16, 2),
+
+-- Quý trước
+('BK111', '2026-03-25 10:00:00', 1000000, 'PAID', 'ONLINE', 'ONE_WAY',
+ 'test11@mail.com', '0901110011', 'BANK_TRANSFER', 'PAID', 'TXN111', '2026-03-25 10:05:00', 7, 2),
+('BK112', '2026-02-10 17:00:00', 1000000, 'PAID', 'ONLINE', 'ONE_WAY',
+ 'test12@mail.com', '0901110012', 'BANK_TRANSFER', 'PAID', 'TXN112', '2026-02-10 17:05:00', 8, 2),
+
+-- Năm nay (ngoài quý này)
+('BK113', '2026-07-20 13:30:00', 1000000, 'PAID', 'ONLINE', 'ONE_WAY',
+ 'test13@mail.com', '0901110013', 'BANK_TRANSFER', 'PAID', 'TXN113', '2026-07-20 13:35:00', 9, 2),
+('BK114', '2026-12-01 08:20:00', 1000000, 'PAID', 'ONLINE', 'ONE_WAY',
+ 'test14@mail.com', '0901110014', 'BANK_TRANSFER', 'PAID', 'TXN114', '2026-12-01 08:25:00', 10, 2),
+
+-- Năm trước
+('BK115', '2025-08-15 14:00:00', 1000000, 'PAID', 'ONLINE', 'ONE_WAY',
+ 'test15@mail.com', '0901110015', 'BANK_TRANSFER', 'PAID', 'TXN115', '2025-08-15 14:05:00', 11, 2),
+('BK116', '2025-12-28 09:20:00', 1000000, 'PAID', 'ONLINE', 'ONE_WAY',
+ 'test16@mail.com', '0901110016', 'BANK_TRANSFER', 'PAID', 'TXN116', '2025-12-28 09:25:00', 12, 2);
+
+
+/* ===================== TICKETS (10) ===================== */
+INSERT INTO tickets
+(seat_number, ticket_number, passenger_name, passenger_dob, seat_class, price,
+ booking_id, flight_id, status)
+VALUES ('A01', 'TK001', 'Nguyen Minh Quan', '1990-01-01', 'ECONOMY', 1500000, 1, 1, 'BOOKED'),
+       ('A02', 'TK002', 'Tran Ngoc Anh', '1991-02-02', 'ECONOMY', 1800000, 2, 2, 'BOOKED'),
+       ('A03', 'TK003', 'Le Hoang Nam', '1992-03-03', 'ECONOMY', 1200000, 3, 3, 'BOOKED'),
+       ('A04', 'TK004', 'Pham Thu Ha', '1993-04-04', 'ECONOMY', 1300000, 4, 4, 'BOOKED'),
+       ('A05', 'TK005', 'Hoang Gia Bao', '1994-05-05', 'ECONOMY', 1600000, 5, 5, 'BOOKED'),
+       ('A06', 'TK006', 'Do Thanh Thao', '1995-06-06', 'ECONOMY', 1400000, 6, 6, 'BOOKED'),
+       ('A07', 'TK007', 'Bui Duc Thinh', '1996-07-07', 'ECONOMY', 1700000, 7, 7, 'BOOKED'),
+       ('A08', 'TK008', 'Dang My Linh', '1997-08-08', 'ECONOMY', 1450000, 8, 8, 'BOOKED'),
+       ('A09', 'TK009', 'Ngo Tien Dat', '1998-09-09', 'ECONOMY', 1550000, 9, 9, 'BOOKED'),
+       ('A10', 'TK010', 'Vu Anh Tuyet', '1999-10-10', 'ECONOMY', 1750000, 10, 10, 'BOOKED');
 
 /* ===================== SEAT CONFIG ===================== */
 INSERT INTO flight_seat_details (flight_id, seat_class, price, total_seats, available_seats)

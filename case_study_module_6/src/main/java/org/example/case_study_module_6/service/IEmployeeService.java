@@ -1,5 +1,6 @@
 package org.example.case_study_module_6.service;
 
+import org.example.case_study_module_6.entity.Account;
 import org.example.case_study_module_6.entity.Employee;
 import org.springframework.data.domain.Page;
 
@@ -13,7 +14,7 @@ public interface IEmployeeService {
 
     Employee findById(Long id);
 
-    boolean save(Employee employee);
+    Employee save(Employee employee);
 
     boolean existsByAccountId(Long accountId);
 
@@ -33,6 +34,7 @@ public interface IEmployeeService {
     boolean existsByPhoneNumber(String phone);
 
     boolean existsByImgHashAndIdNot(String hash, Long id);
+    Employee findByAccount(Account account);
 }
 
 

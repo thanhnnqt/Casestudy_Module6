@@ -1,0 +1,11 @@
+.recharts-tooltip-wrapper {
+    pointer-events: none;
+}
+
+.recharts-default-tooltip {
+    background-color: #ffffff !important;
+    color: #000 !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12) !important;
+}
