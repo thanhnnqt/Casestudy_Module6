@@ -7,6 +7,8 @@ import PrivateRoute from "../components/PrivateRoute.jsx";
 import Profile from "../pages/Profile.jsx";
 import FlightList from "../modules/flight/components/FlightList.jsx";
 import FlightForm from "../modules/flight/components/FlightForm.jsx";
+import BookingPage from "../modules/flight/pages/BookingPage.jsx";
+import PassengerForm from "../modules/flight/pages/PassengerForm.jsx";
 import CustomerList from "../components/CustomerList";
 import CustomerForm from "../components/CustomerForm";
 import EmployeeInfo from "../components/EmployeeInfo";
@@ -44,10 +46,13 @@ function AppRouter() {
                 <Route path="/change-password" element={<PrivateRoute><ChangePassword /></PrivateRoute>}/>
                 <Route path="/profile/edit" element={<PrivateRoute><EditProfile /></PrivateRoute>}/>
 
-                {/* Route chuyến bay */}
+                {/* Route quản lý chuyến bay */}
                 <Route path="/flights" element={<FlightList/>}/>
                 <Route path="/flights/create" element={<FlightForm/>}/>
                 <Route path="flights/edit/:id" element={<FlightForm/>}/>
+
+                <Route path="/flights/booking" element={<BookingPage/>}/>
+                <Route path="/flights/passenger" element={<PassengerForm/>}/>
 
                 {/* Route nhân viên */}
                 <Route path="/employees" element={<EmployeeList/>}/>
