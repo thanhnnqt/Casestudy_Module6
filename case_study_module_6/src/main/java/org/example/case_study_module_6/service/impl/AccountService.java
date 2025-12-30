@@ -43,9 +43,20 @@ public class AccountService implements IAccountService {
 
     // ================= ROLE =================
     public String resolveRole(Long accountId) {
-        if (adminRepository.existsByAccountId(accountId)) return "ROLE_ADMIN";
-        if (employeeRepository.existsByAccountId(accountId)) return "ROLE_EMPLOYEE";
-        return "ROLE_USER";
+
+        if (adminRepository.existsByAccountId(accountId)) {
+            return "ADMIN";
+        }
+
+        if (employeeRepository.existsByAccountId(accountId)) {
+            return "EMPLOYEE";
+        }
+
+        if (customerRepository.existsByAccountId(accountId)) {
+            return "CUSTOMER";
+        }
+
+        throw new RuntimeException("Account chưa được gán role");
     }
 
     public Admin findAdminByAccount(Account acc) {

@@ -49,13 +49,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             var claims = jwtService.extractClaims(token);
 
             String username = claims.getSubject();
-            String role = claims.get("role", String.class); // ADMIN
+            String role = claims.get("role", String.class);
+
+            if (role == null) {
+                throw new RuntimeException("Token không chứa role");
+            }
+
+// Đảm bảo role chỉ có 1 prefix ROLE_
+            if (!role.startsWith("ROLE_")) {
+                role = "ROLE_" + role;
+            }
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
                             username,
                             null,
-                            List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                            List.of(new SimpleGrantedAuthority(role))
                     );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
