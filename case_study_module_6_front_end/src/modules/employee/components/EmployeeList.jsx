@@ -79,33 +79,57 @@ const EmployeeList = () => {
                 </button>
             </div>
 
-            {/* SEARCH & ADD */}
-            <div className="card mb-3">
-                <div className="card-body d-flex justify-content-between align-items-center gap-2">
+            <div className="card-body d-flex align-items-center flex-wrap gap-2 mb-3">
 
-                    <Link to="/employees/add" className="btn btn-primary">
-                        <i className="bi bi-plus-lg me-1"></i> Thêm mới
+                <div className="flex-shrink-0">
+                    <Link
+                        to="/employees/add"
+                        className="btn btn-primary btn-sm d-flex align-items-center px-3"
+                        title="Thêm nhân viên"
+                    >
+                        <i className="bi bi-plus-lg me-1"></i> Thêm
                     </Link>
-
-                    <div className="d-flex gap-2">
-                        <input type="text" className="form-control" placeholder="Tên nhân viên"
-                               style={{maxWidth: "200px"}} value={fullName}
-                               onChange={(e) => setFullName(e.target.value)}/>
-
-                        <input type="text" className="form-control" placeholder="SĐT"
-                               style={{maxWidth: "150px"}} value={phoneNumber}
-                               onChange={(e) => setPhoneNumber(e.target.value)}/>
-
-                        <button className="btn btn-outline-primary" onClick={handleSearch}>
-                            <i className="bi bi-search"></i>
-                        </button>
-
-                        <button className="btn btn-outline-secondary" onClick={handleReset}>
-                            <i className="bi bi-arrow-clockwise"></i>
-                        </button>
-                    </div>
                 </div>
+
+                {/* Search group */}
+                <div className="d-flex align-items-center gap-2 flex-grow-1 justify-content-end flex-wrap">
+                    <input
+                        type="text"
+                        className="form-control form-control-sm"
+                        placeholder="Tên nhân viên"
+                        style={{ width: "160px" }}
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                    />
+
+                    <input
+                        type="text"
+                        className="form-control form-control-sm"
+                        placeholder="SĐT"
+                        style={{ width: "110px" }}
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                    />
+
+                    <button
+                        className="btn btn-outline-primary btn-sm"
+                        title="Tìm kiếm"
+                        onClick={handleSearch}
+                    >
+                        <i className="bi bi-search"></i>
+                    </button>
+
+                    <button
+                        className="btn btn-outline-secondary btn-sm"
+                        title="Đặt lại"
+                        onClick={handleReset}
+                    >
+                        <i className="bi bi-arrow-clockwise"></i>
+                    </button>
+                </div>
+
             </div>
+
 
             {/* TABLE */}
             <div className="card">
