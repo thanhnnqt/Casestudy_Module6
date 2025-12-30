@@ -198,7 +198,7 @@ function Register() {
 
                                     {/* CONFIRM */}
                                     <div className="col-lg-4 col-md-6 mb-2">
-                                        <label className="form-label">Xác nhận *</label>
+                                        <label className="form-label">Xác nhận mật khẩu *</label>
                                         <input
                                             type="password"
                                             name="confirmPassword"

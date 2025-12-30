@@ -1,0 +1,167 @@
+.profile-container {
+    display: flex;
+    justify-content: center;
+    padding: 40px 16px;
+}
+
+.profile-card {
+    width: 100%;
+    max-width: 600px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+.profile-card h2 {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.profile-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.profile-row span:first-child {
+    font-weight: 500;
+    color: #555;
+}
+
+.btn-change-password {
+    margin-top: 20px;
+    width: 100%;
+    padding: 10px;
+    background: #1677ff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 99999; /* 🔥 CAO HƠN HEADER + SIDEBAR */
+}
+
+.modal {
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+
+    z-index: 100000; /* 🔥 QUAN TRỌNG */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+.modal input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.modal-actions .primary {
+    background: #1677ff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+}
+/* ===== AUTH PAGE (LOGIN / CHANGE PASSWORD) ===== */
+.auth-page {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: #fff;
+    padding: 32px;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.auth-title {
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+.auth-subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 24px;
+}
+
+.auth-form .form-group {
+    margin-bottom: 16px;
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+.auth-form input:focus {
+    border-color: #1677ff;
+    box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.15);
+}
+
+/* ===== ACTIONS ===== */
+.auth-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.btn-cancel {
+    flex: 1;
+    padding: 10px;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-primary {
+    flex: 1;
+    padding: 10px;
+    background: #1677ff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: #0958d9;
+}

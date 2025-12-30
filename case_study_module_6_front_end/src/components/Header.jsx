@@ -109,9 +109,10 @@ function Header() {
                                 {/* TOGGLE */}
                                 <button
                                     className="nav-link fw-semibold btn btn-link text-decoration-none"
-                                    onClick={() => setOpen(!open)}
-                                >
-                                    Xin chào, {user.fullName || user.email}
+                                    onClick={() => setOpen(!open)}>
+                                    <strong style={{ color: "#1ba0e2" }}>
+                                        Xin chào {user.fullName || user.email}
+                                    </strong>
                                 </button>
 
                                 {/* DROPDOWN */}

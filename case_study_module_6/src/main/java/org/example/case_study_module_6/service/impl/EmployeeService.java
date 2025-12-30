@@ -1,5 +1,6 @@
 package org.example.case_study_module_6.service.impl;
 
+import org.example.case_study_module_6.entity.Account;
 import org.example.case_study_module_6.entity.Employee;
 import org.example.case_study_module_6.repository.IEmployeeRepository;
 import org.example.case_study_module_6.service.IEmployeeService;
@@ -36,8 +37,8 @@ public class EmployeeService implements IEmployeeService {
     }
 
     @Override
-    public boolean save(Employee employee) {
-        return employeeRepository.save(employee) != null;
+    public Employee save(Employee employee) {
+        return employeeRepository.save(employee);
     }
 
     @Override
@@ -81,6 +82,11 @@ public class EmployeeService implements IEmployeeService {
     public boolean existsByImgHashAndIdNot(String hash, Long id) {
         Optional<Employee> owner = employeeRepository.findByImgHash(hash);
         return owner.isPresent() && !owner.get().getId().equals(id);
+    }
+
+    @Override
+    public Employee findByAccount(Account account) {
+        return employeeRepository.findByAccount(account);
     }
 
 
