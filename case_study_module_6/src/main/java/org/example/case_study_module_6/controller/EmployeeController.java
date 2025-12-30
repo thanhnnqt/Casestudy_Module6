@@ -13,7 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
+import org.example.case_study_module_6.service.impl.JwtService;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,12 +27,15 @@ public class EmployeeController {
     final IEmployeeService employeeService;
     final IAccountService accountService;
     private final PasswordEncoder passwordEncoder;
+    final JwtService jwtService;
 
 
-    public EmployeeController(IEmployeeService employeeService, IAccountService accountService, PasswordEncoder passwordEncoder) {
+
+    public EmployeeController(IEmployeeService employeeService, IAccountService accountService, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.employeeService = employeeService;
         this.accountService = accountService;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Operation(summary = "Lấy danh sách toàn bộ nhân viên")
@@ -73,7 +77,9 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody EmployeeDTO employeeDTO) {
+    public ResponseEntity<?> create(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody EmployeeDTO employeeDTO) {
         Account account = new Account();
         account.setUsername(employeeDTO.getUsername());
         account.setPassword(passwordEncoder.encode(employeeDTO.getPassword()));
@@ -92,6 +98,12 @@ public class EmployeeController {
         employee.setImgHash(employeeDTO.getImgHash());
         employee.setImgURL(employeeDTO.getImgURL());
         Employee employeeCreated = employeeService.save(employee);
+        String token = authHeader.substring(7);
+        var claims = jwtService.extractClaims(token);
+
+        Long accountId = claims.get("accountId", Long.class);
+
+//        employee.setAccountId(accountId);
         return new ResponseEntity<>(employeeCreated, HttpStatus.CREATED);
     }
 

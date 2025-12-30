@@ -1,6 +1,7 @@
 package org.example.case_study_module_6.repository;
 
 import org.example.case_study_module_6.entity.Account;
+import org.example.case_study_module_6.entity.Account;
 import org.example.case_study_module_6.entity.Employee;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,6 +47,8 @@ public interface IEmployeeRepository extends JpaRepository<Employee, Long> {
     boolean existsByPhoneNumber(String phone);
 
     Optional<Employee> findByImgHash(String hash);
+
+    Optional<Employee> findByAccountId(Long accountId);
 
     Employee findByAccount(Account account);
 

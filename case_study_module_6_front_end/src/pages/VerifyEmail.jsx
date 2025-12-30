@@ -1,12 +1,16 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 
 export default function VerifyEmail() {
     const [params] = useSearchParams();
+    const hasCalledRef = useRef(false);
 
     useEffect(() => {
+        if (hasCalledRef.current) return;
+        hasCalledRef.current = true;
+
         const token = params.get("token");
 
         if (!token) {

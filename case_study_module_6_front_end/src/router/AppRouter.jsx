@@ -20,8 +20,11 @@ import EmployeeList from "../modules/employee/components/EmployeeList.jsx";
 import EmployeeDetail from "../modules/employee/components/EmployeeDetail.jsx";
 import AddEmployee from "../modules/employee/components/AddEmployee.jsx";
 import VerifyEmail from "../pages/VerifyEmail.jsx";
-import Report from "../modules/employee/components/Report.jsx";
-import RevenueChart from "../modules/employee/components/RevenueChart.jsx";
+import ForgotPassword from "../pages/ForgotPassword.jsx";
+import ResetPassword from "../pages/ResetPassword.jsx";
+import ChangePassword from "../pages/ChangePassword.jsx";
+import EditProfile from "../modules/customer/service/EditProfile.jsx";
+
 
 function AppRouter() {
     return (
@@ -36,8 +39,10 @@ function AppRouter() {
                 <Route path="/login" element={<Login/>}/>
                 <Route path="/register" element={<Register/>}/>
                 <Route path="/verify-email" element={<VerifyEmail />} />
-
-
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/change-password" element={<PrivateRoute><ChangePassword /></PrivateRoute>}/>
+                <Route path="/profile/edit" element={<PrivateRoute><EditProfile /></PrivateRoute>}/>
 
                 {/* Route chuyến bay */}
                 <Route path="/flights" element={<FlightList/>}/>
@@ -48,11 +53,6 @@ function AppRouter() {
                 <Route path="/employees" element={<EmployeeList/>}/>
                 <Route path="/employees/edit/:id" element={<EmployeeDetail/>}/>
                 <Route path="/employees/add" element={<AddEmployee/>}/>
-                <Route path="/report" element={<Report/>}/>
-                <Route path="/revenue-chart" element={<RevenueChart data={[
-                    { month: "T1", revenue: 120000000 },
-                    { month: "T2", revenue: 200000000 },
-                ]}/>}/>
 
                 <Route path="/profile" element={
                     <PrivateRoute>
