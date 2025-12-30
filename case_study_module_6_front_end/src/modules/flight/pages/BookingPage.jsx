@@ -9,7 +9,6 @@ import "./FlightBooking.css";
 const BookingPage = () => {
     const [step, setStep] = useState(1);
 
-    // State tìm kiếm
     const [searchParams, setSearchParams] = useState({
         origin: "HAN",
         destination: "SGN",
@@ -18,11 +17,8 @@ const BookingPage = () => {
         tripType: "ONE_WAY"
     });
 
-    // Danh sách chuyến bay hiển thị (của ngày đang chọn)
     const [outboundFlights, setOutboundFlights] = useState([]);
     const [inboundFlights, setInboundFlights] = useState([]);
-
-    // Map giá thấp nhất: { "2026-01-10": 1500000, "2026-01-11": 1200000 }
     const [minPricesOut, setMinPricesOut] = useState({});
     const [minPricesIn, setMinPricesIn] = useState({});
 
@@ -32,102 +28,92 @@ const BookingPage = () => {
     const [airports, setAirports] = useState([]);
     const [sortConfig, setSortConfig] = useState({ key: 'price', direction: 'asc' });
 
-    // --- HÀM TÍNH NGÀY +/- 2 ---
     const getRangeDates = (centerDateStr) => {
         const center = new Date(centerDateStr);
         const start = new Date(center); start.setDate(center.getDate() - 2);
         const end = new Date(center); end.setDate(center.getDate() + 2);
-        return {
-            startStr: start.toISOString().split('T')[0],
-            endStr: end.toISOString().split('T')[0]
-        };
+        return { startStr: start.toISOString().split('T')[0], endStr: end.toISOString().split('T')[0] };
     };
 
-    // --- HÀM TÌM KIẾM ---
-    // targetDate: Ngày cụ thể cần hiển thị (nếu click trên thanh ngày)
-    // isClickBar: Nếu true, chỉ filter lại list, không gọi API mới (trừ khi cần) -> Ở đây ta gọi API range luôn cho chắc
+    // --- HÀM LỌC CHUYẾN BAY CÒN CHỖ (ISSUE 1) ---
+    const filterAvailableFlights = (flights) => {
+        if (!flights || flights.length === 0) return [];
+        return flights.filter(f => {
+            // Kiểm tra xem có ít nhất 1 hạng ghế còn > 0 chỗ
+            const hasSeats = f.seatDetails && f.seatDetails.some(s => s.availableSeats > 0);
+            return hasSeats && f.status === "SCHEDULED";
+        });
+    };
+
     const handleSearch = async (targetDateOut, targetDateIn) => {
-        // Nếu không truyền tham số, lấy từ state
+        // --- FIX ISSUE 3: Reset Step về 1 để đóng Modal cũ nếu có ---
+        setStep(1);
+
         const dateOut = targetDateOut || searchParams.date;
         const dateIn = targetDateIn || searchParams.returnDate;
 
-        // Reset lựa chọn
         if (!targetDateOut) setSelectedOutbound(null);
         if (!targetDateIn) setSelectedInbound(null);
 
-        // 1. TÌM CHIỀU ĐI (Tìm khoảng 5 ngày: date-2 đến date+2)
+        // 1. TÌM CHIỀU ĐI
         const rangeOut = getRangeDates(dateOut);
-        const paramsOut = {
-            origin: searchParams.origin,
-            destination: searchParams.destination,
-            startDate: rangeOut.startStr, // Tìm rộng ra
-            endDate: rangeOut.endStr,     // Tìm rộng ra
-            status: "SCHEDULED",
-            size: 500 // Lấy nhiều để đủ 5 ngày
-        };
-
         try {
-            const resOut = await getAllFlights(paramsOut);
-            const allFlightsOut = resOut.content || [];
+            const resOut = await getAllFlights({
+                origin: searchParams.origin,
+                destination: searchParams.destination,
+                startDate: rangeOut.startStr,
+                endDate: rangeOut.endStr,
+                size: 500
+            });
+            // Lọc chuyến bay còn chỗ
+            const allFlightsOut = filterAvailableFlights(resOut.content || []);
 
-            // A. Tính giá thấp nhất cho từng ngày (để hiển thị lên Bar)
+            // Tính giá
             const priceMapOut = {};
             allFlightsOut.forEach(f => {
                 const d = f.departureTime.split('T')[0];
                 const minP = Math.min(...f.seatDetails.map(s => s.price));
-                if (!priceMapOut[d] || minP < priceMapOut[d]) {
-                    priceMapOut[d] = minP;
-                }
+                if (!priceMapOut[d] || minP < priceMapOut[d]) priceMapOut[d] = minP;
             });
             setMinPricesOut(priceMapOut);
 
-            // B. Lọc chuyến bay của NGÀY ĐANG CHỌN (dateOut) để hiển thị
+            // Lọc hiển thị ngày hiện tại
             let displayOut = allFlightsOut.filter(f => f.departureTime.startsWith(dateOut));
-
-            // Sort
             sortFlights(displayOut);
             setOutboundFlights(displayOut);
 
-            // 2. TÌM CHIỀU VỀ (Nếu có)
+            // 2. TÌM CHIỀU VỀ
             if (searchParams.tripType === "ROUND_TRIP" && dateIn) {
                 const rangeIn = getRangeDates(dateIn);
-                const paramsIn = {
+                const resIn = await getAllFlights({
                     origin: searchParams.destination,
                     destination: searchParams.origin,
                     startDate: rangeIn.startStr,
                     endDate: rangeIn.endStr,
-                    status: "SCHEDULED",
                     size: 500
-                };
-                const resIn = await getAllFlights(paramsIn);
-                const allFlightsIn = resIn.content || [];
+                });
+                const allFlightsIn = filterAvailableFlights(resIn.content || []);
 
-                // Tính giá
                 const priceMapIn = {};
                 allFlightsIn.forEach(f => {
                     const d = f.departureTime.split('T')[0];
                     const minP = Math.min(...f.seatDetails.map(s => s.price));
-                    if (!priceMapIn[d] || minP < priceMapIn[d]) {
-                        priceMapIn[d] = minP;
-                    }
+                    if (!priceMapIn[d] || minP < priceMapIn[d]) priceMapIn[d] = minP;
                 });
                 setMinPricesIn(priceMapIn);
 
-                // Lọc hiển thị
                 let displayIn = allFlightsIn.filter(f => f.departureTime.startsWith(dateIn));
                 sortFlights(displayIn);
                 setInboundFlights(displayIn);
             } else {
                 setInboundFlights([]);
             }
-
         } catch (e) {
             console.error(e);
             toast.error("Lỗi tìm kiếm chuyến bay!");
         }
     };
 
-    // Hàm sort nội bộ
     const sortFlights = (list) => {
         list.sort((a, b) => {
             if (sortConfig.key === 'price') {
@@ -142,19 +128,11 @@ const BookingPage = () => {
         });
     };
 
-    // Gọi lại khi sort thay đổi (sort trên client cho nhanh)
     useEffect(() => {
-        const sortedOut = [...outboundFlights];
-        sortFlights(sortedOut);
-        setOutboundFlights(sortedOut);
-
-        const sortedIn = [...inboundFlights];
-        sortFlights(sortedIn);
-        setInboundFlights(sortedIn);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        const sortedOut = [...outboundFlights]; sortFlights(sortedOut); setOutboundFlights(sortedOut);
+        const sortedIn = [...inboundFlights]; sortFlights(sortedIn); setInboundFlights(sortedIn);
     }, [sortConfig]);
 
-    // Init
     useEffect(() => {
         const init = async () => {
             const aps = await getAirports();
@@ -162,21 +140,20 @@ const BookingPage = () => {
             handleSearch();
         };
         init();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // --- FIX LỖI 2: ĐỊNH NGHĨA HÀM handleConfirmModal ---
-    const handleConfirmModal = (configData) => {
-        setBookingConfig(configData);
-        setStep(3); // Chuyển sang nhập khách
+    const handleSelectFlight = (flight, type) => {
+        if (type === 'OUT') setSelectedOutbound(selectedOutbound?.id === flight.id ? null : flight);
+        else setSelectedInbound(selectedInbound?.id === flight.id ? null : flight);
     };
 
-    // --- RENDER CARD (Giữ nguyên giao diện đẹp) ---
-    const renderFlightCard = (flight, type) => {
-        const isSelected = type === 'OUT'
-            ? selectedOutbound?.id === flight.id
-            : selectedInbound?.id === flight.id;
+    const handleConfirmModal = (configData) => {
+        setBookingConfig(configData);
+        setStep(3);
+    };
 
+    const renderFlightCard = (flight, type) => {
+        const isSelected = type === 'OUT' ? selectedOutbound?.id === flight.id : selectedInbound?.id === flight.id;
         const start = new Date(flight.departureTime);
         const end = new Date(flight.arrivalTime);
         const duration = (end - start) / 3600000;
@@ -210,17 +187,14 @@ const BookingPage = () => {
                         <div className="d-flex flex-column gap-2 mb-2">
                             {flight.seatDetails.map(s => (
                                 <div key={s.id} className="d-flex justify-content-between small border-bottom border-dashed pb-1">
-                                    <span className="text-muted">{s.seatClass}</span>
+                                    <span className="text-muted">{s.seatClass} ({s.availableSeats} chỗ)</span>
                                     <span className="fw-bold text-danger">{s.price.toLocaleString()}đ</span>
                                 </div>
                             ))}
                         </div>
                         <button
                             className={`btn w-100 fw-bold btn-sm ${isSelected ? 'btn-success' : 'btn-outline-primary'}`}
-                            onClick={() => {
-                                if(type === 'OUT') setSelectedOutbound(isSelected ? null : flight);
-                                else setSelectedInbound(isSelected ? null : flight);
-                            }}
+                            onClick={() => handleSelectFlight(flight, type)}
                         >
                             {isSelected ? <><i className="bi bi-check-lg"></i> Đã chọn</> : "Chọn chuyến bay"}
                         </button>
@@ -230,7 +204,6 @@ const BookingPage = () => {
         );
     };
 
-    // --- THANH NGÀY KÈM GIÁ (FIX LỖI 4 & 5) ---
     const DateBar = ({ baseDate, minPrices, onSelect }) => (
         <div className="date-bar-container mb-3">
             <div className="d-flex gap-2 justify-content-center">
@@ -239,22 +212,11 @@ const BookingPage = () => {
                     d.setDate(d.getDate() + offset);
                     const dStr = d.toISOString().split('T')[0];
                     const isSelected = offset === 0;
-                    const price = minPrices[dStr]; // Lấy giá từ map
-
+                    const price = minPrices[dStr];
                     return (
-                        <div key={offset}
-                             className={`date-cell ${isSelected ? 'active' : ''}`}
-                             onClick={() => {
-                                 // Cập nhật ngày VÀ gọi search ngay lập tức với ngày mới
-                                 onSelect(dStr);
-                             }}
-                        >
+                        <div key={offset} className={`date-cell ${isSelected ? 'active' : ''}`} onClick={() => onSelect(dStr)}>
                             <div className="small fw-bold">Thứ {d.getDay() + 1}, {d.getDate()}/{d.getMonth() + 1}</div>
-                            {price ? (
-                                <div className="text-success fw-bold small mt-1">{price.toLocaleString()}đ</div>
-                            ) : (
-                                <div className="text-muted small mt-1" style={{fontSize: '0.7rem'}}>--</div>
-                            )}
+                            {price ? <div className="text-success fw-bold small mt-1">{price.toLocaleString()}đ</div> : <div className="text-muted small mt-1">--</div>}
                         </div>
                     )
                 })}
@@ -262,22 +224,12 @@ const BookingPage = () => {
         </div>
     );
 
-    // --- RENDER ---
     if (step === 3) {
-        return <PassengerInputPage
-            bookingConfig={bookingConfig}
-            selectedOutbound={selectedOutbound}
-            selectedInbound={selectedInbound}
-            onBack={() => setStep(2)}
-        />;
+        return <PassengerInputPage bookingConfig={bookingConfig} selectedOutbound={selectedOutbound} selectedInbound={selectedInbound} onBack={() => setStep(2)} />;
     }
 
-    // FIX LỖI 1: Logic Disabled Button
-    // Nếu là khứ hồi -> Phải chọn cả 2. Nếu 1 chiều -> Phải chọn Outbound.
     const isRoundTrip = searchParams.tripType === "ROUND_TRIP";
-    const canContinue = isRoundTrip
-        ? (selectedOutbound && selectedInbound)
-        : (selectedOutbound);
+    const canContinue = isRoundTrip ? (selectedOutbound && selectedInbound) : (selectedOutbound);
 
     return (
         <div className="flight-list-container">
@@ -288,12 +240,21 @@ const BookingPage = () => {
                 <i className="bi bi-airplane-fill plane-fly"></i>
             </div>
 
+            {/* --- FIX ISSUE 2: Đẩy Modal ra ngoài container chính để CSS fixed hoạt động đúng --- */}
+            {step === 2 && (
+                <BookingDetailModal
+                    outboundFlight={selectedOutbound}
+                    inboundFlight={selectedInbound}
+                    tripType={searchParams.tripType}
+                    onClose={() => setStep(1)}
+                    onConfirm={handleConfirmModal}
+                />
+            )}
+
             <div className="container-fluid pt-4 px-4 position-relative" style={{zIndex: 10}}>
                 <div className="row">
                     {/* LEFT CONTENT */}
                     <div className="col-md-9">
-
-                        {/* TOOLBAR */}
                         <div className="d-flex justify-content-end mb-3 gap-2">
                             <span className="text-white fw-bold align-self-center">Sắp xếp:</span>
                             <button className={`btn btn-sm btn-light ${sortConfig.key==='price'?'active-sort':''}`} onClick={()=>setSortConfig({key:'price', direction: sortConfig.direction==='asc'?'desc':'asc'})}>Giá</button>
@@ -301,43 +262,21 @@ const BookingPage = () => {
                         </div>
 
                         {/* LIST OUTBOUND */}
-                        <div className="section-header">
-                            <i className="bi bi-airplane-fill me-2"></i> CHIỀU ĐI: {searchParams.origin} ➝ {searchParams.destination}
-                        </div>
-
-                        <DateBar
-                            baseDate={searchParams.date}
-                            minPrices={minPricesOut}
-                            onSelect={(d) => {
-                                setSearchParams(prev => ({...prev, date: d}));
-                                handleSearch(d, null); // Gọi search ngay với dateOut mới
-                            }}
-                        />
-
+                        <div className="section-header"><i className="bi bi-airplane-fill me-2"></i> CHIỀU ĐI: {searchParams.origin} ➝ {searchParams.destination}</div>
+                        <DateBar baseDate={searchParams.date} minPrices={minPricesOut} onSelect={(d) => { setSearchParams(prev => ({...prev, date: d})); handleSearch(d, null); }} />
                         <div className="flight-list-scroll mb-4">
-                            {outboundFlights.length > 0 ? outboundFlights.map(f => renderFlightCard(f, 'OUT'))
-                                : <div className="empty-state">Không tìm thấy chuyến bay cho ngày này.</div>}
+                            {outboundFlights.length > 0 ? outboundFlights.map(f => renderFlightCard(f, 'OUT')) : <div className="empty-state">Không tìm thấy chuyến bay.</div>}
                         </div>
 
                         {/* LIST INBOUND */}
                         {isRoundTrip && (
                             <>
-                                <div className="section-header bg-success mt-4">
-                                    <i className="bi bi-airplane-engines-fill me-2"></i> CHIỀU VỀ: {searchParams.destination} ➝ {searchParams.origin}
-                                </div>
+                                <div className="section-header bg-success mt-4"><i className="bi bi-airplane-engines-fill me-2"></i> CHIỀU VỀ: {searchParams.destination} ➝ {searchParams.origin}</div>
                                 {searchParams.returnDate ? (
                                     <>
-                                        <DateBar
-                                            baseDate={searchParams.returnDate}
-                                            minPrices={minPricesIn}
-                                            onSelect={(d) => {
-                                                setSearchParams(prev => ({...prev, returnDate: d}));
-                                                handleSearch(null, d); // Gọi search ngay với dateIn mới
-                                            }}
-                                        />
+                                        <DateBar baseDate={searchParams.returnDate} minPrices={minPricesIn} onSelect={(d) => { setSearchParams(prev => ({...prev, returnDate: d})); handleSearch(null, d); }} />
                                         <div className="flight-list-scroll mb-4">
-                                            {inboundFlights.length > 0 ? inboundFlights.map(f => renderFlightCard(f, 'IN'))
-                                                : <div className="empty-state">Không tìm thấy chuyến bay về.</div>}
+                                            {inboundFlights.length > 0 ? inboundFlights.map(f => renderFlightCard(f, 'IN')) : <div className="empty-state">Không tìm thấy chuyến bay về.</div>}
                                         </div>
                                     </>
                                 ) : <div className="empty-state">Vui lòng chọn ngày về.</div>}
@@ -348,6 +287,7 @@ const BookingPage = () => {
                     {/* RIGHT SIDEBAR */}
                     <div className="col-md-3">
                         <div className="glass-card p-3 sticky-top" style={{top: '20px'}}>
+                            {/* ... (Phần Sidebar giữ nguyên code cũ) ... */}
                             <h5 className="fw-bold mb-3"><i className="bi bi-search me-2"></i>TÌM KIẾM</h5>
                             <div className="mb-3">
                                 <label className="form-label small fw-bold">Điểm đi</label>
@@ -393,7 +333,6 @@ const BookingPage = () => {
                                 </div>
                             )}
 
-                            {/* NÚT TIẾP TỤC (ĐÃ SỬA LOGIC) */}
                             <button
                                 className={`btn w-100 py-2 fw-bold shadow-lg ${canContinue ? 'btn-success' : 'btn-secondary disabled'}`}
                                 onClick={() => canContinue && setStep(2)}
@@ -404,17 +343,6 @@ const BookingPage = () => {
                     </div>
                 </div>
             </div>
-
-            {/* MODAL (Đảm bảo gọi đúng hàm handleConfirmModal) */}
-            {step === 2 && (
-                <BookingDetailModal
-                    outboundFlight={selectedOutbound}
-                    inboundFlight={selectedInbound}
-                    tripType={searchParams.tripType}
-                    onClose={() => setStep(1)}
-                    onConfirm={handleConfirmModal} // Truyền đúng hàm đã define
-                />
-            )}
         </div>
     );
 };

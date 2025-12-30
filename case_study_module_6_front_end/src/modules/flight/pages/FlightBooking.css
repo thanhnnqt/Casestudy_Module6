@@ -143,3 +143,23 @@
     .flight-item-card .d-flex { flex-direction: column; }
     .airline-logo-sm { margin-bottom: 5px; }
 }
+
+.modal-backdrop-custom {
+    position: fixed; /* Bắt buộc là fixed để nổi lên trên cùng */
+    top: 0;
+    left: 0;
+    width: 100vw; /* Phủ kín chiều rộng */
+    height: 100vh; /* Phủ kín chiều cao */
+    background-color: rgba(0, 0, 0, 0.6); /* Màu nền tối */
+    z-index: 9999; /* Z-index cao nhất để đè lên mọi thứ */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

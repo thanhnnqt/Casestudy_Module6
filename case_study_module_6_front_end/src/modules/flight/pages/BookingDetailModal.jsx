@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 
 const BookingDetailModal = ({ outboundFlight, inboundFlight, tripType, onClose, onConfirm }) => {
     // --- STATE ---
+    if (!outboundFlight) return null;
     const [quantity, setQuantity] = useState(1);
     const [seatClassOut, setSeatClassOut] = useState("ECONOMY");
     const [seatClassIn, setSeatClassIn] = useState("ECONOMY");
