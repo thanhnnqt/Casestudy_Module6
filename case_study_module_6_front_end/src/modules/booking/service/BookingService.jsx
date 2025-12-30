@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "../../../modules/login/service/axiosConfig";
 import qs from "qs";
 
 // URL gốc trỏ về Backend Spring Boot

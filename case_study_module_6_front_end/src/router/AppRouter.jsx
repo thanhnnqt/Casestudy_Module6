@@ -22,6 +22,11 @@ import EmployeeList from "../modules/employee/components/EmployeeList.jsx";
 import EmployeeDetail from "../modules/employee/components/EmployeeDetail.jsx";
 import AddEmployee from "../modules/employee/components/AddEmployee.jsx";
 import VerifyEmail from "../pages/VerifyEmail.jsx";
+import ForgotPassword from "../pages/ForgotPassword.jsx";
+import ResetPassword from "../pages/ResetPassword.jsx";
+import ChangePassword from "../pages/ChangePassword.jsx";
+import EditProfile from "../modules/customer/service/EditProfile.jsx";
+
 
 function AppRouter() {
     return (
@@ -36,8 +41,10 @@ function AppRouter() {
                 <Route path="/login" element={<Login/>}/>
                 <Route path="/register" element={<Register/>}/>
                 <Route path="/verify-email" element={<VerifyEmail />} />
-
-
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/change-password" element={<PrivateRoute><ChangePassword /></PrivateRoute>}/>
+                <Route path="/profile/edit" element={<PrivateRoute><EditProfile /></PrivateRoute>}/>
 
                 {/* Route quản lý chuyến bay */}
                 <Route path="/flights" element={<FlightList/>}/>

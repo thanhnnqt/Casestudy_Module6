@@ -6,14 +6,14 @@ import {useEffect, useState} from "react";
 import {
     editEmployee,
     findEmployeeById,
-    checkImageHashExistsExceptSelf
+    checkImageHashExistsExceptSelf,
+    updateEmployeeImage
 } from "../service/employeeService.js";
 import {ErrorMessage, Field, Form, Formik} from "formik";
 import {Button} from "react-bootstrap";
 import * as Yup from "yup";
 import CryptoJS from "crypto-js";
 import {toast} from "react-toastify";
-
 
 const Required = () => <span className="text-danger"> *</span>;
 
@@ -22,103 +22,119 @@ const EmployeeDetail = () => {
     const navigate = useNavigate();
     const {id} = useParams();
 
-    const [initialImageURL, setInitialImageURL] = useState(null);
-    const [errorsServer, setErrorsServer] = useState({});
     const [detail, setDetail] = useState({});
     const [preview, setPreview] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [errorsServer, setErrorsServer] = useState({});
     const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
-        findEmployeeById(id).then(data => {
+        async function loadDetail() {
+            const data = await findEmployeeById(id);
+
             setDetail({
                 id: data.id,
-                fullName: data.fullName || "",
-                phoneNumber: data.phoneNumber || "",
-                identificationId: data.identificationId || "",
-                email: data.email || "",
-                dob: data.dob || "",
-                gender: data.gender || "",
-                address: data.address || "",
-                imgURL: data.imgURL || "",
-                imgHash: data.imgHash || ""
+                fullName: data.fullName ?? "",
+                phoneNumber: data.phoneNumber ?? "",
+                identificationId: data.identificationId ?? "",
+                email: data.email ?? "",
+                dob: data.dob ?? "",
+                gender: data.gender ?? "",
+                address: data.address ?? "",
+                imgURL: data.imgURL ?? "",
+                imgHash: data.imgHash ?? "",
+                account: JSON.stringify(data.account) ?? ""
             });
-            setInitialImageURL(data.imgURL);
+
             setPreview(data.imgURL);
-        });
+        }
+
+        loadDetail();
     }, [id]);
 
 
     const validationSchema = Yup.object({
-        fullName: Yup.string().required("Vui lòng không để trống họ và tên"),
+        fullName: Yup.string().required("Không để trống"),
         phoneNumber: Yup.string().required("Không để trống").matches(/^0\d{9}$/, "10 số"),
         identificationId: Yup.string().required("Không để trống").matches(/^\d{9}(\d{3})?$/, "9 hoặc 12 số"),
-        email: Yup.string().required("Không để trống").email("Email sai định dạng"),
+        email: Yup.string().required("Không để trống").email("Email không hợp lệ"),
         dob: Yup.date().required("Không để trống"),
-        gender: Yup.string().required("Vui lòng chọn giới tính"),
-        address: Yup.string().required("Không để trống địa chỉ"),
-        imgURL: Yup.string().required("Vui lòng tải ảnh nhân viên"),
-        imgHash: Yup.string().nullable()
+        gender: Yup.string().required("Chọn giới tính"),
+        address: Yup.string().required("Không để trống")
     });
 
-
     const createImageHash = async (file) => {
-        const reader = new FileReader();
-        return new Promise((resolve) => {
-            reader.onload = () => {
-                const hash = CryptoJS.SHA256(
-                    CryptoJS.lib.WordArray.create(reader.result)
-                ).toString();
-                resolve(hash);
-            };
-            reader.readAsArrayBuffer(file);
-        });
+        const buffer = await file.arrayBuffer();
+        return CryptoJS.SHA256(CryptoJS.lib.WordArray.create(buffer)).toString();
     };
 
-
-    const uploadImage = async (file, setFieldValue) => {
-        if (!file) return;
-
-        setUploading(true);
-        setPreview(URL.createObjectURL(file));
-        setErrorsServer({imgURL: ""}); // clear lỗi ảnh trùng
-
-        const hash = await createImageHash(file);
-        setFieldValue("imgHash", hash);
-
+    const uploadCloudinary = async () => {
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append("file", selectedFile);
         formData.append("upload_preset", "employee_preset");
 
         const res = await fetch("https://api.cloudinary.com/v1_1/dfduj6hiv/image/upload", {
             method: "POST",
             body: formData
         });
-        const data = await res.json();
 
-        setFieldValue("imgURL", data.secure_url);
-        setUploading(false);
+        return await res.json();
+    };
+
+    const handleImageSelect = (file) => {
+        if (!file) return;
+        setPreview(URL.createObjectURL(file));
+        setSelectedFile(file);
+        setErrorsServer(prev => ({...prev, imgURL: ""}));
     };
 
 
     const handleSubmit = async (values) => {
+        const updatedValues = {...detail, ...values, account: JSON.parse(values.account)};
+        const hasNewImage = !!selectedFile;
+        console.log(updatedValues)
+        if (hasNewImage) {
+            const newHash = await createImageHash(selectedFile);
 
-        const changedImage = values.imgHash !== detail.imgHash;
-
-        if (changedImage && values.imgHash) {
-            const exists = await checkImageHashExistsExceptSelf(values.imgHash, values.id);
-            if (exists) {
-                setErrorsServer({imgURL: "Ảnh này đã được sử dụng cho nhân viên khác"});
-                return;
+            if (newHash !== detail.imgHash) {
+                const exists = await checkImageHashExistsExceptSelf(newHash, values.id);
+                if (exists) {
+                    setErrorsServer({imgURL: "Ảnh đã được sử dụng bởi nhân viên khác"});
+                    return;
+                }
+                updatedValues.imgHash = newHash;
             }
         }
 
-        const ok = await editEmployee(values);
-        if (ok) {
-            setDetail(prev => ({ ...prev, imgHash: values.imgHash }));
+        const ok = await editEmployee(updatedValues);
+        if (!ok) {
+            toast.error("Cập nhật thất bại");
+            return;
+        }
+
+        if (!hasNewImage) {
+            toast.success("Cập nhật thành công");
+            return navigate("/employees");
+        }
+
+        toast.info("Đang upload ảnh...");
+        setUploading(true);
+
+        try {
+            const cloud = await uploadCloudinary();
+            await updateEmployeeImage(updatedValues.id, cloud.secure_url, updatedValues.imgHash);
+
             toast.success("Cập nhật thành công");
             navigate("/employees");
+
+        } catch (err) {
+            toast.error("Upload ảnh thất bại");
+            console.error(err);
+        } finally {
+            setUploading(false);
         }
     };
+
 
     return (
         <div className="bg-light mt-3">
@@ -126,133 +142,137 @@ const EmployeeDetail = () => {
 
                 <div className="mb-3 pb-2 border-bottom text-center">
                     <h4 className="fw-bold text-primary">Cập nhật nhân viên</h4>
-                    <small className="text-muted">
-                        Trường có <Required/> là bắt buộc nhập thông tin
-                    </small>
                 </div>
 
-                <div className="card shadow-sm border-0 border-start border-4 border-primary">
+                <div className="card shadow-sm border-start border-4 border-primary">
                     <div className="card-body px-4 py-4">
 
                         <Formik enableReinitialize
                                 initialValues={detail}
                                 validationSchema={validationSchema}
                                 onSubmit={handleSubmit}>
-                            {({setFieldValue}) => (
+                            {() => (
                                 <Form>
 
-                                    <Field type="hidden" name="id"/>
+                                    <Field type="hidden" name="account"/>
 
                                     <div className="row g-4">
-
                                         <div className="col-md-4 d-flex flex-column align-items-center">
-                                            <div className="rounded overflow-hidden shadow-sm"
-                                                 style={{width: 180, height: 220, backgroundColor: "#f1f3f5"}}>
+
+                                            <label className="fw-semibold">Ảnh nhân viên <Required/></label>
+
+                                            <div
+                                                className="rounded-circle shadow-sm mt-1 d-flex align-items-center justify-content-center"
+                                                style={{
+                                                    width: 180,
+                                                    height: 180,
+                                                    background: "#EEE",
+                                                    overflow: "hidden"
+                                                }}>
                                                 {preview ? (
-                                                    <img src={preview} alt="avatar"
+                                                    <img src={preview}
                                                          className="w-100 h-100"
-                                                         style={{objectFit: 'cover'}}/>
+                                                         style={{objectFit: "cover"}}
+                                                         alt="avatar"/>
                                                 ) : (
                                                     <i className="bi bi-person fs-1 text-muted"/>
                                                 )}
                                             </div>
 
-                                            <label className="fw-semibold mt-3">
-                                                Ảnh nhân viên <Required/>
-                                            </label>
-                                            <input type="file" accept="image/*" className="form-control"
-                                                   onChange={(e) => uploadImage(e.target.files[0], setFieldValue)}/>
+                                            <input type="file"
+                                                   accept="image/*"
+                                                   className="form-control mt-3"
+                                                   style={{width: 250}}
+                                                   onChange={(e) => handleImageSelect(e.target.files[0])}
+                                            />
 
                                             {errorsServer.imgURL &&
                                                 <div className="text-danger small mt-1">{errorsServer.imgURL}</div>}
-
-                                            <ErrorMessage name="imgURL"
-                                                          component="div"
-                                                          className="text-danger small"/>
-
-                                            {uploading && <small className="text-muted">Đang upload...</small>}
                                         </div>
 
-
                                         <div className="col-md-8">
+                                            <div className="row">
 
-                                            <div className="row mb-3">
-                                                <div className="col-md-6">
+                                                <div className="col-md-6 mb-2">
                                                     <label>Họ tên <Required/></label>
                                                     <Field name="fullName" className="form-control"/>
-                                                    <ErrorMessage name="fullName" component="div"
-                                                                  className="text-danger small"/>
+                                                    <ErrorMessage name="fullName" className="text-danger small"
+                                                                  component="div"/>
                                                 </div>
-                                                <div className="col-md-6">
-                                                    <label>Số điện thoại <Required/></label>
-                                                    <Field name="phoneNumber" className="form-control"/>
-                                                    <ErrorMessage name="phoneNumber" component="div"
-                                                                  className="text-danger small"/>
-                                                </div>
-                                            </div>
 
-                                            <div className="row mb-3">
-                                                <div className="col-md-6">
+                                                <div className="col-md-6 mb-2">
+                                                    <label>SĐT <Required/></label>
+                                                    <Field name="phoneNumber" className="form-control"/>
+                                                    <ErrorMessage name="phoneNumber" className="text-danger small"
+                                                                  component="div"/>
+                                                </div>
+
+                                                <div className="col-md-6 mb-2">
                                                     <label>CCCD/CMND <Required/></label>
                                                     <Field name="identificationId" className="form-control"/>
-                                                    <ErrorMessage name="identificationId" component="div"
-                                                                  className="text-danger small"/>
+                                                    <ErrorMessage name="identificationId" className="text-danger small"
+                                                                  component="div"/>
                                                 </div>
-                                                <div className="col-md-6">
+
+                                                <div className="col-md-6 mb-2">
                                                     <label>Email <Required/></label>
                                                     <Field name="email" className="form-control"/>
-                                                    <ErrorMessage name="email" component="div"
-                                                                  className="text-danger small"/>
+                                                    <ErrorMessage name="email" className="text-danger small"
+                                                                  component="div"/>
                                                 </div>
-                                            </div>
 
-                                            <div className="row mb-3">
-                                                <div className="col-md-6">
+                                                <div className="col-md-6 mb-2">
                                                     <label>Ngày sinh <Required/></label>
                                                     <Field type="date" name="dob" className="form-control"/>
-                                                    <ErrorMessage name="dob" component="div"
-                                                                  className="text-danger small"/>
+                                                    <ErrorMessage name="dob" className="text-danger small"
+                                                                  component="div"/>
                                                 </div>
 
-                                                <div className="col-md-6">
+                                                <div className="col-md-6 mb-2">
                                                     <label>Giới tính <Required/></label>
                                                     <div className="d-flex gap-3 mt-2">
                                                         <label><Field type="radio" name="gender"
                                                                       value="Nam"/> Nam</label>
                                                         <label><Field type="radio" name="gender" value="Nữ"/> Nữ</label>
                                                     </div>
-                                                    <ErrorMessage name="gender" component="div"
-                                                                  className="text-danger small mt-1"/>
+                                                    <ErrorMessage name="gender" className="text-danger small"
+                                                                  component="div"/>
                                                 </div>
-                                            </div>
 
-                                            <label>Địa chỉ <Required/></label>
-                                            <Field name="address" className="form-control"/>
-                                            <ErrorMessage name="address" component="div"
-                                                          className="text-danger small"/>
+                                                <div className="mb-2">
+                                                    <label>Địa chỉ <Required/></label>
+                                                    <Field name="address" className="form-control"/>
+                                                    <ErrorMessage name="address" className="text-danger small"
+                                                                  component="div"/>
+                                                </div>
+
+                                            </div>
                                         </div>
                                     </div>
 
+                                    <div className="d-flex justify-content-end border-top pt-3 mt-3">
+                                        <div className="d-flex gap-2">
+                                            <Button
+                                                variant="secondary"
+                                                className="px-3"
+                                                onClick={() => navigate("/employees")}
+                                                style={{ width: "auto" }}
+                                            >
+                                                Quay lại
+                                            </Button>
 
-                                    <div className="d-flex justify-content-end gap-3 border-top pt-4 mt-4">
-                                        <Button
-                                            type="button"
-                                            variant="outline-secondary"
-                                            className="px-4 fw-semibold rounded-2"
-                                            onClick={() => navigate("/employees")}
-                                        >
-                                            Quay lại
-                                        </Button>
-
-                                        <Button
-                                            type="submit"
-                                            variant="primary"
-                                            className="px-5 fw-semibold rounded-2 shadow-sm"
-                                            disabled={uploading}
-                                        >
-                                            Lưu thay đổi
-                                        </Button>
+                                            <Button
+                                                type="submit"
+                                                variant="primary"
+                                                className="px-3"
+                                                style={{ width: "auto" }}
+                                                disabled={uploading}
+                                            >
+                                                {uploading ? "Đang lưu..." : "Lưu"}
+                                            </Button>
+                                        </div>
                                     </div>
+
 
                                 </Form>
                             )}

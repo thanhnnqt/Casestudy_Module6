@@ -2,6 +2,7 @@ package org.example.case_study_module_6.service;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
+import org.example.case_study_module_6.dto.CustomerUpdateRequest;
 import org.example.case_study_module_6.dto.RegisterRequest;
 import org.example.case_study_module_6.entity.Account;
 import org.example.case_study_module_6.entity.Customer;
@@ -38,4 +39,6 @@ public interface ICustomerService {
     boolean existsByIdentityCard(@Pattern(regexp = "^(\\d{9}|\\d{12})$", message = "CCCD không hợp lệ") String identityCard);
 
     boolean existsByEmail(@Email(message = "Email không hợp lệ") String email);
+
+    void updateProfileById(Long customerId, CustomerUpdateRequest req);
 }

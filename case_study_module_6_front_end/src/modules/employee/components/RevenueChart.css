@@ -1,0 +1,21 @@
+/* Không đổi màu cột khi hover */
+.recharts-bar-rectangle {
+    transition: none !important;
+}
+
+/* Cột đang active vẫn giữ màu gradient */
+.recharts-active-bar .recharts-rectangle {
+    opacity: 1 !important;
+    fill: url(#revenueGradient) !important;
+}
+
+/* Ngăn các cột còn lại bị mờ đi */
+.recharts-bar-rectangle .recharts-rectangle {
+    opacity: 1 !important;
+}
+
+/* Tooltip active hiệu ứng không thay fill */
+.recharts-tooltip-cursor {
+    fill: transparent !important;
+    stroke: none !important;
+}

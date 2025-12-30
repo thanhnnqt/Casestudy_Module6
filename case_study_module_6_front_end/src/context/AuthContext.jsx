@@ -3,14 +3,17 @@ import { createContext, useContext, useEffect, useState } from "react";
 const AuthContext = createContext(null);
 
 function decodeJwt(token) {
-    const base64 = token.split(".")[1];
-    const json = decodeURIComponent(
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+
+    const jsonPayload = decodeURIComponent(
         atob(base64)
             .split("")
-            .map(c => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+            .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
             .join("")
     );
-    return JSON.parse(json);
+
+    return JSON.parse(jsonPayload);
 }
 
 export const AuthProvider = ({ children }) => {
@@ -21,20 +24,17 @@ export const AuthProvider = ({ children }) => {
         if (token) {
             const payload = decodeJwt(token);
             setUser({
-                email: payload.sub,
+                username: payload.sub,
                 role: payload.role,
+                customerId: payload.customerId,
                 fullName: payload.fullName
             });
         }
     }, []);
 
     const login = (token) => {
-        if (!token) throw new Error("Token is missing");
-
         localStorage.setItem("token", token);
-
         const payload = decodeJwt(token);
-
         setUser({
             username: payload.sub,
             role: payload.role,

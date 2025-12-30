@@ -57,6 +57,7 @@ CREATE TABLE flights
     FOREIGN KEY (arrival_airport_id) REFERENCES airports (id)
 );
 
+
 -- Bảng này quyết định giá và số lượng ghế từng hạng
 CREATE TABLE flight_seat_details
 (
@@ -186,8 +187,8 @@ CREATE TABLE employees
     gender            ENUM('Nam', 'Nữ', 'Khác') DEFAULT 'Khác',
     img_url           VARCHAR(500),
     img_hash          VARCHAR(500),
-    account_id        BIGINT
---                            FOREIGN KEY (account_id) REFERENCES accounts(id)
+    account_id        BIGINT,
+    FOREIGN KEY (account_id) REFERENCES accounts(id)
 );
 
 -- Nếu Account ID tồn tại trong bảng này => ROLE_CUSTOMER
@@ -205,7 +206,7 @@ CREATE TABLE customers
     total_spending DECIMAL(15, 2) DEFAULT 0,
     created_at     TIMESTAMP      DEFAULT CURRENT_TIMESTAMP,
 
-    account_id     BIGINT       NOT NULL UNIQUE,
+    account_id     BIGINT UNIQUE,
 
     CONSTRAINT fk_customer_account
         FOREIGN KEY (account_id)
@@ -303,4 +304,12 @@ CREATE TABLE verification_tokens
     token            VARCHAR(255) NOT NULL UNIQUE,
     expiry_date      DATETIME     NOT NULL,
     register_request TEXT
+);
+CREATE TABLE password_reset_tokens
+(
+    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+    token      VARCHAR(255) NOT NULL UNIQUE,
+    email      VARCHAR(100) NOT NULL,
+    expired_at DATETIME     NOT NULL,
+    used       BOOLEAN DEFAULT FALSE
 );

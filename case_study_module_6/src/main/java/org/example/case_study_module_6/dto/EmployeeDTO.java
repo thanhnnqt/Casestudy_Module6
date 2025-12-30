@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -35,6 +36,11 @@ public class EmployeeDTO {
     private LocalDate DOB;
     @NotNull(message = "Vui lòng nhập giới tính!")
     private String gender;
-    private String userName;
+    private String username;
     private String password;
+    private LocalDateTime createAt;
+    private String provider;
+    private String imgHash;
+    private String imgURL;
+    private String identificationId;
 }

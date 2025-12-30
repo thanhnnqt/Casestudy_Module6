@@ -2,35 +2,40 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FlightService } from '../service/BookingService.jsx';
 
+// Hàm helper tính tuổi
+const getAge = (dateString) => {
+    if (!dateString) return 99;
+    const today = new Date();
+    const birthDate = new Date(dateString);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age;
+};
+
 const BookingDetails = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Lấy dữ liệu
     const { tripType, flightOut: stateFlightOut, flightIn: stateFlightIn, editingBooking } = location.state || {};
     const isEditMode = !!editingBooking;
 
-    // State dữ liệu chuyến bay
     const [flightOut, setFlightOut] = useState(stateFlightOut || editingBooking?.flight);
     const [flightIn, setFlightIn]   = useState(stateFlightIn || editingBooking?.returnFlight);
 
-    // State Form
     const [contactInfo, setContactInfo] = useState({ fullName: '', email: '', phone: '', paymentMethod: 'CASH' });
-
-    // State hạng ghế (Mặc định lấy hạng ghế đầu tiên nếu có, hoặc ECONOMY)
     const [classOut, setClassOut] = useState('ECONOMY');
     const [classIn, setClassIn] = useState('ECONOMY');
 
-    // State hành khách
-    const [passengersOut, setPassengersOut] = useState([{ fullName: '' }]);
-    const [passengersIn, setPassengersIn] = useState([{ fullName: '' }]);
+    const [passengersOut, setPassengersOut] = useState([{ fullName: '', dob: '' }]);
+    const [passengersIn, setPassengersIn] = useState([{ fullName: '', dob: '' }]);
 
     const [errorMessage, setErrorMessage] = useState(null);
 
-    // --- EFFECT: KHỞI TẠO DỮ LIỆU ---
     useEffect(() => {
         if (isEditMode && editingBooking) {
-            // ... Logic điền dữ liệu khi sửa (Giữ nguyên) ...
             setContactInfo({
                 fullName: editingBooking.contactName,
                 email: editingBooking.contactEmail || '',
@@ -40,62 +45,69 @@ const BookingDetails = () => {
 
             const ticketsOut = editingBooking.tickets.filter(t => t.flight.id === editingBooking.flight.id);
             if (ticketsOut.length > 0) {
-                setPassengersOut(ticketsOut.map(t => ({ fullName: t.passengerName })));
+                setPassengersOut(ticketsOut.map(t => ({ fullName: t.passengerName, dob: t.passengerDob || '' })));
                 setClassOut(ticketsOut[0].seatClass);
             }
 
             if (editingBooking.returnFlight) {
                 const ticketsIn = editingBooking.tickets.filter(t => t.flight.id === editingBooking.returnFlight.id);
-                setPassengersIn(ticketsIn.map(t => ({ fullName: t.passengerName })));
+                setPassengersIn(ticketsIn.map(t => ({ fullName: t.passengerName, dob: t.passengerDob || '' })));
                 setClassIn(ticketsIn[0].seatClass);
             }
         } else {
-            // Logic khi tạo mới
             if (!stateFlightOut && !editingBooking) {
                 navigate('/search-flight');
             }
-            // Nếu là tạo mới, set mặc định hạng ghế là hạng đầu tiên trong danh sách (để tránh lỗi ECONOMY không có)
-            if (stateFlightOut && stateFlightOut.seatDetails?.length > 0) {
-                setClassOut(stateFlightOut.seatDetails[0].seatClass);
-            }
-            if (stateFlightIn && stateFlightIn.seatDetails?.length > 0) {
-                setClassIn(stateFlightIn.seatDetails[0].seatClass);
-            }
+            if (stateFlightOut?.seatDetails?.length > 0) setClassOut(stateFlightOut.seatDetails[0].seatClass);
+            if (stateFlightIn?.seatDetails?.length > 0) setClassIn(stateFlightIn.seatDetails[0].seatClass);
         }
     }, [isEditMode, editingBooking, stateFlightOut, stateFlightIn, navigate]);
 
+    // [QUAN TRỌNG] Logic tính tổng tiền (Đã sửa để luôn tính toán lại kể cả khi đang Edit)
+    const totalAmount = (() => {
+        // Tôi đã xóa dòng chặn update giá cũ ở đây
 
-    // --- TÍNH TOÁN (Giữ nguyên logic) ---
-    const seatOutDetail = flightOut?.seatDetails?.find(s => s.seatClass === classOut);
-    const seatInDetail = flightIn?.seatDetails?.find(s => s.seatClass === classIn);
+        let total = 0;
+        const seatOutDetail = flightOut?.seatDetails?.find(s => s.seatClass === classOut);
+        const seatInDetail = flightIn?.seatDetails?.find(s => s.seatClass === classIn);
 
-    const priceOut = seatOutDetail ? seatOutDetail.price : 0;
-    const priceIn = seatInDetail ? seatInDetail.price : 0;
+        // Chiều đi
+        if (seatOutDetail) {
+            passengersOut.forEach(p => {
+                const isChild = getAge(p.dob) < 5;
+                const price = isChild ? (seatOutDetail.price * 0.5) : seatOutDetail.price;
+                total += price;
+            });
+        }
+        // Chiều về
+        if (flightIn && seatInDetail) {
+            passengersIn.forEach(p => {
+                const isChild = getAge(p.dob) < 5;
+                const price = isChild ? (seatInDetail.price * 0.5) : seatInDetail.price;
+                total += price;
+            });
+        }
+        return total;
+    })();
 
-    const maxOut = seatOutDetail ? seatOutDetail.availableSeats : 0;
-    const maxIn = seatInDetail ? seatInDetail.availableSeats : 0;
+    // Helper hiển thị thông tin ghế
+    const currentSeatOut = flightOut?.seatDetails?.find(s => s.seatClass === classOut);
+    const maxOut = currentSeatOut ? currentSeatOut.availableSeats : 0;
 
-    const totalAmount = isEditMode && editingBooking
-        ? editingBooking.totalAmount
-        : (priceOut * passengersOut.length) + (flightIn ? (priceIn * passengersIn.length) : 0);
+    const currentSeatIn = flightIn?.seatDetails?.find(s => s.seatClass === classIn);
+    const maxIn = currentSeatIn ? currentSeatIn.availableSeats : 0;
+
 
     // --- HANDLERS ---
     const handleQtyOutChange = (e) => {
         if(isEditMode) return;
         const qty = parseInt(e.target.value);
         if (isNaN(qty) || qty < 1) return;
-        // Kiểm tra số ghế còn lại của hạng đang chọn
         if (qty > maxOut) return alert(`Hạng ${classOut} chỉ còn ${maxOut} ghế!`);
 
         const newArr = [...passengersOut];
-        while (newArr.length < qty) newArr.push({ fullName: '' });
+        while (newArr.length < qty) newArr.push({ fullName: '', dob: '' });
         while (newArr.length > qty) newArr.pop();
-        setPassengersOut(newArr);
-    };
-
-    const handleNameOutChange = (index, val) => {
-        const newArr = [...passengersOut];
-        newArr[index].fullName = val.toUpperCase();
         setPassengersOut(newArr);
     };
 
@@ -106,15 +118,15 @@ const BookingDetails = () => {
         if (qty > maxIn) return alert(`Hạng ${classIn} chỉ còn ${maxIn} ghế!`);
 
         const newArr = [...passengersIn];
-        while (newArr.length < qty) newArr.push({ fullName: '' });
+        while (newArr.length < qty) newArr.push({ fullName: '', dob: '' });
         while (newArr.length > qty) newArr.pop();
         setPassengersIn(newArr);
     };
 
-    const handleNameInChange = (index, val) => {
-        const newArr = [...passengersIn];
-        newArr[index].fullName = val.toUpperCase();
-        setPassengersIn(newArr);
+    const handlePassengerChange = (isOutbound, index, field, value) => {
+        const arr = isOutbound ? [...passengersOut] : [...passengersIn];
+        arr[index][field] = field === 'fullName' ? value.toUpperCase() : value;
+        if (isOutbound) setPassengersOut(arr); else setPassengersIn(arr);
     };
 
     const handleSubmit = () => {
@@ -131,8 +143,8 @@ const BookingDetails = () => {
             contactPhone: contactInfo.phone,
             contactEmail: contactInfo.email,
             paymentMethod: contactInfo.paymentMethod,
-            passengersOut: passengersOut.map(p => ({ fullName: p.fullName })),
-            passengersIn: flightIn ? passengersIn.map(p => ({ fullName: p.fullName })) : null
+            passengersOut: passengersOut.map(p => ({ fullName: p.fullName, dob: p.dob })),
+            passengersIn: flightIn ? passengersIn.map(p => ({ fullName: p.fullName, dob: p.dob })) : null
         };
 
         const apiCall = isEditMode
@@ -162,16 +174,9 @@ const BookingDetails = () => {
                         <div className="mb-4 p-3 bg-white border rounded">
                             <h5 className="text-primary fw-bold">🛫 CHIỀU ĐI: {flightOut.flightNumber}</h5>
                             <div className="text-muted small mb-2">{flightOut.departureAirport?.city} ➝ {flightOut.arrivalAirport?.city} | {flightOut.departureTime}</div>
-
                             <div className="mb-2">
                                 <label className="small fw-bold">Hạng ghế:</label>
-                                {/* SỬA LẠI ĐOẠN NÀY: Dùng Select để chọn và hiển thị số ghế */}
-                                <select
-                                    className="form-control"
-                                    value={classOut}
-                                    onChange={(e) => setClassOut(e.target.value)}
-                                    disabled={isEditMode} // Không cho đổi hạng ghế khi đang Sửa (để bảo toàn giá)
-                                >
+                                <select className="form-control" value={classOut} onChange={(e) => setClassOut(e.target.value)} disabled={isEditMode}>
                                     {flightOut.seatDetails?.map((seat) => (
                                         <option key={seat.id} value={seat.seatClass} disabled={seat.availableSeats <= 0}>
                                             {seat.seatClass} - {seat.price.toLocaleString()} đ (Còn {seat.availableSeats} ghế)
@@ -192,13 +197,7 @@ const BookingDetails = () => {
                                 <div className="text-muted small mb-2">{flightIn.departureAirport?.city} ➝ {flightIn.arrivalAirport?.city} | {flightIn.departureTime}</div>
                                 <div className="mb-2">
                                     <label className="small fw-bold">Hạng ghế:</label>
-                                    {/* SỬA LẠI ĐOẠN NÀY TƯƠNG TỰ */}
-                                    <select
-                                        className="form-control"
-                                        value={classIn}
-                                        onChange={(e) => setClassIn(e.target.value)}
-                                        disabled={isEditMode}
-                                    >
+                                    <select className="form-control" value={classIn} onChange={(e) => setClassIn(e.target.value)} disabled={isEditMode}>
                                         {flightIn.seatDetails?.map((seat) => (
                                             <option key={seat.id} value={seat.seatClass} disabled={seat.availableSeats <= 0}>
                                                 {seat.seatClass} - {seat.price.toLocaleString()} đ (Còn {seat.availableSeats} ghế)
@@ -221,7 +220,7 @@ const BookingDetails = () => {
                     </fieldset>
                 </div>
 
-                {/* --- CỘT PHẢI: GIỮ NGUYÊN FORM --- */}
+                {/* --- CỘT PHẢI --- */}
                 <div className="right-col">
                     <fieldset className="mb-4 p-3 border rounded bg-white">
                         <legend className="fw-bold text-primary">👤 Người liên hệ</legend>
@@ -230,21 +229,39 @@ const BookingDetails = () => {
                         <input type="text" className="form-control" value={contactInfo.email} onChange={e => setContactInfo({...contactInfo, email: e.target.value})} placeholder="Email" />
                     </fieldset>
 
+                    {/* DANH SÁCH KHÁCH CHIỀU ĐI */}
                     <fieldset className="mb-4 p-3 border rounded bg-white">
                         <legend className="fw-bold text-info">👥 Khách Chiều Đi</legend>
                         {passengersOut.map((p, index) => (
-                            <div key={index} className="mb-2">
-                                <input type="text" className="form-control" value={p.fullName} onChange={e => handleNameOutChange(index, e.target.value)} style={{textTransform:'uppercase'}} placeholder={`Khách ${index+1}`} />
+                            <div key={index} className="d-flex gap-2 mb-2 align-items-center">
+                                <div style={{flex: 2}}>
+                                    <input type="text" className="form-control" placeholder={`Tên khách ${index+1}`}
+                                           value={p.fullName} onChange={e => handlePassengerChange(true, index, 'fullName', e.target.value)} style={{textTransform:'uppercase'}} />
+                                </div>
+                                <div style={{flex: 1}}>
+                                    <input type="date" className="form-control" title="Ngày sinh"
+                                           value={p.dob} onChange={e => handlePassengerChange(true, index, 'dob', e.target.value)} />
+                                </div>
+                                {getAge(p.dob) < 5 && p.dob && <span className="badge bg-success">-50%</span>}
                             </div>
                         ))}
                     </fieldset>
 
+                    {/* DANH SÁCH KHÁCH CHIỀU VỀ */}
                     {flightIn && (
                         <fieldset className="mb-4 p-3 border rounded bg-white">
                             <legend className="fw-bold text-warning">👥 Khách Chiều Về</legend>
                             {passengersIn.map((p, index) => (
-                                <div key={index} className="mb-2">
-                                    <input type="text" className="form-control" value={p.fullName} onChange={e => handleNameInChange(index, e.target.value)} style={{textTransform:'uppercase'}} placeholder={`Khách ${index+1}`} />
+                                <div key={index} className="d-flex gap-2 mb-2 align-items-center">
+                                    <div style={{flex: 2}}>
+                                        <input type="text" className="form-control" placeholder={`Tên khách ${index+1}`}
+                                               value={p.fullName} onChange={e => handlePassengerChange(false, index, 'fullName', e.target.value)} style={{textTransform:'uppercase'}} />
+                                    </div>
+                                    <div style={{flex: 1}}>
+                                        <input type="date" className="form-control" title="Ngày sinh"
+                                               value={p.dob} onChange={e => handlePassengerChange(false, index, 'dob', e.target.value)} />
+                                    </div>
+                                    {getAge(p.dob) < 5 && p.dob && <span className="badge bg-success">-50%</span>}
                                 </div>
                             ))}
                         </fieldset>
@@ -267,7 +284,6 @@ const BookingDetails = () => {
                 </div>
             </div>
 
-            {/* Modal Lỗi */}
             {errorMessage && (
                 <div style={{position:'fixed', top:0, left:0, width:'100%', height:'100%', background:'rgba(0,0,0,0.5)', display:'flex', justifyContent:'center', alignItems:'center'}}>
                     <div className="bg-white p-4 rounded shadow text-center">
