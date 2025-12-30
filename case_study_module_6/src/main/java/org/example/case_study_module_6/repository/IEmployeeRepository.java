@@ -1,12 +1,13 @@
 package org.example.case_study_module_6.repository;
 
+import org.example.case_study_module_6.entity.Account;
+import org.example.case_study_module_6.entity.Account;
 import org.example.case_study_module_6.entity.Employee;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -48,4 +49,7 @@ public interface IEmployeeRepository extends JpaRepository<Employee, Long> {
     Optional<Employee> findByImgHash(String hash);
 
     Optional<Employee> findByAccountId(Long accountId);
+
+    Employee findByAccount(Account account);
+
 }

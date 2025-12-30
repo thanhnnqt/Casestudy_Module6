@@ -33,14 +33,14 @@ public class Employee {
     private Gender gender;
     @Column(unique = true, name = "img_url")
     private String imgURL;
-    @Column(unique = true,name = "img_hash")
+    @Column(unique = true, name = "img_hash")
     private String imgHash;
     private String identificationId;
-    //    @OneToOne
-//    @JoinColumn(name = "account_id", nullable = false, unique = true)
-//    private Account account;
-    @Column(nullable = true)
-    private Long accountId;
+    @OneToOne
+    @JoinColumn(name = "account_id", nullable = false, unique = true)
+    private Account account;
+//    @Column(nullable = true)
+//    private Long accountId;
 
     public enum Gender {
         Nam, Nữ, Khác
