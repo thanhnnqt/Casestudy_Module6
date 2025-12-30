@@ -2,6 +2,7 @@ package org.example.case_study_module_6.controller;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import org.example.case_study_module_6.dto.ChangePasswordRequest;
 import org.example.case_study_module_6.dto.GoogleLoginRequest;
 import org.example.case_study_module_6.dto.RegisterRequest;
 import org.example.case_study_module_6.entity.Account;
@@ -27,6 +28,7 @@ public class AuthController {
     private final GoogleTokenVerifierService googleVerifier;
     private final VerificationTokenService verificationTokenService;
     private final EmailService emailService;
+    private final AuthService authService;
 
     public AuthController(
             JwtService jwtService,
@@ -35,7 +37,8 @@ public class AuthController {
             PasswordEncoder passwordEncoder,
             GoogleTokenVerifierService googleVerifier,
             VerificationTokenService verificationTokenService,
-            EmailService emailService
+            EmailService emailService,
+            AuthService authService
     ) {
         this.jwtService = jwtService;
         this.accountService = accountService;
@@ -44,6 +47,7 @@ public class AuthController {
         this.googleVerifier = googleVerifier;
         this.verificationTokenService = verificationTokenService;
         this.emailService = emailService;
+        this.authService = authService;
     }
 
     // ================= LOGIN LOCAL =================
@@ -69,16 +73,22 @@ public class AuthController {
         }
 
         if (!passwordEncoder.matches(password, account.getPassword())) {
-            return ResponseEntity.status(401).body("Wrong password");
+            return ResponseEntity.status(401).body("Mật khẩu không chính xác!");
         }
 
         String role = accountService.resolveRole(account.getId());
         Customer customer = customerService.findByAccount(account);
 
+        if (customer == null) {
+            return ResponseEntity
+                    .status(400)
+                    .body("Tài khoản chưa gắn với thông tin khách hàng");
+        }
+
         String token = jwtService.generateToken(
                 account.getUsername(),
                 role,
-                customer.getId(),
+                customer.getId(),          // ✅ LUÔN CÓ
                 customer.getFullName()
         );
 
@@ -178,10 +188,16 @@ public class AuthController {
         }
 
         // 4️⃣ token LUÔN sinh từ CUSTOMER
+        if (customer == null || customer.getId() == null) {
+            return ResponseEntity
+                    .status(400)
+                    .body("Không thể tạo token vì thiếu thông tin khách hàng");
+        }
+
         String token = jwtService.generateToken(
                 email,
                 accountService.resolveRole(customer.getAccount().getId()),
-                customer.getId(),
+                customer.getId(),          // ✅ BẮT BUỘC
                 customer.getFullName()
         );
 
@@ -228,4 +244,37 @@ public class AuthController {
         return ResponseEntity.ok("Xác nhận email thành công");
     }
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestParam String email) {
+        authService.forgotPassword(email);
+        return ResponseEntity.ok("Đã gửi email khôi phục mật khẩu");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(
+            @RequestParam String token,
+            @RequestParam String newPassword
+    ) {
+        authService.resetPassword(token, newPassword);
+        return ResponseEntity.ok("Đổi mật khẩu thành công");
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody ChangePasswordRequest req
+    ) {
+        String token = authHeader.substring(7);
+
+        var claims = jwtService.extractClaims(token);
+        String username = claims.getSubject(); // 👈 CHÍNH LÀ username/email
+
+        authService.changePassword(
+                username,
+                req.getOldPassword(),
+                req.getNewPassword()
+        );
+
+        return ResponseEntity.ok("Đổi mật khẩu thành công");
+    }
 }

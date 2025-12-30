@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { login as loginApi, loginGoogle } from "../modules/login/service/authService.js";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { toast } from "react-toastify";
 
@@ -23,6 +23,7 @@ function Login() {
         e.preventDefault();
         try {
             const { token } = await loginApi(form);
+            localStorage.setItem("token", token);
             await login(token);
             toast.success("Đăng nhập thành công");
             navigate("/");
@@ -35,6 +36,7 @@ function Login() {
     const handleGoogleSuccess = async (credentialResponse) => {
         try {
             const { token } = await loginGoogle(credentialResponse.credential);
+            localStorage.setItem("token", token);
             await login(token);
             toast.success("Đăng nhập Google thành công");
             navigate("/");
@@ -85,6 +87,13 @@ function Login() {
                         >
                             Đăng nhập
                         </button>
+                        <div className="text-end mb-3">
+                            <Link
+                                to="/forgot-password"
+                                className="text-decoration-none text-muted">
+                                Quên mật khẩu?
+                            </Link>
+                        </div>
                     </form>
 
                     {/* ===== OR ===== */}

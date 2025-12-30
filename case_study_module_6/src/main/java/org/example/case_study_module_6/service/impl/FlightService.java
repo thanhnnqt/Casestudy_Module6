@@ -55,6 +55,20 @@ public class FlightService {
 
     @Transactional
     public Flight createFlight(FlightRequestDTO req) {
+
+        // 1. VALIDATE SỐ HIỆU CHUYẾN BAY (MỚI)
+        if (req.getFlightNumber() == null || req.getFlightNumber().trim().isEmpty()) {
+            throw new RuntimeException("Số hiệu chuyến bay không được để trống");
+        }
+        // Chuẩn hóa thành chữ hoa (ví dụ: vn123 -> VN123)
+        String formattedFlightNum = req.getFlightNumber().trim().toUpperCase();
+        req.setFlightNumber(formattedFlightNum);
+
+        // Kiểm tra tồn tại trong DB
+        if (flightRepository.existsByFlightNumber(formattedFlightNum)) {
+            throw new RuntimeException("Số hiệu chuyến bay " + formattedFlightNum + " đã tồn tại trong hệ thống!");
+        }
+
         Aircraft aircraft = aircraftRepository.findById(req.getAircraftId())
                 .orElseThrow(() -> new RuntimeException("Máy bay không tồn tại"));
 

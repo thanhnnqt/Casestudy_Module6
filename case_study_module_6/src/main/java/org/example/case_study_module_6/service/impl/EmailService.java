@@ -21,4 +21,13 @@ public class EmailService implements IEmailService {
         );
         mailSender.send(message);
     }
+
+    @Override
+    public void send(String to, String subject, String content) {
+        SimpleMailMessage mail = new SimpleMailMessage();
+        mail.setTo(to);
+        mail.setSubject(subject);
+        mail.setText(content);
+        mailSender.send(mail);
+    }
 }
