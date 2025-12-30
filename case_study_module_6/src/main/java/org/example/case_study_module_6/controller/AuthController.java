@@ -77,19 +77,19 @@ public class AuthController {
         String fullName = account.getUsername();
 
         switch (role) {
-            case "ROLE_ADMIN" -> {
+            case "ADMIN" -> {
                 Admin admin = accountService.findAdminByAccount(account);
                 if (admin == null) return ResponseEntity.status(403).body("Không có quyền ADMIN");
                 profileId = admin.getId();
                 fullName = admin.getFullName();
             }
-            case "ROLE_EMPLOYEE" -> {
+            case "EMPLOYEE" -> {
                 Employee emp = accountService.findEmployeeByAccount(account);
                 if (emp == null) return ResponseEntity.status(403).body("Không có quyền EMPLOYEE");
                 profileId = emp.getId();
                 fullName = emp.getFullName();
             }
-            default -> { // CUSTOMER
+            case "CUSTOMER" -> {
                 Customer customer = customerService.findByAccount(account);
                 if (customer == null) {
                     return ResponseEntity.status(400).body("Tài khoản chưa gắn khách hàng");
@@ -97,6 +97,7 @@ public class AuthController {
                 profileId = customer.getId();
                 fullName = customer.getFullName();
             }
+            default -> throw new RuntimeException("Role không hợp lệ");
         }
 
         String token = jwtService.generateToken(
@@ -183,5 +184,43 @@ public class AuthController {
         String username = jwtService.extractClaims(token).getSubject();
         authService.changePassword(username, req.getOldPassword(), req.getNewPassword());
         return ResponseEntity.ok("Đổi mật khẩu thành công");
+    }
+    @GetMapping("/me")
+    public ResponseEntity<?> me(
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        String token = authHeader.substring(7);
+        var claims = jwtService.extractClaims(token);
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "username", claims.getSubject(),
+                        "role", claims.get("role"),
+                        "customerId", claims.get("customerId"),
+                        "fullName", claims.get("fullName")
+                )
+        );
+    }
+    @GetMapping("/verify-email")
+    @Transactional
+    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+
+        VerificationToken vt = verificationTokenService.validate(token);
+        RegisterRequest req = vt.getRegisterRequest();
+
+        // LÚC NÀY MỚI TẠO ACCOUNT
+        Account account = new Account();
+        account.setUsername(req.getUsername());
+        account.setPassword(passwordEncoder.encode(req.getPassword()));
+        account.setProvider(Provider.LOCAL);
+        account.setEnabled(true);
+
+        account = accountService.save(account);
+
+        accountService.createCustomerProfile(account, req);
+
+        verificationTokenService.delete(vt);
+
+        return ResponseEntity.ok("Xác nhận email thành công");
     }
 }

@@ -187,8 +187,8 @@ CREATE TABLE employees
     gender            ENUM('Nam', 'Nữ', 'Khác') DEFAULT 'Khác',
     img_url           VARCHAR(500),
     img_hash          VARCHAR(500),
-    account_id        BIGINT
---                            FOREIGN KEY (account_id) REFERENCES accounts(id)
+    account_id        BIGINT,
+    FOREIGN KEY (account_id) REFERENCES accounts(id)
 );
 
 -- Nếu Account ID tồn tại trong bảng này => ROLE_CUSTOMER
