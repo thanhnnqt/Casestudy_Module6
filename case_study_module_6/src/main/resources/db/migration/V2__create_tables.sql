@@ -188,7 +188,7 @@ CREATE TABLE employees
     img_url           VARCHAR(500),
     img_hash          VARCHAR(500),
     account_id        BIGINT,
-    FOREIGN KEY (account_id) REFERENCES accounts(id)
+    FOREIGN KEY (account_id) REFERENCES accounts (id)
 );
 
 -- Nếu Account ID tồn tại trong bảng này => ROLE_CUSTOMER
@@ -218,7 +218,7 @@ CREATE TABLE customers
 CREATE TABLE admins
 (
     id           BIGINT AUTO_INCREMENT PRIMARY KEY,
-    admin_code   VARCHAR(50)  NOT NULL UNIQUE,
+    admin_code   VARCHAR(50) UNIQUE,
     full_name    VARCHAR(100) NOT NULL,
     email        VARCHAR(100) UNIQUE,
     phone_number VARCHAR(20) UNIQUE,

@@ -46,7 +46,7 @@ public class SecurityConfig {
 
 
                         .requestMatchers("/v1/api/employees/**")
-                        .hasAnyRole("EMPLOYEE", "ADMIN")
+                        .hasAnyRole("ADMIN")
 
                         .requestMatchers("/api/customers/**")
                         .hasAnyRole("EMPLOYEE", "ADMIN")
@@ -63,7 +63,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:5173"));
-        config.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 
