@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import "../styles/home.css";
 import {toast} from "react-toastify";
-
+import { getAllNews } from "../services/NewsService";
+import { Link } from "react-router-dom";
 function Home() {
     /* ================= CITY LIST ================= */
     const cities = [
@@ -27,6 +28,7 @@ function Home() {
     const [tripType, setTripType] = useState("ONE_WAY");
     const [showPassenger, setShowPassenger] = useState(false);
 
+
     const [form, setForm] = useState({
         from: "Đà Nẵng (DAD)",
         to: "TP. Hồ Chí Minh (SGN)",
@@ -37,6 +39,18 @@ function Home() {
         infant: 0
     });
 
+    /* ================= NEWS STATE ================= */
+    const [newsList, setNewsList] = useState([]);
+    useEffect(() => {
+        const fetchNews = async () => {
+            const data = await getAllNews();
+            // Lấy 3 tin mới nhất
+            if (data && Array.isArray(data)) {
+                setNewsList(data.slice(0, 3));
+            }
+        };
+        fetchNews();
+    }, []);
     /* WEATHER STATE */
     const [weatherFrom, setWeatherFrom] = useState(null);
     const [weatherTo, setWeatherTo] = useState(null);
@@ -402,38 +416,69 @@ function Home() {
                 </div>
             </section>
 
-            {/* ================= NEWS ================= */}
-            <section className="container my-5">
-                <h4 className="fw-bold mb-4">📰 Tin tức & Cẩm nang du lịch</h4>
+                {/* ================= NEWS SECTION (ĐÃ CẬP NHẬT LINK CHI TIẾT) ================= */}
+                <section className="container my-5">
+                    <h4 className="fw-bold mb-4">📰 Tin tức & Cẩm nang du lịch</h4>
 
-                <div className="row g-4 text-center">
-                    {[
-                        {
-                            title: "Kinh nghiệm săn vé giá rẻ",
-                            img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
-                        },
-                        {
-                            title: "Top điểm du lịch hè 2025",
-                            img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee"
-                        },
-                        {
-                            title: "Du lịch tiết kiệm cho gia đình",
-                            img: "https://i.pinimg.com/736x/62/cc/cb/62cccb838eae9810e2d750f7ec0070b2.jpg"
-                        }
-                    ].map((n, i) => (
-                        <div className="col-md-4" key={i}>
-                            <div className="news-card h-100 shadow-sm">
-                                <div className="news-thumb">
-                                    <img src={n.img} alt={n.title} />
-                                </div>
-                                <div className="card-body">
-                                    <h6 className="fw-bold">{n.title}</h6>
-                                </div>
+                    {newsList.length === 0 ? (
+                        <div className="text-center py-4">
+                            <div className="spinner-border text-primary" role="status">
+                                <span className="visually-hidden">Loading...</span>
                             </div>
+                            <p className="text-muted mt-2">Đang tải tin tức...</p>
                         </div>
-                    ))}
-                </div>
-            </section>
+                    ) : (
+                        <div className="row g-4 text-center">
+                            {newsList.map((n) => (
+                                <div className="col-md-4" key={n.newsId}>
+                                    <div className="news-card h-100 shadow-sm">
+                                        <div className="news-thumb">
+                                            {/* 1. Bọc ảnh bằng Link để bấm vào ảnh cũng xem được */}
+                                            <Link to={`/news/${n.newsId}`}>
+                                                <img
+                                                    src={n.thumbnail}
+                                                    alt={n.title}
+                                                    style={{ width: '100%', height: '200px', objectFit: 'cover' }}
+                                                    onError={(e) => e.target.src = 'https://via.placeholder.com/300x200?text=No+Image'}
+                                                />
+                                            </Link>
+                                        </div>
+                                        <div className="card-body d-flex flex-column">
+                                            <h6 className="fw-bold text-truncate" title={n.title}>
+                                                {/* 2. Bọc tiêu đề bằng Link */}
+                                                <Link to={`/news/${n.newsId}`} className="text-decoration-none text-dark">
+                                                    {n.title}
+                                                </Link>
+                                            </h6>
+                                            <p className="small text-muted mb-2 text-truncate">
+                                                {n.summary || "Xem chi tiết bài viết..."}
+                                            </p>
+                                            <div className="mt-auto d-flex justify-content-between align-items-center small text-secondary">
+                                            <span>
+                                                <i className="bi bi-calendar3 me-1"></i>
+                                                {n.publishedAt ? new Date(n.publishedAt).toLocaleDateString('vi-VN') : ''}
+                                            </span>
+                                                {n.category && (
+                                                    <span className="badge bg-light text-dark border">
+                                                    {n.category}
+                                                </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    <div className="text-center mt-4">
+                        {/* 3. Thay thẻ button thành Link để chuyển sang trang danh sách tin tức */}
+                        <Link to="/news" className="btn btn-outline-primary rounded-pill px-4 fw-bold">
+                            Xem tất cả tin tức <i className="bi bi-arrow-right ms-1"></i>
+                        </Link>
+                    </div>
+                </section>
+
         </>
     );
 }
