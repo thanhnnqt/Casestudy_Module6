@@ -24,6 +24,10 @@ import ForgotPassword from "../pages/ForgotPassword.jsx";
 import ResetPassword from "../pages/ResetPassword.jsx";
 import ChangePassword from "../pages/ChangePassword.jsx";
 import EditProfile from "../modules/customer/service/EditProfile.jsx";
+import NewsPage from "../components/NewsPage";
+import NewsDetail from "../components/NewsDetail";
+import NewsManager from "../components/NewsManager";
+import NewsForm from "../components/NewsForm";
 
 
 function AppRouter() {
@@ -81,8 +85,16 @@ function AppRouter() {
                 <Route path="/new-sale" element={<NewTicketSale />} />
 
             </Route>
+            {/* --- ADMIN ROUTES --- */}
+            <Route path="/admin/news" element={<NewsManager />} />
+            <Route path="/admin/news/create" element={<NewsForm />} />
+            <Route path="/admin/news/edit/:id" element={<NewsForm />} />
 
+            {/* Route mới */}
+            <Route path="/news" element={<NewsPage />} />
+            <Route path="/news/:id" element={<NewsDetail />} />
         </Routes>
+
     );
 }
 
