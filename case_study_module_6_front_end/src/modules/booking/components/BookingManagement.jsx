@@ -73,7 +73,7 @@ const BookingManagement = () => {
 
     useEffect(() => { setCurrentPage(1); }, [filterType]);
 
-    // --- LOGIC LỌC & PHÂN TRANG ---
+    // --- LOGIC LỌC ---
     const filteredBookings = bookings.filter(b => {
         if (filterType === 'ALL') return true;
         if (filterType === 'ROUND_TRIP') return b.tripType === 'ROUND_TRIP' || b.returnFlight;
@@ -81,12 +81,48 @@ const BookingManagement = () => {
         return true;
     });
 
+    // --- LOGIC CẮT DỮ LIỆU PHÂN TRANG ---
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = filteredBookings.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
 
-    // --- CÁC HÀM XỬ LÝ ---
+    // --- [SỬA LẠI] THUẬT TOÁN TẠO SỐ TRANG NGHIÊM NGẶT ---
+    const getPageNumbers = () => {
+        const pages = [];
+        if (totalPages <= 1) return [1];
+
+        // Luôn thêm trang 1
+        pages.push(1);
+
+        // Tính khoảng giữa (chỉ lấy trang hiện tại +/- 1)
+        let start = Math.max(2, currentPage - 1);
+        let end = Math.min(totalPages - 1, currentPage + 1);
+
+        // Nếu có khoảng cách giữa trang 1 và start -> Thêm dấu ...
+        if (start > 2) {
+            pages.push('...');
+        }
+
+        // Thêm các trang ở giữa
+        for (let i = start; i <= end; i++) {
+            pages.push(i);
+        }
+
+        // Nếu có khoảng cách giữa end và trang cuối -> Thêm dấu ...
+        if (end < totalPages - 1) {
+            pages.push('...');
+        }
+
+        // Luôn thêm trang cuối (nếu tổng > 1)
+        if (totalPages > 1) {
+            pages.push(totalPages);
+        }
+
+        return pages;
+    };
+
+    // --- CÁC HÀM XỬ LÝ (GIỮ NGUYÊN) ---
     const handleRequestAction = (booking, type) => {
         let title = "", message = "";
         if (type === 'PAID') { title = "💰 Xác Nhận Thanh Toán"; message = "Xác nhận khách đã thanh toán đầy đủ?"; }
@@ -268,17 +304,40 @@ const BookingManagement = () => {
                         </tbody>
                     </table>
 
-                    {/* PAGINATION */}
+                    {/* --- [ĐÃ SỬA] THANH PHÂN TRANG (Style PREV 1 2 ... NEXT) --- */}
                     {totalPages > 1 && (
                         <div className="d-flex justify-content-between align-items-center p-3 bg-light border-top">
-                            <span className="text-muted">Hiển thị <strong>{indexOfFirstItem + 1}</strong> - <strong>{Math.min(indexOfLastItem, filteredBookings.length)}</strong> trong <strong>{filteredBookings.length}</strong> vé</span>
+                            <span className="text-muted small">
+                                Hiển thị <strong>{indexOfFirstItem + 1}</strong> - <strong>{Math.min(indexOfLastItem, filteredBookings.length)}</strong> / <strong>{filteredBookings.length}</strong> vé
+                            </span>
                             <nav>
                                 <ul className="pagination m-0">
-                                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}><button className="page-link" onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}>Previous</button></li>
-                                    {[...Array(totalPages)].map((_, i) => (
-                                        <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}><button className="page-link" onClick={() => setCurrentPage(i + 1)}>{i + 1}</button></li>
+                                    {/* Nút Previous */}
+                                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                                        <button className="page-link" onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}>
+                                            <i className="fa-solid fa-chevron-left"></i> Prev
+                                        </button>
+                                    </li>
+
+                                    {/* Danh sách trang */}
+                                    {getPageNumbers().map((page, index) => (
+                                        <li key={index} className={`page-item ${currentPage === page ? 'active' : ''} ${page === '...' ? 'disabled' : ''}`}>
+                                            <button
+                                                className="page-link"
+                                                onClick={() => typeof page === 'number' && setCurrentPage(page)}
+                                                style={page === '...' ? {border:'none', background:'transparent', color:'#333', cursor:'default'} : {}}
+                                            >
+                                                {page}
+                                            </button>
+                                        </li>
                                     ))}
-                                    <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}><button className="page-link" onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}>Next</button></li>
+
+                                    {/* Nút Next */}
+                                    <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                                        <button className="page-link" onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}>
+                                            Next <i className="fa-solid fa-chevron-right"></i>
+                                        </button>
+                                    </li>
                                 </ul>
                             </nav>
                         </div>
@@ -286,7 +345,7 @@ const BookingManagement = () => {
                 </div>
             )}
 
-            {/* --- MODAL XÁC NHẬN (ĐÃ CẬP NHẬT CHI TIẾT) --- */}
+            {/* MODAL XÁC NHẬN */}
             {confirmModal.show && confirmModal.booking && (
                 <div style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050, display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                     <div className="card shadow-lg" style={{width: '600px', border: 'none', borderRadius: '10px'}}>
@@ -295,51 +354,13 @@ const BookingManagement = () => {
                         </div>
                         <div className="card-body p-4">
                             <p className="text-center fs-5 mb-4">{confirmModal.message}</p>
-
-                            {/* Bảng thông tin chi tiết */}
                             <div className="alert alert-light border">
-                                <div className="d-flex justify-content-between border-bottom pb-2 mb-2">
-                                    <span>Mã vé:</span>
-                                    <strong className="text-primary">{confirmModal.booking.bookingCode}</strong>
-                                </div>
-                                <div className="d-flex justify-content-between border-bottom pb-2 mb-2">
-                                    <span>Khách hàng:</span>
-                                    <strong>{confirmModal.booking.contactName}</strong>
-                                </div>
-                                <div className="d-flex justify-content-between border-bottom pb-2 mb-2">
-                                    <span>Ngày đặt:</span>
-                                    <strong>{formatDate(confirmModal.booking.bookingDate)}</strong>
-                                </div>
-                                <div className="mb-2">
-                                    <div className="fw-bold text-muted small mb-1">CHIỀU ĐI:</div>
-                                    <div className="d-flex justify-content-between align-items-center bg-white p-2 border rounded">
-                                        <span className="badge bg-primary me-2">{confirmModal.booking.flight?.flightNumber}</span>
-                                        <span className="small">
-                                            {confirmModal.booking.flight?.departureAirport?.code} ➝ {confirmModal.booking.flight?.arrivalAirport?.code}
-                                        </span>
-                                        <span className="fw-bold small">
-                                            {new Date(confirmModal.booking.flight?.departureTime).toLocaleString('vi-VN')}
-                                        </span>
-                                    </div>
-                                </div>
-                                {confirmModal.booking.returnFlight && (
-                                    <div className="mb-2">
-                                        <div className="fw-bold text-muted small mb-1">CHIỀU VỀ:</div>
-                                        <div className="d-flex justify-content-between align-items-center bg-white p-2 border rounded">
-                                            <span className="badge bg-warning text-dark me-2">{confirmModal.booking.returnFlight?.flightNumber}</span>
-                                            <span className="small">
-                                                {confirmModal.booking.returnFlight?.departureAirport?.code} ➝ {confirmModal.booking.returnFlight?.arrivalAirport?.code}
-                                            </span>
-                                            <span className="fw-bold small">
-                                                {new Date(confirmModal.booking.returnFlight?.departureTime).toLocaleString('vi-VN')}
-                                            </span>
-                                        </div>
-                                    </div>
-                                )}
-                                <div className="d-flex justify-content-between pt-2 mt-2 border-top">
-                                    <span className="fs-5">Tổng tiền:</span>
-                                    <strong className="fs-4 text-danger">{formatCurrency(confirmModal.booking.totalAmount)}</strong>
-                                </div>
+                                <div className="d-flex justify-content-between border-bottom pb-2 mb-2"><span>Mã vé:</span><strong className="text-primary">{confirmModal.booking.bookingCode}</strong></div>
+                                <div className="d-flex justify-content-between border-bottom pb-2 mb-2"><span>Khách hàng:</span><strong>{confirmModal.booking.contactName}</strong></div>
+                                <div className="d-flex justify-content-between border-bottom pb-2 mb-2"><span>Ngày đặt:</span><strong>{formatDate(confirmModal.booking.bookingDate)}</strong></div>
+                                <div className="mb-2"><div className="fw-bold text-muted small mb-1">CHIỀU ĐI:</div><div className="d-flex justify-content-between align-items-center bg-white p-2 border rounded"><span className="badge bg-primary me-2">{confirmModal.booking.flight?.flightNumber}</span><span className="small">{confirmModal.booking.flight?.departureAirport?.code} ➝ {confirmModal.booking.flight?.arrivalAirport?.code}</span><span className="fw-bold small">{new Date(confirmModal.booking.flight?.departureTime).toLocaleString('vi-VN')}</span></div></div>
+                                {confirmModal.booking.returnFlight && (<div className="mb-2"><div className="fw-bold text-muted small mb-1">CHIỀU VỀ:</div><div className="d-flex justify-content-between align-items-center bg-white p-2 border rounded"><span className="badge bg-warning text-dark me-2">{confirmModal.booking.returnFlight?.flightNumber}</span><span className="small">{confirmModal.booking.returnFlight?.departureAirport?.code} ➝ {confirmModal.booking.returnFlight?.arrivalAirport?.code}</span><span className="fw-bold small">{new Date(confirmModal.booking.returnFlight?.departureTime).toLocaleString('vi-VN')}</span></div></div>)}
+                                <div className="d-flex justify-content-between pt-2 mt-2 border-top"><span className="fs-5">Tổng tiền:</span><strong className="fs-4 text-danger">{formatCurrency(confirmModal.booking.totalAmount)}</strong></div>
                             </div>
                         </div>
                         <div className="card-footer bg-white text-end">
@@ -350,7 +371,7 @@ const BookingManagement = () => {
                 </div>
             )}
 
-            {/* --- MODAL IN VÉ (ĐẸP) --- */}
+            {/* MODAL IN VÉ */}
             {showInvoice && selectedBooking && (
                 <div style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                     <div className="bg-light rounded shadow-lg d-flex flex-column" style={{maxWidth: '850px', width: '95%', maxHeight: '95vh'}}>
