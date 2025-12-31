@@ -5,10 +5,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.example.case_study_module_6.dto.EmployeeDTO;
 import org.example.case_study_module_6.entity.Account;
+import org.example.case_study_module_6.entity.Admin;
 import org.example.case_study_module_6.entity.Employee;
 import org.example.case_study_module_6.entity.Provider;
 import org.example.case_study_module_6.service.IAccountService;
+import org.example.case_study_module_6.service.IAdminService;
 import org.example.case_study_module_6.service.IEmployeeService;
+import org.example.case_study_module_6.service.impl.AccountService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,18 +27,18 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin("*")
 @RequestMapping("/v1/api/employees")
 public class EmployeeController {
-    final IEmployeeService employeeService;
-    final IAccountService accountService;
+    private final IEmployeeService employeeService;
+    private final IAccountService accountService;
     private final PasswordEncoder passwordEncoder;
-    final JwtService jwtService;
+    private final JwtService jwtService;
+    private final IAdminService adminService;
 
-
-
-    public EmployeeController(IEmployeeService employeeService, IAccountService accountService, PasswordEncoder passwordEncoder, JwtService jwtService) {
+    public EmployeeController(IEmployeeService employeeService, IAccountService accountService, PasswordEncoder passwordEncoder, JwtService jwtService, IAdminService adminService) {
         this.employeeService = employeeService;
         this.accountService = accountService;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.adminService = adminService;
     }
 
     @Operation(summary = "Lấy danh sách toàn bộ nhân viên")
@@ -80,33 +83,52 @@ public class EmployeeController {
     public ResponseEntity<?> create(
             @RequestHeader("Authorization") String authHeader,
             @RequestBody EmployeeDTO employeeDTO) {
+
+        if (accountService.existsByUsername(employeeDTO.getUsername())) {
+            return ResponseEntity.badRequest().body("Tài khoản đã tồn tại");
+        }
+
         Account account = new Account();
         account.setUsername(employeeDTO.getUsername());
         account.setPassword(passwordEncoder.encode(employeeDTO.getPassword()));
         account.setCreatedAt(employeeDTO.getCreateAt());
         account.setProvider(Provider.valueOf(employeeDTO.getProvider()));
+
         Account accountCreated = accountService.save(account);
-        Employee employee = new Employee();
-        employee.setAccount(accountCreated);
-        employee.setDob(employeeDTO.getDOB());
-        employee.setEmail(employeeDTO.getEmail());
-        employee.setGender(Employee.Gender.valueOf(employeeDTO.getGender()));
-        employee.setFullName(employeeDTO.getFullName());
-        employee.setAddress(employeeDTO.getAddress());
-        employee.setPhoneNumber(employeeDTO.getPhoneNumber());
-        employee.setIdentificationId(employeeDTO.getIdentificationId());
-        employee.setImgHash(employeeDTO.getImgHash());
-        employee.setImgURL(employeeDTO.getImgURL());
-        Employee employeeCreated = employeeService.save(employee);
-        String token = authHeader.substring(7);
-        System.out.println(token);
-        var claims = jwtService.extractClaims(token);
 
-        Long accountId = claims.get("accountId", Long.class);
+        String role = employeeDTO.getTargetRole();
 
-//        employee.setAccountId(accountId);
-        return new ResponseEntity<>(employeeCreated, HttpStatus.CREATED);
+        if ("ADMIN".equalsIgnoreCase(role)) {
+            Admin admin = new Admin();
+            admin.setAccount(accountCreated);
+            admin.setFullName(employeeDTO.getFullName());
+            admin.setEmail(employeeDTO.getEmail());
+            admin.setCreatedAt(employeeDTO.getCreateAt());
+            admin.setPhoneNumber(employeeDTO.getPhoneNumber());
+
+            Admin adminCreated = adminService.save(admin);
+            adminCreated.setAdminCode("AD" + adminCreated.getId());
+            adminService.save(adminCreated);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(adminCreated);
+        } else {
+            Employee employee = new Employee();
+            employee.setAccount(accountCreated);
+            employee.setFullName(employeeDTO.getFullName());
+            employee.setEmail(employeeDTO.getEmail());
+            employee.setPhoneNumber(employeeDTO.getPhoneNumber());
+            employee.setIdentificationId(employeeDTO.getIdentificationId());
+            employee.setDob(employeeDTO.getDOB());
+            employee.setAddress(employeeDTO.getAddress());
+            employee.setGender(Employee.Gender.valueOf(employeeDTO.getGender()));
+            employee.setImgHash(employeeDTO.getImgHash());
+            employee.setImgURL(employeeDTO.getImgURL());
+
+            Employee employeeCreated = employeeService.save(employee);
+            return ResponseEntity.status(HttpStatus.CREATED).body(employeeCreated);
+        }
     }
+
 
     @GetMapping("/check-identification")
     public boolean checkIdentification(@RequestParam String value) {
