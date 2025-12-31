@@ -253,7 +253,7 @@ const FlightList = () => {
 
                         {/* NÚT REPORT ĐƯỢC THÊM MỚI */}
                         <Link to="/report" className="btn btn-outline-dark shadow-sm">
-                            <i className="bi bi-bar-chart-line-fill me-2"></i>Report
+                            <i className="bi bi-bar-chart-line-fill me-2"></i>Báo cáo
                         </Link>
                     </div>
                 </div>

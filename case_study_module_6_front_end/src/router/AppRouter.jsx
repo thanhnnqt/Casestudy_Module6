@@ -27,6 +27,7 @@ import ResetPassword from "../pages/ResetPassword.jsx";
 import ChangePassword from "../pages/ChangePassword.jsx";
 import EditProfile from "../modules/customer/service/EditProfile.jsx";
 import Report from "../modules/employee/components/Report.jsx";
+import RevenueChart from "../modules/employee/components/RevenueChart.jsx";
 
 
 function AppRouter() {
@@ -60,6 +61,7 @@ function AppRouter() {
                 <Route path="/employees/edit/:id" element={<EmployeeDetail/>}/>
                 <Route path="/employees/add" element={<AddEmployee/>}/>
                 <Route path="/report" element={<Report/>}/>
+                <Route path="/revenue-chart" element={<RevenueChart/>}/>
 
                 <Route path="/profile" element={
                     <PrivateRoute>
