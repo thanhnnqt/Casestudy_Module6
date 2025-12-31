@@ -22,8 +22,8 @@ public interface IFlightRepository extends JpaRepository<Flight, Long>, JpaSpeci
     @Query("SELECT DISTINCT f FROM Flight f " +
             "JOIN f.seatDetails s " +
             "WHERE (:keyword IS NULL OR :keyword = '' OR f.flightNumber LIKE %:keyword% OR f.aircraft.airline.name LIKE %:keyword%) " +
-            "AND (:origin IS NULL OR :origin = '' OR f.departureAirport.city LIKE %:origin% OR f.departureAirport.name LIKE %:origin%) " +
-            "AND (:destination IS NULL OR :destination = '' OR f.arrivalAirport.city LIKE %:destination% OR f.arrivalAirport.name LIKE %:destination%) " +
+            "AND (:origin IS NULL OR :origin = '' OR f.departureAirport.city LIKE %:origin% OR f.departureAirport.name LIKE %:origin% OR f.departureAirport.code LIKE %:origin%) " +
+            "AND (:destination IS NULL OR :destination = '' OR f.arrivalAirport.city LIKE %:destination% OR f.arrivalAirport.name LIKE %:destination% OR f.arrivalAirport.code LIKE %:destination%) " +
             "AND (:startDate IS NULL OR CAST(f.departureTime AS date) >= :startDate) " +
             "AND (:endDate IS NULL OR CAST(f.departureTime AS date) <= :endDate) " +
             "AND (:minPrice IS NULL OR s.price >= :minPrice) " +

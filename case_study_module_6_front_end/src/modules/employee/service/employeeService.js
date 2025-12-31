@@ -1,8 +1,9 @@
-import axios from "axios";
+import axios from "../../login/service/axiosConfig";
 
-const URL = "http://localhost:8080/v1/api/employees"
+const URL = "/v1/api/employees"
 
 export async function getEmployeeList() {
+    console.log("TOKEN SENT =", localStorage.getItem("token"));
     try {
         const res = await axios.get(`${URL}`);
         return res.data;
@@ -62,25 +63,38 @@ export async function getEmployeeListBySearch(fullName, phoneNumber, page = 0, s
 
 export async function addEmployee(employee) {
     try {
-        const res = await axios.post(`${URL}`, employee);
-        return res.status === 201;
+        const token = localStorage.getItem("token");
+        const res = await axios.post(`${URL}`, employee, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return res.data;
     } catch (e) {
-        console.error(e.message)
+        console.error(e.response?.data || e.message);
+        return false;
     }
-    return false;
 }
 
 export async function checkIdentificationExists(value) {
+    const token = localStorage.getItem("token");
     const res = await axios.get(`${URL}/check-identification`, {
-        params: {value}
+        params: {value},
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
     });
     return res.data;
 }
 
 export async function checkImageHashExists(hash) {
+    const token = localStorage.getItem("token");
     try {
         const res = await axios.get(`${URL}/check-image-hash`, {
-            params: {hash}
+            params: {hash},
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         });
         return res.data;
     } catch {
@@ -89,22 +103,68 @@ export async function checkImageHashExists(hash) {
 }
 
 export async function checkEmailExists(value) {
+    const token = localStorage.getItem("token");
     if (!value) return false;
-    const res = await axios.get(`${URL}/check-email`, {params: {value}});
+    const res = await axios.get(`${URL}/check-email`, {
+        params: {value},
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
     return res.data;
 }
 
 export async function checkPhoneExists(value) {
+    const token = localStorage.getItem("token");
     if (!value) return false;
-    const res = await axios.get(`${URL}/check-phone`, {params: {value}});
+    const res = await axios.get(`${URL}/check-phone`, {
+        params: {value},
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
     return res.data;
 }
 
 export async function checkImageHashExistsExceptSelf(hash, id) {
+    const token = localStorage.getItem("token");
     const res = await axios.get(`${URL}/check-image-hash-except`, {
-        params: { hash, id }
+        params: {hash, id},
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
     });
     return res.data;
 }
+
+
+export const updateEmployeeImage = async (id, imgURL, imgHash) => {
+    const token = localStorage.getItem("token");
+    return await axios.patch(`${URL}/${id}/update-image`, null, {
+        params: {imageUrl: imgURL, imageHash: imgHash},
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+};
+
+export async function checkUsernameExists(username) {
+    try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(
+            `${URL}/exists-username?username=${username}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+        return res.data;
+    } catch {
+        return false;
+    }
+}
+
+
 
 

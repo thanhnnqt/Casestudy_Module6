@@ -7,6 +7,8 @@ import PrivateRoute from "../components/PrivateRoute.jsx";
 import Profile from "../pages/Profile.jsx";
 import FlightList from "../modules/flight/components/FlightList.jsx";
 import FlightForm from "../modules/flight/components/FlightForm.jsx";
+import BookingPage from "../modules/flight/pages/BookingPage.jsx";
+import PassengerForm from "../modules/flight/pages/PassengerForm.jsx";
 import CustomerList from "../components/CustomerList";
 import CustomerForm from "../components/CustomerForm";
 import EmployeeInfo from "../components/EmployeeInfo";
@@ -28,6 +30,8 @@ import NewsPage from "../components/NewsPage";
 import NewsDetail from "../components/NewsDetail";
 import NewsManager from "../components/NewsManager";
 import NewsForm from "../components/NewsForm";
+import Report from "../modules/employee/components/Report.jsx";
+import RevenueChart from "../modules/employee/components/RevenueChart.jsx";
 
 
 function AppRouter() {
@@ -38,25 +42,30 @@ function AppRouter() {
                NHÓM 1: CHỈ CÓ HEADER/FOOTER - KHÔNG CÓ SIDEBAR
                (Truyền showSidebar={false})
                ============================================== */}
-            <Route element={<MainLayout showSidebar={false} />}>
+            <Route element={<MainLayout showSidebar={false}/>}>
                 <Route path="/" element={<Home/>}/>
                 <Route path="/login" element={<Login/>}/>
                 <Route path="/register" element={<Register/>}/>
-                <Route path="/verify-email" element={<VerifyEmail />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/change-password" element={<PrivateRoute><ChangePassword /></PrivateRoute>}/>
-                <Route path="/profile/edit" element={<PrivateRoute><EditProfile /></PrivateRoute>}/>
+                <Route path="/verify-email" element={<VerifyEmail/>}/>
+                <Route path="/forgot-password" element={<ForgotPassword/>}/>
+                <Route path="/reset-password" element={<ResetPassword/>}/>
+                <Route path="/change-password" element={<PrivateRoute><ChangePassword/></PrivateRoute>}/>
+                <Route path="/profile/edit" element={<PrivateRoute><EditProfile/></PrivateRoute>}/>
 
-                {/* Route chuyến bay */}
+                {/* Route quản lý chuyến bay */}
                 <Route path="/flights" element={<FlightList/>}/>
                 <Route path="/flights/create" element={<FlightForm/>}/>
                 <Route path="flights/edit/:id" element={<FlightForm/>}/>
+
+                <Route path="/flights/booking" element={<BookingPage/>}/>
+                <Route path="/flights/passenger" element={<PassengerForm/>}/>
 
                 {/* Route nhân viên */}
                 <Route path="/employees" element={<EmployeeList/>}/>
                 <Route path="/employees/edit/:id" element={<EmployeeDetail/>}/>
                 <Route path="/employees/add" element={<AddEmployee/>}/>
+                <Route path="/report" element={<Report/>}/>
+                <Route path="/revenue-chart" element={<RevenueChart/>}/>
 
                 <Route path="/profile" element={
                     <PrivateRoute>
@@ -70,19 +79,19 @@ function AppRouter() {
                NHÓM 2: CÓ ĐỦ HEADER/FOOTER VÀ SIDEBAR
                (Truyền showSidebar={true})
                ============================================== */}
-            <Route element={<MainLayout showSidebar={true} />}>
-                <Route path="/detailemployee" element={<EmployeeInfo />} />
+            <Route element={<MainLayout showSidebar={true}/>}>
+                <Route path="/detailemployee" element={<EmployeeInfo/>}/>
                 {/* --- Route Quản lý khách hàng --- */}
-                <Route path="/customers" element={<CustomerList />} />
-                <Route path="/customers/create" element={<CustomerForm />} />
-                <Route path="/customers/edit/:id" element={<CustomerForm />} />
+                <Route path="/customers" element={<CustomerList/>}/>
+                <Route path="/customers/create" element={<CustomerForm/>}/>
+                <Route path="/customers/edit/:id" element={<CustomerForm/>}/>
 
                 {/* --- Route Booking/Quản lý vé --- */}
-                <Route path="/search-flight" element={<FlightSearch />} />
-                <Route path="/select-flight" element={<FlightSelection />} />
-                <Route path="/booking-details" element={<BookingDetails />} />
-                <Route path="/management" element={<BookingManagement />} />
-                <Route path="/new-sale" element={<NewTicketSale />} />
+                <Route path="/search-flight" element={<FlightSearch/>}/>
+                <Route path="/select-flight" element={<FlightSelection/>}/>
+                <Route path="/booking-details" element={<BookingDetails/>}/>
+                <Route path="/management" element={<BookingManagement/>}/>
+                <Route path="/new-sale" element={<NewTicketSale/>}/>
 
             </Route>
             {/* --- ADMIN ROUTES --- */}

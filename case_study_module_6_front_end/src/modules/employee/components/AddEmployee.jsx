@@ -4,22 +4,28 @@ import {
     checkIdentificationExists,
     checkEmailExists,
     checkPhoneExists,
-    checkImageHashExists
+    checkImageHashExists,
+    checkUsernameExists,
+    updateEmployeeImage,
 } from "../service/employeeService.js";
 import {useNavigate} from "react-router-dom";
-import {useState} from "react";
+import {useState, useCallback} from "react";
 import * as Yup from "yup";
 import {Button} from "react-bootstrap";
 import CryptoJS from "crypto-js";
 import {toast} from "react-toastify";
 
-const Required = () => <span className="text-danger"> *</span>;
+const Required = () => <span className="text-danger">*</span>;
 
 const AddEmployee = () => {
     const navigate = useNavigate();
     const [uploading, setUploading] = useState(false);
     const [preview, setPreview] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
     const [errorsServer, setErrorsServer] = useState({});
+
+    const min18 = new Date();
+    min18.setFullYear(min18.getFullYear() - 18);
 
     const initialValues = {
         fullName: "",
@@ -29,277 +35,278 @@ const AddEmployee = () => {
         dob: "",
         gender: "",
         address: "",
+        username: "",
+        password: "",
         imgURL: "",
         imgHash: "",
+        provider: "LOCAL",
+        targetRole: "EMPLOYEE",
+        createAt: new Date().toISOString(),
     };
 
-    const min18 = new Date();
-    min18.setFullYear(min18.getFullYear() - 18);
+    const validationSchema = (role) =>
+        Yup.object({
+            fullName: Yup.string().required("Không để trống họ và tên"),
+            phoneNumber: Yup.string().required("Không để trống số điện thoại").matches(/^0\d{9}$/, "10 số"),
+            email: Yup.string().required("Không để trống email").email("Sai định dạng email"),
+            username: Yup.string().required("Không trống tài khoản").min(4),
+            password: Yup.string().required("Không trống mật khẩu"),
+            ...(role === "EMPLOYEE" && {
+                identificationId: Yup.string().required("Không để trống CCCD").matches(/^\d{9}(\d{3})?$/, "CCCD 9 hoặc 12 số"),
+                dob: Yup.date().required("Không trống ngày sinh").max(min18, "≥ 18 tuổi"),
+                gender: Yup.string().required("Chọn giới tính"),
+                address: Yup.string().required("Không để trống địa chỉ"),
+            }),
+        });
 
-    const validationSchema = Yup.object({
-        fullName: Yup.string().required("Vui lòng không để trống họ và tên"),
-        phoneNumber: Yup.string()
-            .required("Vui lòng không để trống số điện thoại")
-            .matches(/^0\d{9}$/, "Số điện thoại phải đủ 10 chữ số"),
-        identificationId: Yup.string()
-            .required("Vui lòng không để trống CCCD/CMND")
-            .matches(/^\d{9}(\d{3})?$/, "CCCD/CMND phải gồm 9 hoặc 12 số"),
-        email: Yup.string().required("Vui lòng không để trống email").email("Email không đúng định dạng"),
-        dob: Yup.date().required("Vui lòng chọn ngày sinh").max(min18, "Phải đủ 18 tuổi trở lên"),
-        gender: Yup.string().required("Vui lòng chọn giới tính"),
-        address: Yup.string().required("Vui lòng không để trống địa chỉ"),
-        imgURL: Yup.string().required("Vui lòng tải ảnh nhân viên"),
-        imgHash: Yup.string().required("Không lấy được mã ảnh, vui lòng tải lại ảnh"),
-    });
-
-    const debounce = (func, delay = 600) => {
+    const debounce = (fn, delay = 700) => {
         let timer;
         return (...args) => {
             clearTimeout(timer);
-            timer = setTimeout(() => func(...args), delay);
+            timer = setTimeout(() => fn(...args), delay);
         };
     };
 
-    const validateRealtime = debounce(async (field, value) => {
-        if (!value) return;
+    const validateRealtime = useCallback(
+        debounce(async (field, value) => {
+            if (!value) return;
+            const map = {
+                identificationId: checkIdentificationExists,
+                email: checkEmailExists,
+                phoneNumber: checkPhoneExists,
+                username: checkUsernameExists,
+            };
+            if (!map[field]) return;
 
-        if (field === "identificationId") {
-            const exists = await checkIdentificationExists(value);
+            const exists = await map[field](value);
             setErrorsServer((prev) => ({
                 ...prev,
-                identificationId: exists ? "CCCD đã tồn tại trong hệ thống" : "",
+                [field]: exists ? "Đã tồn tại trong hệ thống" : "",
             }));
-        }
-        if (field === "email") {
-            const exists = await checkEmailExists(value);
-            setErrorsServer((prev) => ({
-                ...prev,
-                email: exists ? "Email đã tồn tại trong hệ thống" : "",
-            }));
-        }
-        if (field === "phoneNumber") {
-            const exists = await checkPhoneExists(value);
-            setErrorsServer((prev) => ({
-                ...prev,
-                phoneNumber: exists ? "SĐT đã tồn tại trong hệ thống" : "",
-            }));
-        }
-    });
+        }),
+        []
+    );
 
     const createImageHash = async (file) => {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                const hash = CryptoJS.SHA256(CryptoJS.lib.WordArray.create(reader.result)).toString();
-                resolve(hash);
-            };
-            reader.readAsArrayBuffer(file);
-        });
+        const buffer = await file.arrayBuffer();
+        return CryptoJS.SHA256(CryptoJS.lib.WordArray.create(buffer)).toString();
     };
 
-    const uploadImageToCloudinary = async (file, setFieldValue) => {
-        if (!file) return;
+    const uploadToCloudinary = async () => {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        formData.append("upload_preset", "employee_preset");
 
-        setErrorsServer(prev => ({ ...prev, imgURL: "" }));
+        const res = await fetch("https://api.cloudinary.com/v1_1/dfduj6hiv/image/upload", {
+            method: "POST",
+            body: formData,
+        });
 
-        setUploading(true);
-        setPreview(URL.createObjectURL(file));
-
-        try {
-            const hash = await createImageHash(file);
-            setFieldValue("imgHash", hash);
-
-            const formData = new FormData();
-            formData.append("file", file);
-            formData.append("upload_preset", "employee_preset");
-
-            const res = await fetch("https://api.cloudinary.com/v1_1/dfduj6hiv/image/upload", {
-                method: "POST",
-                body: formData,
-            });
-
-            const data = await res.json();
-            setFieldValue("imgURL", data.secure_url);
-        } catch {
-            setFieldValue("imgURL", "");
-            setFieldValue("imgHash", "");
-        } finally {
-            setUploading(false);
-        }
+        return res.json();
     };
 
     const handleSubmit = async (values) => {
-        if (Object.values(errorsServer).some((msg) => msg !== "")) return;
+        const role = values.targetRole;
 
-        const imgExists = await checkImageHashExists(values.imgHash);
-        if (imgExists) {
-            setErrorsServer((prev) => ({
-                ...prev,
-                imgURL: "Ảnh này đã được sử dụng cho nhân viên khác",
-            }));
-            return;
+        if (role === "EMPLOYEE") {
+            if (!selectedFile) return toast.error("Vui lòng chọn ảnh nhân viên");
+
+            const hash = await createImageHash(selectedFile);
+            if (await checkImageHashExists(hash))
+                return toast.error("Ảnh đã bị trùng");
+
+            values.imgHash = hash;
+            values.DOB = values.dob;
         }
 
-        const result = await addEmployee(values);
-        if (result) {
+        const saved = await addEmployee(values);
+        if (!saved) return toast.error("Thêm thất bại!");
+
+        if (role === "ADMIN") {
+            toast.success("Thêm quản trị viên thành công!");
+            return navigate("/employees");
+        }
+
+        setUploading(true);
+        try {
+            const cloud = await uploadToCloudinary();
+            await updateEmployeeImage(saved.id, cloud.secure_url, values.imgHash);
+            toast.success("Thêm nhân viên thành công!");
             navigate("/employees");
-            toast.success("Thêm mới nhân viên thành công!");
+        } finally {
+            setUploading(false);
         }
     };
 
     return (
         <div className="bg-light mt-2">
             <div className="container py-2">
-                <div className="mb-3 pb-2 border-bottom">
-                    <h3 className="fw-bold text-primary mb-1 d-flex align-items-center gap-2">
-                        <i className="bi bi-person-plus-fill fs-4"></i> Thêm nhân viên
+                <div className="mb-3 border-bottom pb-2">
+                    <h3 className="fw-bold text-primary">
+                        <i className="bi bi-person-plus-fill"/> Thêm nhân viên
                     </h3>
-                    <small className="text-muted">Thông tin có <Required/> là bắt buộc nhập</small>
                 </div>
 
-                <div className="card shadow-sm border-0 border-start border-4 border-primary">
-                    <div className="card-body px-4 py-3">
-                        <Formik initialValues={initialValues} validationSchema={validationSchema}
-                                onSubmit={handleSubmit}>
-                            {({setFieldValue}) => (
-                                <Form>
-                                    <div className="row g-4">
-                                        {/* Avatar */}
+                <Formik
+                    initialValues={initialValues}
+                    validationSchema={Yup.lazy((v) => validationSchema(v.targetRole))}
+                    onSubmit={handleSubmit}
+                >
+                    {({values, setFieldValue}) => {
+                        const role = values.targetRole;
+
+                        return (
+                            <Form>
+                                <div className="row g-3">
+
+                                    {role === "EMPLOYEE" && (
                                         <div className="col-md-4 d-flex flex-column align-items-center">
-                                            {/* Label upload ảnh + dấu * */}
-                                            <label className="fw-semibold w-100 text-center">
-                                                Ảnh nhân viên <span className="text-danger">*</span>
-                                            </label>
-
+                                            <label className="fw-semibold mb-2">Ảnh <Required/></label>
                                             <div
-                                                className="rounded-circle overflow-hidden shadow-sm d-flex align-items-center justify-content-center mt-1"
-                                                style={{width: 180, height: 180, backgroundColor: "#f1f3f5"}}
-                                            >
-                                                {preview ? (
-                                                    <img
-                                                        src={preview}
-                                                        alt="avatar"
-                                                        className="w-100 h-100"
-                                                        style={{objectFit: "cover"}}
-                                                    />
-                                                ) : (
-                                                    <i className="bi bi-person fs-1 text-muted"></i>
-                                                )}
+                                                className="rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+                                                style={{width: 150, height: 150, backgroundColor: "#eee"}}>
+                                                {preview ?
+                                                    <img src={preview} className="w-100 h-100"
+                                                         style={{objectFit: "cover"}} alt=""/> :
+                                                    <i className="bi bi-person fs-1 text-muted"></i>}
                                             </div>
 
-                                            <div style={{width: 250}} className="mt-3">
-                                                <input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    className={`form-control ${errorsServer.imgURL ? "is-invalid" : ""}`}
-                                                    onChange={(e) =>
-                                                        uploadImageToCloudinary(e.target.files[0], setFieldValue)
-                                                    }
-                                                />
+                                            <input type="file" accept="image/*" className="form-control mt-2"
+                                                   style={{width: 200}}
+                                                   onChange={(e) => {
+                                                       const file = e.target.files[0];
+                                                       setSelectedFile(file);
+                                                       setPreview(file ? URL.createObjectURL(file) : null);
+                                                   }}/>
+                                        </div>
+                                    )}
+
+                                    <div className={role === "EMPLOYEE" ? "col-md-8" : "col-md-12"}>
+                                        <div className="row g-2">
+
+                                            {/* Họ tên */}
+                                            <div className="col-md-6">
+                                                <label>Họ tên <Required/></label>
+                                                <Field name="fullName" className="form-control form-control-sm"/>
+                                                <ErrorMessage name="fullName" component="div"
+                                                              className="text-danger small"/>
                                             </div>
 
-                                            {/* Lỗi validate ảnh */}
-                                            {(errorsServer.imgURL || <ErrorMessage name="imgURL"/>) && (
-                                                <div className="text-danger small mt-2">
-                                                    {errorsServer.imgURL}
-                                                    <ErrorMessage name="imgURL"/>
-                                                </div>
+                                            {/* SĐT */}
+                                            <div className="col-md-6">
+                                                <label>SĐT <Required/></label>
+                                                <Field name="phoneNumber" className="form-control form-control-sm"
+                                                       onBlur={(e) => validateRealtime("phoneNumber", e.target.value)}/>
+                                                <div className="text-danger small">{errorsServer.phoneNumber}</div>
+                                                <ErrorMessage name="phoneNumber" component="div"
+                                                              className="text-danger small"/>
+                                            </div>
+
+                                            {/* Email hiển thị cho cả Admin */}
+                                            <div className="col-md-6">
+                                                <label>Email <Required/></label>
+                                                <Field name="email" className="form-control form-control-sm"
+                                                       onBlur={(e) => validateRealtime("email", e.target.value)}/>
+                                                <div className="text-danger small">{errorsServer.email}</div>
+                                                <ErrorMessage name="email" component="div"
+                                                              className="text-danger small"/>
+                                            </div>
+
+                                            {role === "EMPLOYEE" && (
+                                                <>
+                                                    <div className="col-md-6">
+                                                        <label>CCCD <Required/></label>
+                                                        <Field name="identificationId"
+                                                               className="form-control form-control-sm"
+                                                               onBlur={(e) => validateRealtime("username", e.target.value)}/>
+                                                        <ErrorMessage name="identificationId"
+                                                                      className="text-danger small" component="div"/>
+                                                    </div>
+
+                                                    <div className="col-md-6">
+                                                        <label>Ngày sinh <Required/></label>
+                                                        <Field type="date" name="dob"
+                                                               className="form-control form-control-sm"/>
+                                                        <ErrorMessage name="dob" className="text-danger small"
+                                                                      component="div"/>
+                                                    </div>
+
+                                                    <div className="col-md-6">
+                                                        <label>Giới tính <Required/></label>
+                                                        <label className="ms-2"><Field type="radio" name="gender"
+                                                                                       value="Nam"/> Nam</label>
+                                                        <label className="ms-3"><Field type="radio" name="gender"
+                                                                                       value="Nữ"/> Nữ</label>
+                                                        <ErrorMessage name="gender" className="text-danger small"
+                                                                      component="div"/>
+                                                    </div>
+
+                                                    <div className="col-12">
+                                                        <label>Địa chỉ <Required/></label>
+                                                        <Field name="address" className="form-control form-control-sm"/>
+                                                        <ErrorMessage name="address" className="text-danger small"
+                                                                      component="div"/>
+                                                    </div>
+                                                </>
                                             )}
 
-                                            {uploading && <small className="text-muted mt-1">Đang upload ảnh...</small>}
+                                            <div className="col-md-4">
+                                                <label>Tài khoản <Required/></label>
+                                                <Field name="username" className="form-control form-control-sm"
+                                                       onKeyUp={(e) => validateRealtime("username", e.target.value)}/>
+                                                <div className="text-danger small">{errorsServer.username}</div>
+                                                <ErrorMessage name="username" className="text-danger small"
+                                                              component="div"/>
+                                            </div>
+
+                                            <div className="col-md-4">
+                                                <label>Mật khẩu <Required/></label>
+                                                <Field type="password" name="password"
+                                                       className="form-control form-control-sm"/>
+                                                <ErrorMessage name="password" className="text-danger small"
+                                                              component="div"/>
+                                            </div>
+
+                                            <div className="col-md-4">
+                                                <label>Phân quyền <Required/></label>
+                                                <Field as="select"
+                                                       name="targetRole"
+                                                       className="form-select form-select-sm"
+                                                       onChange={(e) => setFieldValue("targetRole", e.target.value)}>
+                                                    <option value="EMPLOYEE">Nhân viên</option>
+                                                    <option value="ADMIN">Quản trị viên</option>
+                                                </Field>
+                                            </div>
+
                                         </div>
 
-
-                                        <div className="col-md-8">
-                                            <div className="row mb-3">
-                                                <div className="col-md-6">
-                                                    <label>Họ tên <Required/></label>
-                                                    <Field name="fullName" className="form-control"/>
-                                                    <ErrorMessage name="fullName" component="div"
-                                                                  className="text-danger small"/>
-                                                </div>
-
-                                                <div className="col-md-6">
-                                                    <label>Số điện thoại <Required/></label>
-                                                    <Field name="phoneNumber" className="form-control"
-                                                           onKeyUp={(e) => validateRealtime("phoneNumber", e.target.value)}/>
-                                                    <div className="text-danger small">{errorsServer.phoneNumber}</div>
-                                                    <ErrorMessage name={'phoneNumber'} component={'small'}
-                                                                  className={'text-danger'}/>
-                                                </div>
-                                            </div>
-
-                                            <div className="row mb-3">
-                                                <div className="col-md-6">
-                                                    <label>CCCD/CMND <Required/></label>
-                                                    <Field name="identificationId" className="form-control"
-                                                           onKeyUp={(e) => validateRealtime("identificationId", e.target.value)}/>
-                                                    <div
-                                                        className="text-danger small">{errorsServer.identificationId}</div>
-                                                    <ErrorMessage name={"identificationId"} component={'small'}
-                                                                  className={'text-danger'}/>
-                                                </div>
-
-                                                <div className="col-md-6">
-                                                    <label>Email <Required/></label>
-                                                    <Field name="email" className="form-control"
-                                                           onKeyUp={(e) => validateRealtime("email", e.target.value)}/>
-                                                    <div className="text-danger small">{errorsServer.email}</div>
-                                                    <ErrorMessage name={'email'} component={'small'}
-                                                                  className={'text-danger'}/>
-                                                </div>
-                                            </div>
-
-                                            <div className="row mb-3">
-                                                <div className="col-md-6">
-                                                    <label>Ngày sinh <Required/></label>
-                                                    <Field type="date" name="dob" className="form-control"/>
-                                                    <ErrorMessage name="dob" component="div"
-                                                                  className="text-danger small"/>
-                                                </div>
-
-                                                <div className="col-md-6">
-                                                    <label>Giới tính <Required/></label>
-                                                    <div className="d-flex gap-3 mt-2">
-                                                        <label><Field type="radio" name="gender"
-                                                                      value="Nam"/> Nam</label>
-                                                        <label><Field type="radio" name="gender" value="Nữ"/> Nữ</label>
-                                                    </div>
-                                                    <ErrorMessage name="gender" component="div"
-                                                                  className="text-danger small mt-1"/>
-                                                    {/* CHUYỂN LỖI XUỐNG ĐÂY */}
-                                                </div>
-                                            </div>
-
-                                            <label>Địa chỉ <Required/></label>
-                                            <Field name="address" className="form-control"/>
-                                            <ErrorMessage name="address"
-                                                          component="div" className="text-danger small"/>
-                                        </div>
                                     </div>
 
-                                    <div className="d-flex justify-content-end gap-3 border-top pt-3 mt-4">
-                                        <Button
-                                            type="button"
-                                            className="btn btn-secondary px-4"
-                                            onClick={() => navigate("/employees")}
-                                        >
-                                            Quay lại
-                                        </Button>
+                                </div>
 
-                                        <Button
-                                            type="submit"
-                                            className="btn btn-primary px-5"
-                                            disabled={uploading}
-                                        >
-                                            Lưu
-                                        </Button>
-                                    </div>
-                                </Form>
-                            )}
-                        </Formik>
-                    </div>
-                </div>
+                                <div className="d-flex justify-content-end gap-2 mt-3 pt-3 border-top">
+                                    <button
+                                        type="button"
+                                        className="btn btn-secondary btn-sm px-2"
+                                        style={{width: "75px", flex: "0 0 auto"}}
+                                        onClick={() => navigate("/employees")}
+                                    >
+                                        Quay lại
+                                    </button>
+
+                                    <button
+                                        type="submit"
+                                        className="btn btn-primary btn-sm px-2"
+                                        style={{width: "75px", flex: "0 0 auto"}}
+                                        disabled={uploading}
+                                    >
+                                        {uploading ? "..." : "Lưu"}
+                                    </button>
+                                </div>
+                            </Form>
+                        );
+                    }}
+                </Formik>
             </div>
         </div>
     );

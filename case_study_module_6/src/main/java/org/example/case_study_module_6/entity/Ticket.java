@@ -7,6 +7,7 @@ import org.example.case_study_module_6.enums.SeatClass;
 import org.example.case_study_module_6.enums.TicketStatus;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "tickets")
@@ -33,6 +34,9 @@ public class Ticket {
     private SeatClass seatClass;
 
     private BigDecimal price;
+
+    @Column(name = "passenger_dob")
+    private LocalDate passengerDob;
 
     // --- 2 TRƯỜNG MỚI THÊM ---
     @Column(name = "seat_number")

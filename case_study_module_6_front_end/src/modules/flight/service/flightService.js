@@ -1,6 +1,6 @@
-import axios from "axios";
+import axios from "../../login/service/axiosConfig";
 import qs from "qs";
-const URL_BE = "http://localhost:8080/api/flights";
+const URL_BE = "/api/flights";
 
 export const getAllFlights = async (params) => {
     try {

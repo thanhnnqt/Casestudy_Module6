@@ -4,7 +4,9 @@ import org.example.case_study_module_6.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,6 +31,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf.disable())
                 // 1. Tắt CSRF (để cho phép POST/PUT/DELETE từ React)
                 .csrf(AbstractHttpConfigurer::disable)
 
@@ -37,6 +40,27 @@ public class SecurityConfig {
 
                 // 3. Phân quyền truy cập
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/**").permitAll()
+
+
+                        .requestMatchers("/api/master/**")
+                        .hasAnyRole("EMPLOYEE", "ADMIN")
+
+                        .requestMatchers("/api/**")
+                        .hasAnyRole("CUSTOMER")
+
+                        .requestMatchers("/api/flights/**")
+                        .hasAnyRole("EMPLOYEE", "ADMIN")
+
+
+                        .requestMatchers("/v1/api/employees/**")
+                        .hasAnyRole("ADMIN")
+
+                        .requestMatchers("/api/customers/**")
+                        .hasAnyRole("EMPLOYEE", "ADMIN")
+
+                        .anyRequest().authenticated()
                         // --- NHÓM CÔNG KHAI (Không cần đăng nhập) ---
 
                         // Swagger UI
@@ -63,7 +87,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Bean cấu hình CORS chi tiết
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -79,9 +102,14 @@ public class SecurityConfig {
 
         // Cho phép gửi credentials (Cookie/Auth Header)
         configuration.setAllowCredentials(true);
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
 
