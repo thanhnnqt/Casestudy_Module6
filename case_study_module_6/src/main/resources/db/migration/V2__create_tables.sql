@@ -188,7 +188,7 @@ CREATE TABLE employees
     img_url           VARCHAR(500),
     img_hash          VARCHAR(500),
     account_id        BIGINT,
-    FOREIGN KEY (account_id) REFERENCES accounts(id)
+    FOREIGN KEY (account_id) REFERENCES accounts (id)
 );
 
 -- Nếu Account ID tồn tại trong bảng này => ROLE_CUSTOMER
@@ -218,7 +218,7 @@ CREATE TABLE customers
 CREATE TABLE admins
 (
     id           BIGINT AUTO_INCREMENT PRIMARY KEY,
-    admin_code   VARCHAR(50)  NOT NULL UNIQUE,
+    admin_code   VARCHAR(50) UNIQUE,
     full_name    VARCHAR(100) NOT NULL,
     email        VARCHAR(100) UNIQUE,
     phone_number VARCHAR(20) UNIQUE,
@@ -237,18 +237,22 @@ CREATE TABLE admins
 CREATE TABLE news
 (
     news_id      INT AUTO_INCREMENT PRIMARY KEY,
-    title        VARCHAR(255) NOT NULL,
-    slug         VARCHAR(255) UNIQUE,
+    title        VARCHAR(255),
+    slug         VARCHAR(255),
     summary      VARCHAR(500),
-    content      LONGTEXT     NOT NULL,
+    email        VARCHAR(255), -- Đã thêm trường này
+    content      LONGTEXT,     -- @Lob map sang LONGTEXT
     thumbnail    VARCHAR(255),
-    category     ENUM('NEWS','PROMOTION','ANNOUNCEMENT') DEFAULT 'NEWS',
-    is_active    BOOLEAN   DEFAULT TRUE,
-    published_at DATETIME  DEFAULT CURRENT_TIMESTAMP,
-    updated_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    account_id   BIGINT       NOT NULL,
-    FOREIGN KEY (account_id) REFERENCES accounts (id)
+    -- EnumType.STRING trong Java nên lưu là VARCHAR trong DB để linh hoạt
+    category     VARCHAR(50) DEFAULT 'NEWS',
+
+    is_active    BIT(1) DEFAULT 1, -- Boolean map sang BIT
+    published_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at   DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    account_id   BIGINT NOT NULL,
+    CONSTRAINT fk_news_account FOREIGN KEY (account_id) REFERENCES accounts (id)
 );
 CREATE TABLE payments
 (
