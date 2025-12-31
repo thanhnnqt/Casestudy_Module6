@@ -229,6 +229,10 @@ const FlightList = () => {
                     <Link to="/employees" className="nav-link">
                         <i className="bi bi-people-fill"></i> <span>Quản lý nhân viên</span>
                     </Link>
+                    {/* Mục 4: Báo cáo (THÊM MỚI) */}
+                    <Link to="/report" className="nav-link">
+                        <i className="bi bi-bar-chart-line-fill"></i> <span>Báo cáo</span>
+                    </Link>
                 </div>
 
                 <div className="mt-auto">
@@ -249,11 +253,6 @@ const FlightList = () => {
                     <div className="d-flex gap-3">
                         <Link to="/flights/create" className="btn btn-gradient shadow-lg">
                             <i className="bi bi-plus-lg me-2"></i>Thêm chuyến
-                        </Link>
-
-                        {/* NÚT REPORT ĐƯỢC THÊM MỚI */}
-                        <Link to="/report" className="btn btn-outline-dark shadow-sm">
-                            <i className="bi bi-bar-chart-line-fill me-2"></i>Báo cáo
                         </Link>
                     </div>
                 </div>

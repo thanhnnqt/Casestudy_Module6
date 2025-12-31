@@ -52,6 +52,7 @@ const DeleteEmployeeModal = ({
             onHide={handleToggleModal}
             centered
             backdrop="static"
+            container={document.body}
         >
             <Modal.Header closeButton className="border-0 pb-0">
                 <Modal.Title className="fw-semibold text-danger d-flex align-items-center gap-2">
