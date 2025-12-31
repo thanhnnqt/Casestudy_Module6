@@ -24,6 +24,7 @@ import ForgotPassword from "../pages/ForgotPassword.jsx";
 import ResetPassword from "../pages/ResetPassword.jsx";
 import ChangePassword from "../pages/ChangePassword.jsx";
 import EditProfile from "../modules/customer/service/EditProfile.jsx";
+import Report from "../modules/employee/components/Report.jsx";
 
 
 function AppRouter() {
@@ -34,15 +35,15 @@ function AppRouter() {
                NHÓM 1: CHỈ CÓ HEADER/FOOTER - KHÔNG CÓ SIDEBAR
                (Truyền showSidebar={false})
                ============================================== */}
-            <Route element={<MainLayout showSidebar={false} />}>
+            <Route element={<MainLayout showSidebar={false}/>}>
                 <Route path="/" element={<Home/>}/>
                 <Route path="/login" element={<Login/>}/>
                 <Route path="/register" element={<Register/>}/>
-                <Route path="/verify-email" element={<VerifyEmail />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/change-password" element={<PrivateRoute><ChangePassword /></PrivateRoute>}/>
-                <Route path="/profile/edit" element={<PrivateRoute><EditProfile /></PrivateRoute>}/>
+                <Route path="/verify-email" element={<VerifyEmail/>}/>
+                <Route path="/forgot-password" element={<ForgotPassword/>}/>
+                <Route path="/reset-password" element={<ResetPassword/>}/>
+                <Route path="/change-password" element={<PrivateRoute><ChangePassword/></PrivateRoute>}/>
+                <Route path="/profile/edit" element={<PrivateRoute><EditProfile/></PrivateRoute>}/>
 
                 {/* Route chuyến bay */}
                 <Route path="/flights" element={<FlightList/>}/>
@@ -53,6 +54,7 @@ function AppRouter() {
                 <Route path="/employees" element={<EmployeeList/>}/>
                 <Route path="/employees/edit/:id" element={<EmployeeDetail/>}/>
                 <Route path="/employees/add" element={<AddEmployee/>}/>
+                <Route path="/report" element={<Report/>}/>
 
                 <Route path="/profile" element={
                     <PrivateRoute>
@@ -66,19 +68,19 @@ function AppRouter() {
                NHÓM 2: CÓ ĐỦ HEADER/FOOTER VÀ SIDEBAR
                (Truyền showSidebar={true})
                ============================================== */}
-            <Route element={<MainLayout showSidebar={true} />}>
-                <Route path="/detailemployee" element={<EmployeeInfo />} />
+            <Route element={<MainLayout showSidebar={true}/>}>
+                <Route path="/detailemployee" element={<EmployeeInfo/>}/>
                 {/* --- Route Quản lý khách hàng --- */}
-                <Route path="/customers" element={<CustomerList />} />
-                <Route path="/customers/create" element={<CustomerForm />} />
-                <Route path="/customers/edit/:id" element={<CustomerForm />} />
+                <Route path="/customers" element={<CustomerList/>}/>
+                <Route path="/customers/create" element={<CustomerForm/>}/>
+                <Route path="/customers/edit/:id" element={<CustomerForm/>}/>
 
                 {/* --- Route Booking/Quản lý vé --- */}
-                <Route path="/search-flight" element={<FlightSearch />} />
-                <Route path="/select-flight" element={<FlightSelection />} />
-                <Route path="/booking-details" element={<BookingDetails />} />
-                <Route path="/management" element={<BookingManagement />} />
-                <Route path="/new-sale" element={<NewTicketSale />} />
+                <Route path="/search-flight" element={<FlightSearch/>}/>
+                <Route path="/select-flight" element={<FlightSelection/>}/>
+                <Route path="/booking-details" element={<BookingDetails/>}/>
+                <Route path="/management" element={<BookingManagement/>}/>
+                <Route path="/new-sale" element={<NewTicketSale/>}/>
 
             </Route>
 

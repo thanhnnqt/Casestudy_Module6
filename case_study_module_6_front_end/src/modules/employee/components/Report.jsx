@@ -1,130 +1,124 @@
-import React, {useState} from "react";
-import {Link} from "react-router-dom";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import "./Report.css";
 
 const Report = () => {
     const timeOptions = [
         "Tuần này", "Tuần trước",
         "Tháng này", "Tháng trước",
         "Quý này", "Quý trước",
-        "Năm nay", "Năm trước"
+        "Năm này", "Năm trước"
     ];
 
     const [mainMode, setMainMode] = useState("period");
     const [compareMode, setCompareMode] = useState("period");
 
     return (
-        <div className="container py-3">
-            <div className="mx-auto bg-white shadow-sm rounded p-4"
-                 style={{maxWidth: "1000px"}}>
+        <div className="report-container">
+            <div className="report-panel">
 
                 <h5 className="fw-bold text-center text-primary mb-3">
-                    Thống Kê Báo Cáo
+                    Thiết lập báo cáo thống kê
                 </h5>
 
-                {/* Kiểu + Loại */}
-                <div className="row g-3 mb-3">
-                    <div className="col-md-6">
-                        <label className="form-label small fw-semibold">Chọn kiểu</label>
-                        <select className="form-select form-select-sm">
-                            <option>Biểu đồ tròn</option>
-                            <option>Biểu đồ cột</option>
-                            <option>Biểu đồ đường</option>
-                        </select>
-                    </div>
+                <div className="report-scroll-area">
 
-                    <div className="col-md-6">
-                        <label className="form-label small fw-semibold">Chọn loại</label>
-                        <select className="form-select form-select-sm">
-                            <option>Doanh thu</option>
-                            <option>Nhân viên</option>
-                            <option>Chuyến bay</option>
-                        </select>
-                    </div>
-                </div>
-
-                {/* Thời gian chính */}
-                <div className="bg-light p-3 rounded mb-3">
-                    <div className="fw-semibold small mb-2">Thời gian</div>
-
-                    <div className="form-check small">
-                        <input className="form-check-input"
-                               type="radio"
-                               checked={mainMode === "period"}
-                               onChange={() => setMainMode("period")}/>
-                        <label className="form-check-label ms-1">Theo mốc thời gian</label>
-                    </div>
-
-                    {mainMode === "period" && (
-                        <select className="form-select form-select-sm mt-2"
-                                style={{width: "65%"}}>
-                            {timeOptions.map((t, i) => (
-                                <option key={i}>{t}</option>
-                            ))}
-                        </select>
-                    )}
-
-                    <div className="form-check small mt-2">
-                        <input className="form-check-input"
-                               type="radio"
-                               checked={mainMode === "range"}
-                               onChange={() => setMainMode("range")}/>
-                        <label className="form-check-label ms-1">Từ - Đến</label>
-                    </div>
-
-                    {mainMode === "range" && (
-                        <div className="d-flex gap-2 mt-2"
-                             style={{width: "75%"}}>
-                            <input type="date" className="form-control form-control-sm"/>
-                            <input type="date" className="form-control form-control-sm"/>
+                    {/* 1. Loại báo cáo */}
+                    <fieldset className="border rounded p-3 mb-3">
+                        <legend className="small text-muted px-2">Loại báo cáo</legend>
+                        <div className="row g-2">
+                            <div className="col-md-6">
+                                <select className="form-select form-select-sm">
+                                    <option>Biểu đồ tròn</option>
+                                    <option>Biểu đồ cột</option>
+                                    <option>Biểu đồ đường</option>
+                                </select>
+                            </div>
+                            <div className="col-md-6">
+                                <select className="form-select form-select-sm">
+                                    <option>Doanh thu</option>
+                                    <option>Hiệu suất nhân viên</option>
+                                    <option>Theo hãng</option>
+                                </select>
+                            </div>
                         </div>
-                    )}
-                </div>
+                    </fieldset>
 
-                {/* So sánh */}
-                <div className="bg-light p-3 rounded mb-3">
-                    <div className="fw-semibold small mb-2">So sánh với</div>
+                    {/* 2. Thời gian chính */}
+                    <fieldset className="border rounded p-3 mb-3">
+                        <legend className="small text-muted px-2">Thời gian chính</legend>
 
-                    <div className="form-check small">
-                        <input className="form-check-input"
-                               type="radio"
-                               checked={compareMode === "period"}
-                               onChange={() => setCompareMode("period")}/>
-                        <label className="form-check-label ms-1">Theo mốc thời gian</label>
-                    </div>
-
-                    {compareMode === "period" && (
-                        <select className="form-select form-select-sm mt-2"
-                                style={{width: "65%"}}>
-                            {timeOptions.filter(i => i.includes("trước")).map((t, i) => (
-                                <option key={i}>{t}</option>
-                            ))}
-                        </select>
-                    )}
-
-                    <div className="form-check small mt-2">
-                        <input className="form-check-input"
-                               type="radio"
-                               checked={compareMode === "range"}
-                               onChange={() => setCompareMode("range")}/>
-                        <label className="form-check-label ms-1">Từ - Đến</label>
-                    </div>
-
-                    {compareMode === "range" && (
-                        <div className="d-flex gap-2 mt-2"
-                             style={{width: "75%"}}>
-                            <input type="date" className="form-control form-control-sm"/>
-                            <input type="date" className="form-control form-control-sm"/>
+                        <div className="form-check small mb-1">
+                            <input type="radio" className="form-check-input"
+                                   checked={mainMode === "period"}
+                                   onChange={() => setMainMode("period")} />
+                            <label className="ms-1">Theo mốc</label>
                         </div>
-                    )}
-                </div>
 
-                {/* Submit */}
-                <div className="text-center">
-                    <Link to={"/revenue-chart"} className="btn btn-primary px-4 fw-bold btn-sm">
-                        Xem
-                    </Link>
-                </div>
+                        {mainMode === "period" && (
+                            <select className="form-select form-select-sm w-auto">
+                                {timeOptions.filter(t => t.includes("này")).map((t, i) => (
+                                    <option key={i}>{t}</option>
+                                ))}
+                            </select>
+                        )}
 
+                        <div className="form-check small mt-2 mb-1">
+                            <input type="radio" className="form-check-input"
+                                   checked={mainMode === "range"}
+                                   onChange={() => setMainMode("range")} />
+                            <label className="ms-1">Từ - đến</label>
+                        </div>
+
+                        {mainMode === "range" && (
+                            <div className="d-flex gap-2 w-75">
+                                <input type="date" className="form-control form-control-sm" />
+                                <input type="date" className="form-control form-control-sm" />
+                            </div>
+                        )}
+                    </fieldset>
+
+                    {/* 3. So sánh */}
+                    <fieldset className="border rounded p-3 mb-3">
+                        <legend className="small text-muted px-2">So sánh</legend>
+
+                        <div className="form-check small mb-1">
+                            <input type="radio" className="form-check-input"
+                                   checked={compareMode === "period"}
+                                   onChange={() => setCompareMode("period")} />
+                            <label className="ms-1">Theo mốc</label>
+                        </div>
+
+                        {compareMode === "period" && (
+                            <select className="form-select form-select-sm w-auto">
+                                {timeOptions.filter(t => t.includes("trước")).map((t, i) => (
+                                    <option key={i}>{t}</option>
+                                ))}
+                            </select>
+                        )}
+
+                        <div className="form-check small mt-2 mb-1">
+                            <input type="radio" className="form-check-input"
+                                   checked={compareMode === "range"}
+                                   onChange={() => setCompareMode("range")} />
+                            <label className="ms-1">Từ - đến</label>
+                        </div>
+
+                        {compareMode === "range" && (
+                            <div className="d-flex gap-2 w-75">
+                                <input type="date" className="form-control form-control-sm" />
+                                <input type="date" className="form-control form-control-sm" />
+                            </div>
+                        )}
+                    </fieldset>
+
+                    <div className="text-center">
+                        <Link to="/revenue-chart" className="btn btn-primary btn-sm px-4">
+                            Xem báo cáo
+                        </Link>
+                    </div>
+
+                </div>
             </div>
         </div>
     );
