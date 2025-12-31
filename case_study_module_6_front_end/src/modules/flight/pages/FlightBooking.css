@@ -1,0 +1,165 @@
+/* =========================================
+   1. CORE & BASE STYLES (Giống FlightList.css)
+   ========================================= */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css');
+
+:root {
+    --primary-color: #1ba0e2;
+    --glass-bg: rgba(255, 255, 255, 0.9);
+    --glass-border: rgba(255, 255, 255, 0.6);
+    --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    --sidebar-width: 280px;
+    --sidebar-width-collapsed: 80px;
+    --text-dark: #333333;
+}
+
+/* Container */
+.flight-list-container {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%);
+    min-height: 100vh;
+    position: relative;
+    padding-bottom: 50px;
+    overflow-x: hidden;
+}
+
+/* --- ANIMATION MÂY (FIX) --- */
+.sky-container { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+
+.cloud { position: absolute; color: rgba(255, 255, 255, 0.4); filter: blur(3px); animation: moveCloud linear infinite; }
+.c1 { top: 10%; left: -10%; font-size: 100px; animation-duration: 45s; }
+.c2 { top: 30%; left: -20%; font-size: 80px; animation-duration: 60s; animation-delay: -10s; }
+.c3 { top: 60%; left: -15%; font-size: 140px; animation-duration: 40s; animation-delay: -5s; }
+
+@keyframes moveCloud {
+    from { transform: translateX(-200px); }
+    to { transform: translateX(110vw); }
+}
+
+/* --- ANIMATION MÁY BAY (SỬA LẠI: BAY DỌC LÊN GIỐNG ADMIN) --- */
+.plane-fly {
+    position: absolute;
+    bottom: -100px; /* Bắt đầu từ dưới màn hình */
+    left: 10%;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 40px;
+    animation: flyUp 15s linear infinite; /* Bay dọc lên */
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.8));
+}
+
+/* Keyframes bay dọc lên */
+@keyframes flyUp {
+    0% { transform: translateY(0) scale(0.5); opacity: 0; left: 10%; }
+    10% { opacity: 0.8; }
+    90% { opacity: 0.8; }
+    100% { transform: translateY(-120vh) scale(1.2); opacity: 0; left: 40%; } /* Bay chéo lên */
+}
+
+/* Card Chuyến Bay */
+.flight-card-custom {
+    background: #fff;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid transparent;
+}
+
+.flight-card-custom:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+.flight-card-custom.selected {
+    border: 2px solid #28a745;
+    background-color: #f0fff4;
+}
+
+.airline-logo-md {
+    width: 80px;
+    height: 50px;
+    object-fit: contain;
+    margin-bottom: 5px;
+}
+
+/* Đường bay */
+.flight-line {
+    height: 2px;
+    background: #dee2e6;
+    width: 100%;
+    position: relative;
+    margin: 10px 0;
+}
+
+.plane-icon-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(90deg);
+    background: #fff;
+    padding: 0 5px;
+    color: #6c757d;
+    font-size: 1.2rem;
+}
+
+/* Thanh ngày */
+.date-bar-container {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.date-cell {
+    padding: 8px 10px;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    min-width: 110px;
+    transition: all 0.2s;
+}
+
+.date-cell:hover { background: #f8f9fa; border-color: #1ba0e2; }
+.date-cell.active { background: #1ba0e2; color: #fff; border-color: #1ba0e2; }
+.date-cell.active .text-muted { color: #e0e0e0 !important; }
+
+/* Scrollbar */
+.flight-list-scroll { max-height: 70vh; overflow-y: auto; padding-right: 5px; }
+.flight-list-scroll::-webkit-scrollbar { width: 6px; }
+.flight-list-scroll::-webkit-scrollbar-track { background: transparent; }
+.flight-list-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.4); border-radius: 10px; }
+
+.empty-state { text-align: center; padding: 40px; background: rgba(255,255,255,0.8); border-radius: 10px; color: #555; }
+.active-sort { background: #1ba0e2 !important; color: white !important; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar { width: var(--sidebar-width-collapsed); padding: 20px 10px; }
+    .main { margin-left: calc(var(--sidebar-width-collapsed) + 20px); padding: 20px 10px; }
+    .flight-item-card { flex-direction: column; text-align: center; gap: 10px; }
+    .flight-item-card .d-flex { flex-direction: column; }
+    .airline-logo-sm { margin-bottom: 5px; }
+}
+
+.modal-backdrop-custom {
+    position: fixed; /* Bắt buộc là fixed để nổi lên trên cùng */
+    top: 0;
+    left: 0;
+    width: 100vw; /* Phủ kín chiều rộng */
+    height: 100vh; /* Phủ kín chiều cao */
+    background-color: rgba(0, 0, 0, 0.6); /* Màu nền tối */
+    z-index: 9999; /* Z-index cao nhất để đè lên mọi thứ */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

@@ -3,6 +3,7 @@ package org.example.case_study_module_6.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.case_study_module_6.dto.BookingRequestDTO;
 import org.example.case_study_module_6.dto.CounterBookingRequest;
+import org.example.case_study_module_6.dto.OnlineBookingRequest;
 import org.example.case_study_module_6.entity.Booking;
 import org.example.case_study_module_6.service.impl.BookingService;
 import org.springframework.http.ResponseEntity;
@@ -77,4 +78,19 @@ public class BookingController {
             return ResponseEntity.badRequest().body("Lỗi cập nhật: " + e.getMessage());
         }
     }
+
+    // 5. ĐẶT VÉ ONLINE (FULL INFO - Dành cho khách hàng)
+    // URL: POST /api/bookings/online
+    @PostMapping("/online")
+    public ResponseEntity<?> createOnlineBooking(@RequestBody OnlineBookingRequest request) {
+        try {
+            Booking booking = bookingService.createOnlineBooking(request);
+            return ResponseEntity.ok(booking);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+
 }
