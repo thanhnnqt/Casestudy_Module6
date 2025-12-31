@@ -5,8 +5,13 @@ import BookingDetailModal from "./BookingDetailModal";
 import PassengerInputPage from "./PassengerInputPage";
 import { toast } from "react-toastify";
 import "./FlightBooking.css";
+import { useNavigate } from "react-router-dom"; // Dùng để chuyển trang
+import { useAuth } from "../../../context/AuthContext"; // Dùng để lấy thông tin user (Lưu ý đường dẫn import tùy thuộc thư mục của bạn)
 
 const BookingPage = () => {
+    // --- THÊM MỚI: Khai báo Hook ---
+    const navigate = useNavigate();
+    const { user } = useAuth();
     const [step, setStep] = useState(1);
 
     const [searchParams, setSearchParams] = useState({
@@ -148,6 +153,16 @@ const BookingPage = () => {
     };
 
     const handleConfirmModal = (configData) => {
+        // KIỂM TRA ĐĂNG NHẬP TẠI ĐÂY
+        if (!user) {
+            toast.warning("Vui lòng đăng nhập để tiếp tục đặt vé!");
+            // Đóng modal chi tiết (nếu cần) và chuyển về login
+            setStep(1);
+            navigate("/login");
+            return;
+        }
+
+        // Nếu đã đăng nhập thì cho qua bước 3 (Nhập thông tin khách)
         setBookingConfig(configData);
         setStep(3);
     };
@@ -216,7 +231,13 @@ const BookingPage = () => {
                     return (
                         <div key={offset} className={`date-cell ${isSelected ? 'active' : ''}`} onClick={() => onSelect(dStr)}>
                             <div className="small fw-bold">Thứ {d.getDay() + 1}, {d.getDate()}/{d.getMonth() + 1}</div>
-                            {price ? <div className="text-success fw-bold small mt-1">{price.toLocaleString()}đ</div> : <div className="text-muted small mt-1">--</div>}
+                            {price ? (
+                                <div className="text-success fw-bold small mt-1">
+                                    Chỉ từ {price.toLocaleString()}đ
+                                </div>
+                            ) : (
+                                <div className="text-muted small mt-1">--</div>
+                            )}
                         </div>
                     )
                 })}

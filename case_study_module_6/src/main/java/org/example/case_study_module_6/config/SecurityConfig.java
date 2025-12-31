@@ -3,6 +3,7 @@ package org.example.case_study_module_6.config;
 import org.example.case_study_module_6.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,14 +33,19 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/api/**").permitAll()
+                        .requestMatchers("/api/bookings/online")
+                        .hasAnyRole("CUSTOMER")
 
+                        // 1. CHO PHÉP XEM CHUYẾN BAY (Ai cũng xem được)
+                        .requestMatchers(HttpMethod.GET, "/api/flights/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/master/**").permitAll() // Sân bay, hạng ghế...
 
                         .requestMatchers("/api/master/**")
                         .hasAnyRole("EMPLOYEE", "ADMIN")
 
-                        .requestMatchers("/api/**")
-                        .hasAnyRole("CUSTOMER")
+
+
+
 
                         .requestMatchers("/api/flights/**")
                         .hasAnyRole("EMPLOYEE", "ADMIN")

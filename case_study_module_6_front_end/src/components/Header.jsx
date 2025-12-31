@@ -77,7 +77,7 @@ function Header() {
                         </li>
 
                         <li className="nav-item">
-                            <NavLink className="nav-link fw-semibold" to="/flights">
+                            <NavLink className="nav-link fw-semibold" to="/customer/booking">
                                 Chuyến bay
                             </NavLink>
                         </li>

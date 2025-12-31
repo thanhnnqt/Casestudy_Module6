@@ -456,8 +456,8 @@ public class BookingService {
             index++;
 
             // --- VALIDATE DỮ LIỆU HÀNH KHÁCH (Backend Validation) ---
-            if (pDto.getFullName() == null || pDto.getFullName().length() < 10 || pDto.getFullName().length() > 50) {
-                throw new RuntimeException("Tên hành khách thứ " + index + " phải từ 10-50 ký tự.");
+            if (pDto.getFullName() == null || pDto.getFullName().length() < 2 || pDto.getFullName().length() > 50) {
+                throw new RuntimeException("Tên hành khách thứ " + index + " phải từ 2-50 ký tự.");
             }
             if (pDto.getGender() == null || pDto.getGender().isEmpty()) {
                 throw new RuntimeException("Giới tính hành khách thứ " + index + " là bắt buộc.");
