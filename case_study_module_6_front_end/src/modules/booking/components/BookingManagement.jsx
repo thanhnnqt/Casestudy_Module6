@@ -24,19 +24,17 @@ const BookingManagement = () => {
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // --- STATE BỘ LỌC ---
+    // --- STATE BỘ LỌC & PHÂN TRANG ---
     const [filterType, setFilterType] = useState('ALL');
+    const [currentPage, setCurrentPage] = useState(1); // [MỚI] Trang hiện tại
+    const itemsPerPage = 10; // [MỚI] Số bản ghi mỗi trang
 
     // --- State Modal ---
     const [showInvoice, setShowInvoice] = useState(false);
     const [selectedBooking, setSelectedBooking] = useState(null);
 
     const [confirmModal, setConfirmModal] = useState({
-        show: false,
-        booking: null,
-        actionType: null,
-        title: '',
-        message: ''
+        show: false, booking: null, actionType: null, title: '', message: ''
     });
 
     const toastProcessed = useRef(false);
@@ -49,8 +47,8 @@ const BookingManagement = () => {
                 setBookings(data.sort((a, b) => b.id - a.id));
             })
             .catch(err => {
-                console.error("Lỗi tải danh sách:", err);
-                toast.error("Không thể tải danh sách vé!");
+                console.error("Lỗi:", err);
+                toast.error("Không thể tải danh sách!");
             })
             .finally(() => setLoading(false));
     };
@@ -73,6 +71,12 @@ const BookingManagement = () => {
         }
     }, [location]);
 
+    // Reset trang về 1 khi đổi bộ lọc
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [filterType]);
+
+    // --- LOGIC LỌC DỮ LIỆU ---
     const filteredBookings = bookings.filter(b => {
         if (filterType === 'ALL') return true;
         if (filterType === 'ROUND_TRIP') return b.tripType === 'ROUND_TRIP' || b.returnFlight;
@@ -80,11 +84,17 @@ const BookingManagement = () => {
         return true;
     });
 
+    // --- [MỚI] LOGIC PHÂN TRANG ---
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredBookings.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
+
     // --- CÁC HÀM XỬ LÝ ---
     const handleRequestAction = (booking, type) => {
         let title = "", message = "";
         if (type === 'PAID') { title = "💰 Xác Nhận Thanh Toán"; message = "Xác nhận khách đã thanh toán?"; }
-        else if (type === 'CANCELLED') { title = "⚠️ Xác Nhận Hủy Vé"; message = "Hủy vé sẽ hoàn trả ghế vào hệ thống."; }
+        else if (type === 'CANCELLED') { title = "⚠️ Xác Nhận Hủy Vé"; message = "Hành động này không thể hoàn tác."; }
         else if (type === 'DELETE') { title = "🗑 Xác Nhận Xóa Vé"; message = "CẢNH BÁO: Vé sẽ bị xóa vĩnh viễn."; }
         setConfirmModal({ show: true, booking, actionType: type, title, message });
     };
@@ -100,7 +110,7 @@ const BookingManagement = () => {
         apiCall.then(() => {
             setConfirmModal({...confirmModal, show: false});
             fetchBookings();
-            toast.success(actionType === 'DELETE' ? "Đã xóa vé!" : "Cập nhật thành công!");
+            toast.success("Thao tác thành công!");
         }).catch(err => {
             toast.error("Lỗi: " + (err.response?.data || "Thất bại"));
             setConfirmModal({...confirmModal, show: false});
@@ -116,30 +126,24 @@ const BookingManagement = () => {
         setShowInvoice(true);
     };
 
-    // --- IN VÉ PDF (ĐÃ NÂNG CẤP) ---
     const generatePDF = () => {
         const input = document.getElementById('invoice-content');
-
-        // Tăng scale lên 3 để ảnh nét hơn, không bị vỡ font
         html2canvas(input, {scale: 3, useCORS: true}).then((canvas) => {
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save(`Ve_May_Bay_${selectedBooking.bookingCode}.pdf`);
+            pdf.save(`Ve_${selectedBooking.bookingCode}.pdf`);
         });
     };
 
     const closeInvoice = () => { setShowInvoice(false); setSelectedBooking(null); };
     const formatCurrency = (val) => val ? val.toLocaleString('vi-VN') + ' đ' : '0 đ';
-
     const formatDate = (dateString) => {
         if (!dateString) return '---';
         return new Date(dateString).toLocaleString('vi-VN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
     };
-
     const getStatusBadge = (status) => {
         switch ((status || '').toUpperCase()) {
             case 'PENDING': case 'UNPAID': return <span className="badge bg-warning text-dark">⏳ Chờ TT</span>;
@@ -148,13 +152,11 @@ const BookingManagement = () => {
             default: return <span className="badge bg-secondary">{status}</span>;
         }
     };
-
     const getTicketsByFlight = (booking, flightId) => {
         if (!booking || !booking.tickets) return [];
         return booking.tickets.filter(t => t.flight?.id === flightId);
     };
 
-    // --- COMPONENT CON: GIAO DIỆN VÉ MÁY BAY ---
     const TicketSection = ({ flight, tickets, title, colorClass, icon }) => (
         <div className="mb-4" style={{border: '1px dashed #ccc', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#fff'}}>
             <div className={`p-2 text-white d-flex align-items-center gap-2 ${colorClass}`} style={{background: colorClass === 'blue' ? '#0056b3' : '#d9534f'}}>
@@ -163,7 +165,6 @@ const BookingManagement = () => {
             </div>
 
             <div className="p-3">
-                {/* Thông tin chuyến bay */}
                 <div style={{display: 'grid', gridTemplateColumns: '1fr 1.5fr 1.5fr', gap: '15px', paddingBottom: '15px', borderBottom: '1px solid #eee', marginBottom: '15px'}}>
                     <div>
                         <div className="text-muted small text-uppercase">Chuyến bay</div>
@@ -172,7 +173,6 @@ const BookingManagement = () => {
                     <div>
                         <div className="text-muted small text-uppercase">Khởi hành</div>
                         <div className="fw-bold">{flight?.departureAirport?.city} ({flight?.departureAirport?.code})</div>
-                        {/* [ĐÃ SỬA] Hiển thị cả Ngày & Giờ */}
                         <div className="text-dark fw-bold" style={{fontSize: '1.1em'}}>
                             {new Date(flight?.departureTime).toLocaleString('vi-VN', {
                                 hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric'
@@ -182,7 +182,6 @@ const BookingManagement = () => {
                     <div>
                         <div className="text-muted small text-uppercase">Đến</div>
                         <div className="fw-bold">{flight?.arrivalAirport?.city} ({flight?.arrivalAirport?.code})</div>
-                        {/* [ĐÃ SỬA] Hiển thị cả Ngày & Giờ */}
                         <div className="text-dark fw-bold" style={{fontSize: '1.1em'}}>
                             {new Date(flight?.arrivalTime).toLocaleString('vi-VN', {
                                 hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric'
@@ -191,7 +190,6 @@ const BookingManagement = () => {
                     </div>
                 </div>
 
-                {/* Danh sách khách - Giữ nguyên */}
                 <table className="table table-sm table-bordered mb-0" style={{fontSize: '0.9em'}}>
                     <thead className="table-light">
                     <tr>
@@ -262,9 +260,9 @@ const BookingManagement = () => {
                         </tr>
                         </thead>
                         <tbody>
-                        {filteredBookings.length === 0 ? (
+                        {currentItems.length === 0 ? (
                             <tr><td colSpan="9" className="text-center p-4 text-muted">Chưa có dữ liệu phù hợp.</td></tr>
-                        ) : filteredBookings.map(b => (
+                        ) : currentItems.map(b => (
                             <tr key={b.id}>
                                 <td className="text-center">{b.id}</td>
                                 <td className="fw-bold text-primary">{b.bookingCode}</td>
@@ -273,7 +271,7 @@ const BookingManagement = () => {
                                     <span className="badge bg-light text-info border border-info">➡ 1 Chiều</span>}
                                 </td>
                                 <td>
-                                    <div className="fw-bold">{b.contactName || 'Vãng lai'}</div>
+                                    <div className="fw-bold">{b.contactName}</div>
                                     <small className="text-success">📞 {b.contactPhone}</small>
                                 </td>
                                 <td>
@@ -316,6 +314,32 @@ const BookingManagement = () => {
                         ))}
                         </tbody>
                     </table>
+
+                    {/* --- [MỚI] THANH PHÂN TRANG (PAGINATION) --- */}
+                    {totalPages > 1 && (
+                        <div className="d-flex justify-content-between align-items-center p-3 bg-light border-top">
+                            <span className="text-muted">
+                                Hiển thị <strong>{indexOfFirstItem + 1}</strong> - <strong>{Math.min(indexOfLastItem, filteredBookings.length)}</strong> trong tổng số <strong>{filteredBookings.length}</strong> vé
+                            </span>
+                            <nav>
+                                <ul className="pagination m-0">
+                                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                                        <button className="page-link" onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}>Previous</button>
+                                    </li>
+                                    {[...Array(totalPages)].map((_, i) => (
+                                        <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                                            <button className="page-link" onClick={() => setCurrentPage(i + 1)}>
+                                                {i + 1}
+                                            </button>
+                                        </li>
+                                    ))}
+                                    <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                                        <button className="page-link" onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}>Next</button>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -341,12 +365,10 @@ const BookingManagement = () => {
                 </div>
             )}
 
-            {/* --- MODAL IN VÉ ĐẸP (FIXED FONT & STYLE) --- */}
+            {/* MODAL IN VÉ */}
             {showInvoice && selectedBooking && (
                 <div style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                     <div className="bg-light rounded shadow-lg d-flex flex-column" style={{maxWidth: '850px', width: '95%', maxHeight: '95vh'}}>
-
-                        {/* NỘI DUNG VÉ ĐỂ IN */}
                         <div style={{overflowY: 'auto', flex: 1, padding: '20px'}}>
                             <div id="invoice-content" style={{padding: '30px', backgroundColor: 'white', color: '#333', fontFamily: 'Arial, sans-serif', maxWidth: '800px', margin: '0 auto', boxShadow: '0 0 10px rgba(0,0,0,0.1)'}}>
 
@@ -371,7 +393,7 @@ const BookingManagement = () => {
                                         <div><strong>Người liên hệ:</strong> {selectedBooking.contactName}</div>
                                         <div><strong>Ngày đặt:</strong> {new Date(selectedBooking.bookingDate).toLocaleString('vi-VN')}</div>
                                         <div><strong>Số điện thoại:</strong> {selectedBooking.contactPhone}</div>
-                                        <div><strong>Trạng thái:</strong> {selectedBooking.status === 'PAID' ? 'Đã thanh toán' : 'Chưa thanh toán'}</div>
+                                        <div><strong>Trạng thái:</strong> {selectedBooking.status === 'PAID' ? 'Đã Thanh Toán' : selectedBooking.status}</div>
                                     </div>
                                 </div>
 
