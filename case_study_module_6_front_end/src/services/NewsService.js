@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "../modules/login/service/axiosConfig";
 
 const API_URL = "http://localhost:8080/api/news";
 
