@@ -166,7 +166,7 @@ public class AuthController {
 
         String token = jwtService.generateToken(
                 email,
-                "ROLE_USER",
+                "ROLE_CUSTOMER",
                 customer.getId(),
                 customer.getFullName()
         );

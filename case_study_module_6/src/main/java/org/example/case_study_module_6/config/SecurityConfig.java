@@ -32,6 +32,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
                 .authorizeHttpRequests(auth -> auth
+
+                        .requestMatchers("/api/customers/me")
+                        .hasAnyRole("CUSTOMER")
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/api/bookings/online")
                         .hasAnyRole("CUSTOMER")
@@ -44,7 +47,8 @@ public class SecurityConfig {
                         .hasAnyRole("EMPLOYEE", "ADMIN")
 
 
-
+                        .requestMatchers("/api/news/**")
+                        .permitAll()
 
 
                         .requestMatchers("/api/flights/**")

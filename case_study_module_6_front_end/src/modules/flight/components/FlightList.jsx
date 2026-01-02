@@ -9,7 +9,7 @@ import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import "./FlightList.css";
 
-// Import Layout (Lùi 3 cấp thư mục)
+// Import Layout
 import AdminLayout from "../../../layouts/AdminLayout";
 
 const FlightList = () => {
@@ -189,6 +189,20 @@ const FlightList = () => {
     // --- MAIN RENDER ---
     return (
         <AdminLayout>
+            {/* --- HIỆU ỨNG NỀN & MÁY BAY BAY --- */}
+            <div className="sky-container">
+                <i className="bi bi-cloud-fill cloud c1"></i>
+                <i className="bi bi-cloud-fill cloud c2"></i>
+                <i className="bi bi-cloud-fill cloud c3"></i>
+
+                {/* Máy bay: 5 chiếc với vị trí và tốc độ khác nhau */}
+                <i className="bi bi-airplane-fill plane-vertical plane-v1"></i>
+                <i className="bi bi-airplane-fill plane-vertical plane-v2"></i>
+                <i className="bi bi-airplane-fill plane-vertical plane-v3"></i>
+                <i className="bi bi-airplane-fill plane-vertical plane-v4"></i>
+                <i className="bi bi-airplane-fill plane-vertical plane-v5"></i>
+            </div>
+
             {/* Header */}
             <div className="glass-card d-flex justify-content-between align-items-center mb-4 sticky-header">
                 <div>
@@ -208,9 +222,9 @@ const FlightList = () => {
             {/* Stats Cards */}
             <div className="row mb-4">
                 <div className="col-md-3"><div className="glass-card stat-card" style={{borderBottom: '5px solid #2ed573'}}><i className="bi bi-airplane-fill stat-icon text-success"></i><div className="stat-value">{stats.total}</div><div className="stat-label">Tổng chuyến</div></div></div>
-                <div className="col-md-3"><div className="glass-card stat-card" style={{borderBottom: '5px solid #ff4757'}}><i className="bi bi-exclamation-triangle-fill stat-icon text-danger"></i><div className="stat-value">{stats.delayed}</div><div className="stat-label">Bị hoãn</div></div></div>
-                <div className="col-md-3"><div className="glass-card stat-card" style={{borderBottom: '5px solid #ffa502'}}><i className="bi bi-megaphone-fill stat-icon text-warning"></i><div className="stat-value">{stats.inFlight}</div><div className="stat-label">Đang bay</div></div></div>
-                <div className="col-md-3"><div className="glass-card stat-card" style={{borderBottom: '5px solid #1e90ff'}}><i className="bi bi-check-circle-fill stat-icon text-primary"></i><div className="stat-value">{stats.completed}</div><div className="stat-label">Đã hạ cánh</div></div></div>
+                <div className="col-md-3"><div className="glass-card stat-card" style={{borderBottom: '5px solid #ff4757'}}><i className="bi-clock-history stat-icon text-danger"></i><div className="stat-value">{stats.delayed}</div><div className="stat-label">Bị hoãn</div></div></div>
+                <div className="col-md-3"><div className="glass-card stat-card" style={{borderBottom: '5px solid #ffa502'}}><i className="bi-send-fill stat-icon text-warning"></i><div className="stat-value">{stats.inFlight}</div><div className="stat-label">Đang bay</div></div></div>
+                <div className="col-md-3"><div className="glass-card stat-card" style={{borderBottom: '5px solid #1e90ff'}}><i className="bi-geo-alt-fill stat-icon text-primary"></i><div className="stat-value">{stats.completed}</div><div className="stat-label">Đã hạ cánh</div></div></div>
             </div>
 
             {/* Filter Section */}
