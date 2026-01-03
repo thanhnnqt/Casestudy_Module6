@@ -4,6 +4,7 @@ import org.example.case_study_module_6.entity.Booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,4 +28,5 @@ public interface IReportRepository extends JpaRepository<Booking, Long> {
     ORDER BY SUM(b.totalAmount) DESC
 """)
     List<Object[]> getTopSalesPerformance(LocalDateTime start, LocalDateTime end);
+
 }

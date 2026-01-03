@@ -53,6 +53,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/customers/**")
                         .hasAnyRole("EMPLOYEE", "ADMIN")
 
+                        .requestMatchers("/api/reports/**")
+                        .hasAnyRole("ADMIN")
+
                         // 1. Cho phép TẤT CẢ mọi người (kể cả chưa đăng nhập) được XEM tin tức
                         // (Chỉ áp dụng cho phương thức GET)
                         .requestMatchers(HttpMethod.GET, "/api/news/**").permitAll()
