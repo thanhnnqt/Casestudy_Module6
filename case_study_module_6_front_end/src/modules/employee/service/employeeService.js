@@ -170,29 +170,29 @@ const config = {
     headers: { Authorization: `Bearer ${token}` }
 };
 
-export const getRevenue = async (start, end) => {
-    const res = await axios.get(`/api/reports/revenue`, {
-        params: { start, end },
-        ...config
-    });
-    return res.data;
-};
-
-export const getSalesPerformance = async (start, end) => {
-    const res = await axios.get(`/api/reports/revenue/sales-performance`, {
-        params: { start, end },
-        ...config
-    });
-    return res.data;
-};
-
-export const getAirlineRevenue = async (start, end) => {
-    const res = await axios.get(`/api/reports/revenue/airline-revenue`, {
-        params: { start, end },
-        ...config
-    });
-    return res.data;
-};
+// export const getRevenue = async (start, end) => {
+//     const res = await axios.get(`/api/reports/revenue`, {
+//         params: { start, end },
+//         ...config
+//     });
+//     return res.data;
+// };
+//
+// export const getSalesPerformance = async (start, end) => {
+//     const res = await axios.get(`/api/reports/revenue/sales-performance`, {
+//         params: { start, end },
+//         ...config
+//     });
+//     return res.data;
+// };
+//
+// export const getAirlineRevenue = async (start, end) => {
+//     const res = await axios.get(`/api/reports/revenue/airline-revenue`, {
+//         params: { start, end },
+//         ...config
+//     });
+//     return res.data;
+// };
 
 export const getCompareReport = async (type, start, end, compareStart, compareEnd) => {
     const res = await axios.get(`/api/reports/compare`, {
@@ -201,15 +201,7 @@ export const getCompareReport = async (type, start, end, compareStart, compareEn
     return res.data;
 }
 
-export const getTopEmployees = (start, end) =>
-    axios.get(`/api/reports/top-employees`, {
-        params: { start, end }
-    }).then(res => res.data);
 
-export const getTopAirlines = (start, end) =>
-    axios.get(`/api/reports/top-airlines`, {
-        params: { start, end }
-    }).then(res => res.data);
 
 
 
