@@ -43,4 +43,5 @@ public class EmployeeDTO {
     private String imgHash;
     private String imgURL;
     private String identificationId;
+    private String targetRole;
 }

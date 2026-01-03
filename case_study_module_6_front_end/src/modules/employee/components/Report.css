@@ -1,0 +1,45 @@
+.report-wrapper {
+    min-height: 100vh;
+    padding: 8px 0;
+}
+
+/* Card gọn hơn */
+.report-card {
+    padding: 12px !important;
+}
+
+/* Fieldset gọn chiều dọc */
+.report-card fieldset {
+    padding: 8px 10px !important;
+    margin-bottom: 10px !important;
+}
+
+/* Legend thấp hơn */
+.report-card legend {
+    font-size: 12px;
+    padding: 0 6px;
+    margin-bottom: 4px;
+}
+
+/* Giảm spacing form-check */
+.report-card .form-check {
+    margin-bottom: 4px;
+}
+
+/* Select + input thấp hơn */
+.report-card select,
+.report-card input[type="date"] {
+    padding: 4px 8px;
+    font-size: 13px;
+}
+
+/* Khoảng cách giữa các row nhỏ hơn */
+.report-card .row.g-2 {
+    --bs-gutter-y: 6px;
+}
+
+/* Button gọn */
+.report-card button {
+    padding: 4px 14px;
+}
+

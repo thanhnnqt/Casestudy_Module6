@@ -1,0 +1,36 @@
+/* Giữ modal nằm chính giữa */
+.modal {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+    z-index: 9999 !important;
+}
+
+/* Hạn chế width nhưng để chiều cao tự động */
+.modal-dialog {
+    max-width: 420px !important;
+    width: auto !important;
+    margin: 0 !important;
+}
+
+/* Modal content tự co theo nội dung */
+.modal-content {
+    border-radius: 12px !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding-bottom: 8px !important;
+}
+
+/* Backdrop phủ toàn màn hình */
+.modal-backdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(0, 0, 0, 0.55) !important;
+    z-index: 9998 !important;
+}
+.fade.modal.show {
+    height: 420px;
+}

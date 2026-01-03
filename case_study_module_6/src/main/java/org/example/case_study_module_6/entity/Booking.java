@@ -70,4 +70,8 @@ public class Booking {
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
     private List<Ticket> tickets;
+
+    @ManyToOne
+    @JoinColumn(name = "created_by_sales_id")
+    private Employee createdBySales;
 }
