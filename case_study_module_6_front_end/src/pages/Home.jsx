@@ -517,7 +517,6 @@ function Home() {
                         </div>
                     ))}
                 </div>
-            </section>
             {/* ================= CHAT FLOATING ================= */}
             {user && (
                 <>
