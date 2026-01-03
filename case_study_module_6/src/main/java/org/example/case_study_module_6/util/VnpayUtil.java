@@ -12,61 +12,79 @@ public class VnpayUtil {
     /* ================= HMAC SHA512 ================= */
     public static String hmacSHA512(String key, String data) {
         try {
-            Mac hmac = Mac.getInstance("HmacSHA512");
+            Mac mac = Mac.getInstance("HmacSHA512");
             SecretKeySpec secretKey =
                     new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA512");
-            hmac.init(secretKey);
-            byte[] bytes = hmac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+            mac.init(secretKey);
 
-            StringBuilder hash = new StringBuilder();
-            for (byte b : bytes) {
-                hash.append(String.format("%02x", b));
-            }
-            return hash.toString();
-        } catch (Exception e) {
-            throw new RuntimeException("Error while hashing HmacSHA512", e);
-        }
-    }
+            byte[] rawHmac = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
 
-    /* ================= BUILD QUERY STRING ================= */
-    public static String buildQueryString(Map<String, String> params) {
-        StringBuilder query = new StringBuilder();
-        try {
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                query.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8))
-                        .append("=")
-                        .append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8))
-                        .append("&");
+            StringBuilder hex = new StringBuilder(rawHmac.length * 2);
+            for (byte b : rawHmac) {
+                hex.append(String.format("%02x", b));
             }
-            // remove last &
-            query.deleteCharAt(query.length() - 1);
+            return hex.toString();
+
         } catch (Exception e) {
-            throw new RuntimeException("Error while building query string", e);
+            throw new RuntimeException("Failed to calculate HmacSHA512", e);
         }
-        return query.toString();
     }
 
     /* ================= SORT PARAMS ================= */
     public static Map<String, String> sortParams(Map<String, String> params) {
-        return new TreeMap<>(params);
+        return new TreeMap<>(params); // A → Z
+    }
+
+    /* ================= BUILD HASH DATA (NO ENCODE) ================= */
+    public static String buildHashData(Map<String, String> params) {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, String> e : params.entrySet()) {
+            if (e.getValue() != null && !e.getValue().isEmpty()) {
+                sb.append(e.getKey())
+                        .append("=")
+                        .append(e.getValue())
+                        .append("&");
+            }
+        }
+        sb.setLength(sb.length() - 1); // remove last &
+        return sb.toString();
+    }
+
+    /* ================= BUILD QUERY STRING (ENCODE) ================= */
+    public static String buildQueryString(Map<String, String> params) {
+        StringBuilder query = new StringBuilder();
+        try {
+            for (Map.Entry<String, String> e : params.entrySet()) {
+                if (e.getValue() != null && !e.getValue().isEmpty()) {
+                    query.append(URLEncoder.encode(e.getKey(), StandardCharsets.UTF_8))
+                            .append("=")
+                            .append(
+                                    URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8)
+                                            .replace("+", "%20")
+                            )
+                            .append("&");
+                }
+            }
+            query.setLength(query.length() - 1); // remove last &
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+        return query.toString();
     }
 
     /* ================= VERIFY CALLBACK SIGNATURE ================= */
-    public static boolean verifySignature(
-            Map<String, String> params,
-            String secretKey
-    ) {
+    public static boolean verifySignature(Map<String, String> params, String secretKey) {
         String vnpSecureHash = params.remove("vnp_SecureHash");
         params.remove("vnp_SecureHashType");
 
         Map<String, String> sortedParams = sortParams(params);
-        String data = buildQueryString(sortedParams);
+        String hashData = buildHashData(sortedParams);
+        String calculatedHash = hmacSHA512(secretKey, hashData);
 
-        String calculatedHash = hmacSHA512(secretKey, data);
         return calculatedHash.equalsIgnoreCase(vnpSecureHash);
     }
 
-    /* ================= GENERATE RANDOM TXN REF ================= */
+    /* ================= GENERATE TXN REF ================= */
     public static String generateTxnRef() {
         return UUID.randomUUID().toString().replace("-", "");
     }

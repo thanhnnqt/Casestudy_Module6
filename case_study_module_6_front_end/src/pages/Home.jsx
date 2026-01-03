@@ -470,10 +470,14 @@ function Home() {
                     {/* Chat box */}
                     {openChat && (
                         <ChatBox
-                            admin={admin}
-                            onClose={() => setOpenChat(false)}
+                            customer={{
+                                customerAccountId: admin.id,
+                                customerUsername: admin.username
+                            }}
+                            onClose={() => setOpenChat(false)} // 🔥 ẨN CHAT
                         />
                     )}
+
                 </>
             )}
         </>

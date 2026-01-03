@@ -17,39 +17,44 @@ public class VnpayService implements IVnpayService {
         Map<String, String> params = new HashMap<>();
 
         String txnRef = VnpayUtil.generateTxnRef();
-        String createDate = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
 
-        /* ================= REQUIRED PARAMS ================= */
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+
         params.put("vnp_Version", "2.1.0");
         params.put("vnp_Command", "pay");
         params.put("vnp_TmnCode", VnpayConfig.VNP_TMN_CODE);
-        params.put("vnp_Amount", String.valueOf(amount * 100)); // VNPay x100
+        params.put("vnp_Amount", String.valueOf(amount * 100));
         params.put("vnp_CurrCode", "VND");
         params.put("vnp_TxnRef", txnRef);
-        params.put("vnp_OrderInfo", orderInfo);
+        params.put("vnp_OrderInfo", "Thanh toan booking " + orderInfo);
         params.put("vnp_OrderType", "other");
         params.put("vnp_Locale", "vn");
         params.put("vnp_ReturnUrl", VnpayConfig.VNP_RETURN_URL);
-        params.put("vnp_IpAddr", "127.0.0.1");
-        params.put("vnp_CreateDate", createDate);
+        params.put("vnp_IpAddr", "8.8.8.8");
+        params.put("vnp_CreateDate", sdf.format(new Date()));
 
-        /* ================= OPTIONAL ================= */
-        Calendar cal = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
         cal.add(Calendar.MINUTE, 15);
-        String expireDate =
-                new SimpleDateFormat("yyyyMMddHHmmss").format(cal.getTime());
-        params.put("vnp_ExpireDate", expireDate);
+        params.put("vnp_ExpireDate", sdf.format(cal.getTime()));
 
-        /* ================= SIGN ================= */
         Map<String, String> sortedParams = VnpayUtil.sortParams(params);
-        String queryString = VnpayUtil.buildQueryString(sortedParams);
-        String secureHash =
-                VnpayUtil.hmacSHA512(VnpayConfig.VNP_HASH_SECRET, queryString);
 
-        return VnpayConfig.VNP_PAY_URL
+        String hashData = VnpayUtil.buildHashData(sortedParams);
+        String secureHash = VnpayUtil.hmacSHA512(VnpayConfig.VNP_HASH_SECRET, hashData);
+        String queryString = VnpayUtil.buildQueryString(sortedParams);
+
+        String finalUrl = VnpayConfig.VNP_PAY_URL
                 + "?"
                 + queryString
                 + "&vnp_SecureHash="
-                + secureHash;
+                + secureHash
+                + "&vnp_SecureHashType=HmacSHA512";
+
+        System.out.println("===== FINAL VNPAY URL =====");
+        System.out.println(finalUrl);
+        System.out.println("===========================");
+
+        return finalUrl;
     }
 }

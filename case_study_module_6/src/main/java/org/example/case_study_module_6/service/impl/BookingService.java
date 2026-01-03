@@ -527,4 +527,48 @@ public class BookingService {
 
         return finalBooking;
     }
+
+    // ThanhNN
+
+    public void updateStatusByCode(String bookingCode, BookingStatus status) {
+        Booking booking = bookingRepository
+                .findByBookingCode(bookingCode)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        booking.setStatus(status);
+        bookingRepository.save(booking);
+    }
+
+    private String generateBookingCode() {
+        return "BK" + System.currentTimeMillis();
+    }
+
+    public Booking createPendingBooking(BookingOnlineRequest req) {
+
+        Booking booking = new Booking();
+
+        booking.setBookingCode(generateBookingCode());
+        booking.setBookingDate(LocalDateTime.now());
+
+        booking.setStatus(BookingStatus.PENDING);
+        booking.setPaymentStatus(PaymentStatus.UNPAID);
+        booking.setPaymentMethod(PaymentMethod.VNPAY);
+        booking.setChannel(Channel.ONLINE);
+
+        booking.setTripType(
+                TripType.valueOf(req.getTripType())
+        );
+
+        booking.setTotalAmount(
+                BigDecimal.valueOf(req.getTotalAmount())
+        );
+
+        booking.setContactName(req.getContactName());
+        booking.setContactEmail(req.getContactEmail());
+        booking.setContactPhone(req.getContactPhone());
+
+        // flight / returnFlight set sau nếu cần
+
+        return bookingRepository.save(booking);
+    }
 }

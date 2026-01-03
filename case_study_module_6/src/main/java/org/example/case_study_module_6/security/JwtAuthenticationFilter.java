@@ -30,6 +30,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         return uri.startsWith("/auth/")
                 || uri.startsWith("/ws-chat")
+                || uri.startsWith("/app/")
+                || uri.startsWith("/topic/")
+                || uri.startsWith("/queue/")
+                || uri.startsWith("/user/")
                 || HttpMethod.OPTIONS.matches(request.getMethod());
     }
 

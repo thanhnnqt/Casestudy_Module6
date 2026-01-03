@@ -18,11 +18,13 @@ function decodeJwt(token) {
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [token, setToken] = useState(null); // 🔥 THÊM DÒNG NÀY
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            const payload = decodeJwt(token);
+        const storedToken = localStorage.getItem("token");
+        if (storedToken) {
+            setToken(storedToken); // 🔥 THÊM
+            const payload = decodeJwt(storedToken);
             setUser({
                 username: payload.sub,
                 role: payload.role,
@@ -32,9 +34,10 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    const login = (token) => {
-        localStorage.setItem("token", token);
-        const payload = decodeJwt(token);
+    const login = (newToken) => {
+        localStorage.setItem("token", newToken);
+        setToken(newToken); // 🔥 THÊM
+        const payload = decodeJwt(newToken);
         setUser({
             username: payload.sub,
             role: payload.role,
@@ -46,10 +49,11 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
         localStorage.removeItem("token");
         setUser(null);
+        setToken(null); // 🔥 THÊM
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, token, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

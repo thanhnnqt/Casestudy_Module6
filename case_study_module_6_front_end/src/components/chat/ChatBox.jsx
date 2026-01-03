@@ -2,38 +2,89 @@ import { useEffect, useState } from "react";
 import { connectChat, sendChatMessage } from "../../services/chatSocket.js";
 import { useAuth } from "../../context/AuthContext.jsx";
 
-export default function ChatBox({ adminMode, customer }) {
+export default function ChatBox({ customer, onClose, adminMode = false }) {
     const { user, token } = useAuth();
     const [messages, setMessages] = useState([]);
     const [text, setText] = useState("");
+    useEffect(() => {
+        console.log("CHAT TOKEN =", token);
+    }, [token]);
 
     useEffect(() => {
-        connectChat(token, msg => {
-            setMessages(prev => [...prev, msg]);
-        });
-    }, []);
+        if (!adminMode && token) {
+            connectChat(token, msg =>
+                setMessages(prev => [...prev, msg])
+            );
+        }
+    }, [token, adminMode]);
+
+    if (!customer || !user) return null;
+
+    const [ready, setReady] = useState(false);
+
+    useEffect(() => {
+        if (!token) {
+            console.log("⏳ Chưa có token, chưa connect chat");
+            return;
+        }
+
+        console.log("🔑 TOKEN OK, bắt đầu connect chat");
+
+        connectChat(
+            token,
+            msg => setMessages(prev => [...prev, msg]),
+            () => {
+                console.log("✅ Chat READY");
+                setReady(true);
+            }
+        );
+    }, [token]);
 
     const send = () => {
+        if (!ready) {
+            alert("⏳ Đang kết nối chat, vui lòng đợi...");
+            return;
+        }
+
+        if (!text.trim()) return;
+
         sendChatMessage({
             senderId: user.id,
             senderUsername: user.username,
             senderRole: user.role,
 
             receiverId: customer.customerAccountId,
-            receiverUsername: customer.customerUsername,
-            receiverRole: "CUSTOMER",
+            receiverUsername: "admin", // 🔥 TRÙNG JWT
+            receiverRole: "ADMIN",
 
             content: text
         });
+
         setText("");
     };
 
     return (
         <div className="chat-box">
+            {/* HEADER */}
             <div className="chat-header">
-                Chat với {customer.customerUsername}
+                <span>Chat với {customer.customerUsername}</span>
+
+                {/* 🔽 NÚT ẨN CHAT */}
+                <button
+                    onClick={onClose}
+                    style={{
+                        background: "transparent",
+                        border: "none",
+                        color: "#fff",
+                        fontSize: 18,
+                        cursor: "pointer"
+                    }}
+                >
+                    ✖
+                </button>
             </div>
 
+            {/* BODY */}
             <div className="chat-body">
                 {messages.map((m, i) => (
                     <div key={i}>
@@ -42,6 +93,7 @@ export default function ChatBox({ adminMode, customer }) {
                 ))}
             </div>
 
+            {/* FOOTER */}
             <div className="chat-footer">
                 <input
                     value={text}
@@ -52,4 +104,3 @@ export default function ChatBox({ adminMode, customer }) {
         </div>
     );
 }
-

@@ -1,15 +1,18 @@
 package org.example.case_study_module_6.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.case_study_module_6.dto.BookingOnlineRequest;
 import org.example.case_study_module_6.dto.BookingRequestDTO;
 import org.example.case_study_module_6.dto.CounterBookingRequest;
 import org.example.case_study_module_6.dto.OnlineBookingRequest;
 import org.example.case_study_module_6.entity.Booking;
 import org.example.case_study_module_6.service.impl.BookingService;
+import org.example.case_study_module_6.service.impl.VnpayService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/bookings")
@@ -18,6 +21,7 @@ import java.util.List;
 public class BookingController {
 
     private final BookingService bookingService;
+    private final VnpayService vnpayService;
 
     // 1. Lấy danh sách booking
     @GetMapping
@@ -82,15 +86,22 @@ public class BookingController {
     // 5. ĐẶT VÉ ONLINE (FULL INFO - Dành cho khách hàng)
     // URL: POST /api/bookings/online
     @PostMapping("/online")
-    public ResponseEntity<?> createOnlineBooking(@RequestBody OnlineBookingRequest request) {
-        try {
-            Booking booking = bookingService.createOnlineBooking(request);
-            return ResponseEntity.ok(booking);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Lỗi hệ thống: " + e.getMessage());
-        }
+    public ResponseEntity<?> createOnlineBooking(
+            @RequestBody BookingOnlineRequest req
+    ) {
+        Booking booking = bookingService.createPendingBooking(req);
+
+        String paymentUrl = vnpayService.createPaymentUrl(
+                req.getTotalAmount(),
+                booking.getBookingCode()
+        );
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "bookingCode", booking.getBookingCode(),
+                        "paymentUrl", paymentUrl
+                )
+        );
     }
 
 }

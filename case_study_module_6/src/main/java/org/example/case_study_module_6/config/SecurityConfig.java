@@ -3,6 +3,7 @@ package org.example.case_study_module_6.config;
 import org.example.case_study_module_6.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,37 +32,54 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/api/**").permitAll()
 
+                        // ===== CORS PREFLIGHT =====
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        .requestMatchers("/api/master/**")
-                        .hasAnyRole("EMPLOYEE", "ADMIN")
+                        .requestMatchers("/api/bookings/online").permitAll()
 
-                        .requestMatchers("/api/**")
-                        .hasAnyRole("CUSTOMER")
-
-                        .requestMatchers("/api/flights/**")
-                        .hasAnyRole("EMPLOYEE", "ADMIN")
-
-
-                        .requestMatchers("/v1/api/employees/**")
-                        .hasAnyRole("EMPLOYEE", "ADMIN")
-
-                        .requestMatchers("/api/customers/me")
-                        .hasAnyRole("CUSTOMER", "EMPLOYEE", "ADMIN")
-
-                        .requestMatchers("/api/customers/**")
-                        .hasAnyRole("EMPLOYEE", "ADMIN")
-
-                        .requestMatchers("/api/payment/**").permitAll()
-
+                        // ===== PUBLIC =====
                         .requestMatchers(
                                 "/auth/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/ws-chat/**"
+
+                                // 🔥 BẮT BUỘC CHO WEBSOCKET
+                                "/ws-chat/**",
+                                "/app/**",
+                                "/topic/**",
+                                "/queue/**",
+                                "/user/**",
+
+                                "/api/payment/**",
+                                "/api/master/airports",
+                                "/api/master/airlines",
+                                "/api/master/routes"
                         ).permitAll()
+
+                        // ===== SEARCH FLIGHTS =====
+                        .requestMatchers(HttpMethod.GET, "/api/flights/**")
+                        .permitAll()
+
+                        // ===== CUSTOMER BOOKING (FIX QUAN TRỌNG) =====
+                        .requestMatchers(HttpMethod.POST, "/api/bookings/online")
+                        .hasRole("CUSTOMER")
+
+                        .requestMatchers("/api/customers/me")
+                        .hasAnyRole("CUSTOMER", "EMPLOYEE", "ADMIN")
+                        // ===== ADMIN / EMPLOYEE =====
+                        .requestMatchers(
+                                "/api/master/**",
+                                "/api/flights/**",
+                                "/api/customers/**",
+                                "/v1/api/employees/**"
+                        ).hasAnyRole("EMPLOYEE", "ADMIN")
+
+
+
+                        // ===== CUSTOMER DEFAULT =====
+                        .requestMatchers("/api/**")
+                        .hasRole("CUSTOMER")
 
                         .anyRequest().authenticated()
                 )

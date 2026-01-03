@@ -3,7 +3,7 @@ package org.example.case_study_module_6.dto;
 public class PaymentRequest {
 
     private Long amount;
-    private String orderInfo;
+    private String bookingCode;
 
     public Long getAmount() {
         return amount;
@@ -13,11 +13,11 @@ public class PaymentRequest {
         this.amount = amount;
     }
 
-    public String getOrderInfo() {
-        return orderInfo;
+    public String getBookingCode() {
+        return bookingCode;
     }
 
-    public void setOrderInfo(String orderInfo) {
-        this.orderInfo = orderInfo;
+    public void setBookingCode(String bookingCode) {
+        this.bookingCode = bookingCode;
     }
 }

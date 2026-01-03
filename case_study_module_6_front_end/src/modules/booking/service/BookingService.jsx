@@ -74,3 +74,9 @@ export const FlightService = {
         return axios.put(`${API_URL}/bookings/${data.id}`, data);
     }
 };
+// 11. ĐẶT VÉ ONLINE + THANH TOÁN VNPAY
+export const createOnlineBooking = (bookingPayload) => {
+    return axios
+        .post(`${API_URL}/bookings/online`, bookingPayload)
+        .then(res => res.data);
+};
