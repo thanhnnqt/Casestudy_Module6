@@ -22,28 +22,6 @@ public class ReportController {
         this.reportService = reportService;
     }
 
-    @GetMapping("/revenue")
-    public ResponseEntity<List<RevenueDTO>> getRevenue(
-            @RequestParam("start") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
-            @RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
-
-        return ResponseEntity.ok(reportService.getRevenue(start, end));
-    }
-
-    @GetMapping("/revenue/sales-performance")
-    public ResponseEntity<List<SalesPerformanceDTO>> getSalesPerformance(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
-        return ResponseEntity.ok(reportService.getSalesPerformance(start, end));
-    }
-
-    @GetMapping("/revenue/airline-revenue")
-    public ResponseEntity<List<AirlineRevenueDTO>> getAirlineRevenue(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
-        return ResponseEntity.ok(reportService.getAirlineRevenue(start, end));
-    }
-
     @GetMapping("/compare")
     public ResponseEntity<?> compareReport(
             @RequestParam String type,

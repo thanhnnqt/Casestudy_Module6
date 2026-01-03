@@ -28,20 +28,6 @@ public class ReportService implements IReportService {
         return d.atTime(23, 59, 59);
     }
 
-    @Override
-    public List<RevenueDTO> getRevenue(LocalDate start, LocalDate end) {
-        return List.of();
-    }
-
-    @Override
-    public List<SalesPerformanceDTO> getSalesPerformance(LocalDate start, LocalDate end) {
-        return List.of();
-    }
-
-    @Override
-    public List<AirlineRevenueDTO> getAirlineRevenue(LocalDate start, LocalDate end) {
-        return List.of();
-    }
     private Map<String, Object> singleTop(List<Object[]> rows, String unit) {
 
         if (rows == null || rows.isEmpty()) {
