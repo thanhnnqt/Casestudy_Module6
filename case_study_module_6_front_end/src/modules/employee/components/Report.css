@@ -1,27 +1,45 @@
-.report-container {
-    height: 100vh;
-    padding: 20px;
-    background: #f6f8fb;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.report-wrapper {
+    min-height: 100vh;
+    padding: 8px 0;
 }
 
-.report-panel {
-    width: 100%;
-    max-width: 900px;
-    height: 100%;
-    background: white;
-    border-radius: 10px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    overflow: hidden;
+/* Card gọn hơn */
+.report-card {
+    padding: 12px !important;
 }
 
-.report-scroll-area {
-    flex: 1;
-    overflow-y: auto;
-    padding-right: 4px;
+/* Fieldset gọn chiều dọc */
+.report-card fieldset {
+    padding: 8px 10px !important;
+    margin-bottom: 10px !important;
 }
+
+/* Legend thấp hơn */
+.report-card legend {
+    font-size: 12px;
+    padding: 0 6px;
+    margin-bottom: 4px;
+}
+
+/* Giảm spacing form-check */
+.report-card .form-check {
+    margin-bottom: 4px;
+}
+
+/* Select + input thấp hơn */
+.report-card select,
+.report-card input[type="date"] {
+    padding: 4px 8px;
+    font-size: 13px;
+}
+
+/* Khoảng cách giữa các row nhỏ hơn */
+.report-card .row.g-2 {
+    --bs-gutter-y: 6px;
+}
+
+/* Button gọn */
+.report-card button {
+    padding: 4px 14px;
+}
+
