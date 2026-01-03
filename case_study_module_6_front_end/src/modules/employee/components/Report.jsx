@@ -1,8 +1,9 @@
-import React, {useState} from "react";
-import {useNavigate} from "react-router-dom";
+import React, { useState } from "react";
+import {Link, useNavigate} from "react-router-dom";
 import "./Report.css";
 
 const Report = () => {
+
     const periodOptionsMain = ["Tuần này", "Tháng này", "Quý này", "Năm này"];
     const periodOptionsCompare = ["Tuần trước", "Tháng trước", "Quý trước", "Năm trước"];
 
@@ -11,216 +12,244 @@ const Report = () => {
     const [mainMode, setMainMode] = useState("period");
     const [compareMode, setCompareMode] = useState("period");
 
-    const [chartType, setChartType] = useState("Biểu đồ tròn");
+    const [enableCompare, setEnableCompare] = useState(false); // ⭐ MẤU CHỐT
+
+    const [chartType, setChartType] = useState("Biểu đồ cột");
     const [reportType, setReportType] = useState("Doanh thu");
 
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
+    const [mainStartDate, setMainStartDate] = useState("");
+    const [mainEndDate, setMainEndDate] = useState("");
+
+    const [compareStartDate, setCompareStartDate] = useState("");
+    const [compareEndDate, setCompareEndDate] = useState("");
 
     const [selectedPeriod, setSelectedPeriod] = useState("Tuần này");
     const [selectedComparePeriod, setSelectedComparePeriod] = useState("Tuần trước");
 
+    const toYMD = (d) => d.toISOString().split("T")[0];
+
+    const getMonday = (date) => {
+        const day = date.getDay();
+        const diff = (day === 0 ? -6 : 1 - day);
+        const monday = new Date(date);
+        monday.setDate(date.getDate() + diff);
+        monday.setHours(0, 0, 0, 0);
+        return monday;
+    };
+
     const getDateRange = (period) => {
-        const now = new Date();
-        let start, end;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-        switch(period) {
-            case "Tuần này":
-                start = new Date(now.setDate(now.getDate() - now.getDay() + 1));
-                end = new Date();
-                break;
-            case "Tuần trước":
-                start = new Date(now.setDate(now.getDate() - now.getDay() - 6));
-                end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6);
-                break;
-            case "Tháng này":
-                start = new Date(now.getFullYear(), now.getMonth(), 1);
-                end = new Date();
-                break;
-            case "Tháng trước":
-                start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-                end = new Date(now.getFullYear(), now.getMonth(), 0);
-                break;
-            case "Quý này":
-                { const quarter = Math.floor((now.getMonth()) / 3);
-                start = new Date(now.getFullYear(), quarter * 3, 1);
-                end = new Date();
-                break; }
-            case "Quý trước":
-                { const prevQuarter = Math.floor((now.getMonth()) / 3) - 1;
-                start = new Date(now.getFullYear(), prevQuarter * 3, 1);
-                end = new Date(now.getFullYear(), prevQuarter * 3 + 3, 0);
-                break; }
+        switch (period) {
+            case "Tuần này": {
+                const monday = getMonday(today);
+                return { start: toYMD(monday), end: toYMD(today) };
+            }
+            case "Tuần trước": {
+                const monday = getMonday(today);
+                const start = new Date(monday);
+                start.setDate(monday.getDate() - 7);
+                const end = new Date(start);
+                end.setDate(start.getDate() + 6);
+                return { start: toYMD(start), end: toYMD(end) };
+            }
+            case "Tháng này": {
+                const start = new Date(today.getFullYear(), today.getMonth(), 1);
+                return { start: toYMD(start), end: toYMD(today) };
+            }
+            case "Tháng trước": {
+                const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                const end = new Date(today.getFullYear(), today.getMonth(), 0);
+                return { start: toYMD(start), end: toYMD(end) };
+            }
+            case "Quý này": {
+                const q = Math.floor(today.getMonth() / 3);
+                const start = new Date(today.getFullYear(), q * 3, 1);
+                return { start: toYMD(start), end: toYMD(today) };
+            }
+            case "Quý trước": {
+                const q = Math.floor(today.getMonth() / 3) - 1;
+                const start = new Date(today.getFullYear(), q * 3, 1);
+                const end = new Date(today.getFullYear(), q * 3 + 3, 0);
+                return { start: toYMD(start), end: toYMD(end) };
+            }
             case "Năm này":
-                start = new Date(now.getFullYear(), 0, 1);
-                end = new Date();
-                break;
+                return { start: `${today.getFullYear()}-01-01`, end: toYMD(today) };
             case "Năm trước":
-                start = new Date(now.getFullYear() - 1, 0, 1);
-                end = new Date(now.getFullYear() - 1, 11, 31);
-                break;
+                return {
+                    start: `${today.getFullYear() - 1}-01-01`,
+                    end: `${today.getFullYear() - 1}-12-31`
+                };
             default:
-                start = end = new Date();
+                return { start: toYMD(today), end: toYMD(today) };
         }
-
-        return {
-            start: start.toISOString().split("T")[0],
-            end: end.toISOString().split("T")[0]
-        };
     };
 
     const handleViewReport = () => {
-        let mainStart, mainEnd, compareStart = null, compareEnd = null;
 
-        if (mainMode === "period") {
-            ({start: mainStart, end: mainEnd} = getDateRange(selectedPeriod));
-        } else {
-            if (!startDate || !endDate) {
-                alert("Vui lòng chọn đúng ngày Từ - Đến!");
-                return;
-            }
-            mainStart = startDate;
-            mainEnd = endDate;
+        const mainRange = mainMode === "period"
+            ? getDateRange(selectedPeriod)
+            : { start: mainStartDate, end: mainEndDate };
+
+        // ❗ KHÔNG BẬT SO SÁNH → CHỈ XEM KỲ CHÍNH
+        if (!enableCompare) {
+            navigate(
+                `/revenue-chart?chart=${chartType}&type=${reportType}` +
+                `&start=${mainRange.start}&end=${mainRange.end}`
+            );
+            return;
         }
 
-        if (compareMode === "period") {
-            ({start: compareStart, end: compareEnd} = getDateRange(selectedComparePeriod));
-        }
+        // ✅ BẬT SO SÁNH → LOGIC CŨ
+        const compareRange = compareMode === "period"
+            ? getDateRange(selectedComparePeriod)
+            : { start: compareStartDate, end: compareEndDate };
 
-        const query = new URLSearchParams({
-            chart: chartType,
-            type: reportType,
-            start: mainStart,
-            end: mainEnd
-        });
-
-        if (compareStart && compareEnd) {
-            query.append("compareStart", compareStart);
-            query.append("compareEnd", compareEnd);
-        }
-
-        navigate(`/revenue-chart?${query.toString()}`);
+        navigate(
+            `/revenue-chart?chart=${chartType}&type=${reportType}` +
+            `&start=${mainRange.start}&end=${mainRange.end}` +
+            `&compareStart=${compareRange.start}&compareEnd=${compareRange.end}`
+        );
     };
 
     return (
-        <div className="report-container">
-            <div className="report-panel">
-                <h5 className="fw-bold text-center text-primary mb-3">Thiết lập báo cáo thống kê</h5>
+        <div className="container report-wrapper d-flex justify-content-center align-items-center">
+            <div className="report-card p-3 border rounded shadow-sm w-100" style={{ maxWidth: 520 }}>
 
-                <div className="report-scroll-area">
+                <h5 className="fw-bold text-center text-primary mb-3">
+                    Báo cáo thống kê
+                </h5>
 
-                    {/* 1. Loại báo cáo */}
-                    <fieldset className="border rounded p-3 mb-3">
-                        <legend className="small text-muted px-2">Loại báo cáo</legend>
-                        <div className="row g-2">
-                            <div className="col-md-6">
-                                <select
-                                    className="form-select form-select-sm"
-                                    value={chartType}
-                                    onChange={(e) => setChartType(e.target.value)}>
-                                    <option>Biểu đồ tròn</option>
-                                    <option>Biểu đồ cột</option>
-                                    <option>Biểu đồ đường</option>
-                                </select>
-                            </div>
-
-                            <div className="col-md-6">
-                                <select
-                                    className="form-select form-select-sm"
-                                    value={reportType}
-                                    onChange={(e) => setReportType(e.target.value)}>
-                                    <option>Doanh thu</option>
-                                    <option>Hiệu suất nhân viên</option>
-                                    <option>Theo hãng</option>
-                                </select>
-                            </div>
-                        </div>
-                    </fieldset>
-
-                    {/* 2. Thời gian chính */}
-                    <fieldset className="border rounded p-3 mb-3">
-                        <legend className="small text-muted px-2">Thời gian chính</legend>
-
-                        <div className="form-check small mb-1">
-                            <input type="radio"
-                                   className="form-check-input"
-                                   checked={mainMode === "period"}
-                                   onChange={() => setMainMode("period")}/>
-                            <label className="ms-1">Theo mốc</label>
-                        </div>
-
-                        {mainMode === "period" &&
-                            <select className="form-select form-select-sm w-auto"
-                                    value={selectedPeriod}
-                                    onChange={(e) => setSelectedPeriod(e.target.value)}>
-                                {periodOptionsMain.map((t, i) => <option key={i}>{t}</option>)}
-                            </select>
-                        }
-
-                        <div className="form-check small mt-2 mb-1">
-                            <input type="radio"
-                                   className="form-check-input"
-                                   checked={mainMode === "range"}
-                                   onChange={() => setMainMode("range")}/>
-                            <label className="ms-1">Từ - đến</label>
-                        </div>
-
-                        {mainMode === "range" &&
-                            <div className="d-flex gap-2 w-75">
-                                <input type="date" className="form-control form-control-sm"
-                                       value={startDate}
-                                       onChange={(e) => setStartDate(e.target.value)}/>
-                                <input type="date" className="form-control form-control-sm"
-                                       value={endDate}
-                                       onChange={(e) => setEndDate(e.target.value)}/>
-                            </div>
-                        }
-                    </fieldset>
-
-                    {/* 3. So sánh */}
-                    <fieldset className="border rounded p-3 mb-3">
-                        <legend className="small text-muted px-2">So sánh</legend>
-
-                        <div className="form-check small mb-1">
-                            <input type="radio"
-                                   className="form-check-input"
-                                   checked={compareMode === "period"}
-                                   onChange={() => setCompareMode("period")}/>
-                            <label className="ms-1">Theo mốc</label>
-                        </div>
-
-                        {compareMode === "period" &&
-                            <select className="form-select form-select-sm w-auto"
-                                    value={selectedComparePeriod}
-                                    onChange={(e) => setSelectedComparePeriod(e.target.value)}>
-                                {periodOptionsCompare.map((t, i) => <option key={i}>{t}</option>)}
-                            </select>
-                        }
-
-                        <div className="form-check small mt-2 mb-1">
-                            <input type="radio"
-                                   className="form-check-input"
-                                   checked={compareMode === "range"}
-                                   onChange={() => setCompareMode("range")}/>
-                            <label className="ms-1">Từ - đến</label>
-                        </div>
-
-                        {compareMode === "range" &&
-                            <div className="d-flex gap-2 w-75">
-                                <input type="date" className="form-control form-control-sm"/>
-                                <input type="date" className="form-control form-control-sm"/>
-                            </div>
-                        }
-                    </fieldset>
-
-                    <div className="text-center">
-                        <button className="btn btn-primary btn-sm px-4"
-                                onClick={handleViewReport}>
-                            Xem báo cáo
-                        </button>
+                <div className="row g-2 mb-3">
+                    <div className="col-6">
+                        <label className="small mb-1">Loại biểu đồ</label>
+                        <select className="form-select form-select-sm"
+                                value={chartType}
+                                onChange={(e) => setChartType(e.target.value)}>
+                            <option>Biểu đồ cột</option>
+                            <option>Biểu đồ tròn</option>
+                            <option>Biểu đồ đường</option>
+                        </select>
                     </div>
 
+                    <div className="col-6">
+                        <label className="small mb-1">Tiêu chí thống kê</label>
+                        <select className="form-select form-select-sm"
+                                value={reportType}
+                                onChange={(e) => setReportType(e.target.value)}>
+                            <option>Doanh thu</option>
+                            <option>Hiệu suất nhân viên</option>
+                            <option>Theo hãng</option>
+                        </select>
+                    </div>
                 </div>
+
+                {/* Thời gian chính */}
+                <fieldset className="border rounded p-3 mb-3">
+                    <legend className="small text-muted px-2">Thời gian chính</legend>
+
+                    <div className="form-check small mb-1">
+                        <input type="radio" className="form-check-input"
+                               checked={mainMode === "period"}
+                               onChange={() => setMainMode("period")} />
+                        <label className="ms-1">Mốc thời gian</label>
+                    </div>
+
+                    {mainMode === "period" && (
+                        <select className="form-select form-select-sm"
+                                value={selectedPeriod}
+                                onChange={(e) => setSelectedPeriod(e.target.value)}>
+                            {periodOptionsMain.map((v, i) => <option key={i}>{v}</option>)}
+                        </select>
+                    )}
+
+                    <div className="form-check small mt-2 mb-1">
+                        <input type="radio" className="form-check-input"
+                               checked={mainMode === "range"}
+                               onChange={() => setMainMode("range")} />
+                        <label className="ms-1">Chọn khoảng</label>
+                    </div>
+
+                    {mainMode === "range" && (
+                        <div className="d-flex gap-2">
+                            <input type="date" className="form-control form-control-sm"
+                                   value={mainStartDate}
+                                   onChange={(e) => setMainStartDate(e.target.value)} />
+                            <input type="date" className="form-control form-control-sm"
+                                   value={mainEndDate}
+                                   onChange={(e) => setMainEndDate(e.target.value)} />
+                        </div>
+                    )}
+                </fieldset>
+
+                {/* So sánh */}
+                <fieldset className="border rounded p-3 mb-3">
+                    <legend className="small text-muted px-2">So sánh với</legend>
+
+                    <div className="form-check small mb-2">
+                        <input type="checkbox" className="form-check-input"
+                               checked={enableCompare}
+                               onChange={() => setEnableCompare(!enableCompare)} />
+                        <label className="ms-1">Bật so sánh</label>
+                    </div>
+
+                    <div style={{
+                        opacity: enableCompare ? 1 : 0.5,
+                        pointerEvents: enableCompare ? "auto" : "none"
+                    }}>
+                        <div className="form-check small mb-1">
+                            <input type="radio" className="form-check-input"
+                                   checked={compareMode === "period"}
+                                   onChange={() => setCompareMode("period")} />
+                            <label className="ms-1">Mốc thời gian</label>
+                        </div>
+
+                        {compareMode === "period" && (
+                            <select className="form-select form-select-sm"
+                                    value={selectedComparePeriod}
+                                    onChange={(e) => setSelectedComparePeriod(e.target.value)}>
+                                {periodOptionsCompare.map((v, i) => <option key={i}>{v}</option>)}
+                            </select>
+                        )}
+
+                        <div className="form-check small mt-2 mb-1">
+                            <input type="radio" className="form-check-input"
+                                   checked={compareMode === "range"}
+                                   onChange={() => setCompareMode("range")} />
+                            <label className="ms-1">Chọn khoảng</label>
+                        </div>
+
+                        {compareMode === "range" && (
+                            <div className="d-flex gap-2">
+                                <input type="date" className="form-control form-control-sm"
+                                       value={compareStartDate}
+                                       onChange={(e) => setCompareStartDate(e.target.value)} />
+                                <input type="date" className="form-control form-control-sm"
+                                       value={compareEndDate}
+                                       onChange={(e) => setCompareEndDate(e.target.value)} />
+                            </div>
+                        )}
+                    </div>
+                </fieldset>
+
+                <div className="text-center">
+                    <button
+                        className="btn btn-primary btn-sm px-4 me-2"
+                        onClick={handleViewReport}
+                    >
+                        Xem báo cáo
+                    </button>
+
+                    <Link
+                        to="/flights"
+                        className="btn btn-secondary btn-sm px-4"
+                    >
+                        Quay lại
+                    </Link>
+                </div>
+
+
             </div>
         </div>
     );

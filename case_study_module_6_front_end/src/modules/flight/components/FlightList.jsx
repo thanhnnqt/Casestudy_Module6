@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
-import { Link } from "react-router-dom";
-import { getAllFlights } from "../service/flightService";
-import { getAirports, getAirlines, getFlightNumberSuggestions } from "../service/masterDataService";
-import { toast } from "react-toastify";
-import { DateRangePicker } from 'react-date-range';
-import { vi } from 'date-fns/locale';
+import React, {useEffect, useState, useCallback, useRef} from "react";
+import {Link} from "react-router-dom";
+import {getAllFlights} from "../service/flightService";
+import {getAirports, getAirlines, getFlightNumberSuggestions} from "../service/masterDataService";
+import {toast} from "react-toastify";
+import {DateRangePicker} from 'react-date-range';
+import {vi} from 'date-fns/locale';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import "./FlightList.css";
@@ -29,9 +29,9 @@ const FlightList = () => {
         minPrice: "", maxPrice: "", status: ""
     });
 
-    const [priceRange, setPriceRange] = useState({ min: 0, max: 20000000 });
+    const [priceRange, setPriceRange] = useState({min: 0, max: 20000000});
     const [showDatePicker, setShowDatePicker] = useState(false);
-    const [dateRange, setDateRange] = useState([{ startDate: null, endDate: null, key: 'selection' }]);
+    const [dateRange, setDateRange] = useState([{startDate: null, endDate: null, key: 'selection'}]);
     const [sortConfig, setSortConfig] = useState([]);
 
     const [suggestionAirlines, setSuggestionAirlines] = useState([]);
@@ -52,7 +52,7 @@ const FlightList = () => {
     const performSearch = useCallback(async (currentFilters, currentSorts, page = 0, size = pageSize) => {
         try {
             const sortParams = currentSorts.map(s => `${s.key},${s.direction}`);
-            const params = { ...currentFilters, sort: sortParams, page: page, size: size };
+            const params = {...currentFilters, sort: sortParams, page: page, size: size};
             Object.keys(params).forEach(key => (params[key] === "" || params[key] === null) && delete params[key]);
 
             const data = await getAllFlights(params);
@@ -78,11 +78,16 @@ const FlightList = () => {
     useEffect(() => {
         const initData = async () => {
             try {
-                const airlines = await getAirlines(); setSuggestionAirlines(airlines || []);
-                const flightNums = await getFlightNumberSuggestions(); setSuggestionFlightNums(flightNums || []);
-                const airports = await getAirports(); setSuggestionCities([...new Set((airports || []).map(a => a.city))]);
+                const airlines = await getAirlines();
+                setSuggestionAirlines(airlines || []);
+                const flightNums = await getFlightNumberSuggestions();
+                setSuggestionFlightNums(flightNums || []);
+                const airports = await getAirports();
+                setSuggestionCities([...new Set((airports || []).map(a => a.city))]);
                 performSearch({}, [], 0, pageSize);
-            } catch (error) { console.error(error); }
+            } catch (error) {
+                console.error(error);
+            }
         };
         initData();
     }, []);
@@ -92,7 +97,7 @@ const FlightList = () => {
         if (newPage >= 0 && newPage < totalPages) {
             setCurrentPage(newPage);
             performSearch(filters, sortConfig, newPage, pageSize);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
     };
 
@@ -104,9 +109,15 @@ const FlightList = () => {
     };
 
     const handleSearchBtn = () => {
-        const { startDate, endDate } = filters;
-        if ((startDate && !endDate) || (!startDate && endDate)) { toast.warning("Nhập đủ Từ ngày & Đến ngày"); return; }
-        if (startDate && endDate && new Date(startDate) > new Date(endDate)) { toast.warning("Ngày bắt đầu không được lớn hơn ngày kết thúc"); return; }
+        const {startDate, endDate} = filters;
+        if ((startDate && !endDate) || (!startDate && endDate)) {
+            toast.warning("Nhập đủ Từ ngày & Đến ngày");
+            return;
+        }
+        if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+            toast.warning("Ngày bắt đầu không được lớn hơn ngày kết thúc");
+            return;
+        }
         setCurrentPage(0);
         performSearch(filters, sortConfig, 0, pageSize);
     };
@@ -115,10 +126,10 @@ const FlightList = () => {
         setSortConfig(prevSorts => {
             const newSorts = [...prevSorts];
             const existingIndex = newSorts.findIndex(item => item.key === key);
-            if (existingIndex === -1) newSorts.push({ key, direction: 'asc' });
+            if (existingIndex === -1) newSorts.push({key, direction: 'asc'});
             else {
                 const existingItem = newSorts[existingIndex];
-                if (existingItem.direction === 'asc') newSorts[existingIndex] = { ...existingItem, direction: 'desc' };
+                if (existingItem.direction === 'asc') newSorts[existingIndex] = {...existingItem, direction: 'desc'};
                 else newSorts.splice(existingIndex, 1);
             }
             performSearch(filters, newSorts, 0, pageSize);
@@ -127,21 +138,21 @@ const FlightList = () => {
         });
     };
 
-    const handleFilterChange = (event) => setFilters({ ...filters, [event.target.name]: event.target.value });
+    const handleFilterChange = (event) => setFilters({...filters, [event.target.name]: event.target.value});
     const handlePriceRangeChange = (e, type) => {
         const value = parseInt(e.target.value);
-        let newRange = { ...priceRange };
+        let newRange = {...priceRange};
         if (type === 'min') newRange.min = Math.min(value, priceRange.max);
         else newRange.max = Math.max(value, priceRange.min);
         setPriceRange(newRange);
-        setFilters(prev => ({ ...prev, minPrice: newRange.min, maxPrice: newRange.max }));
+        setFilters(prev => ({...prev, minPrice: newRange.min, maxPrice: newRange.max}));
     };
     const handleDateRangeSelect = (ranges) => {
-        const { startDate, endDate } = ranges.selection;
+        const {startDate, endDate} = ranges.selection;
         setDateRange([ranges.selection]);
         if (startDate && endDate && startDate.getTime() !== endDate.getTime()) {
             const formatDate = (date) => new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-            setFilters(prev => ({ ...prev, startDate: formatDate(startDate), endDate: formatDate(endDate) }));
+            setFilters(prev => ({...prev, startDate: formatDate(startDate), endDate: formatDate(endDate)}));
             setTimeout(() => setShowDatePicker(false), 500);
         }
     };
@@ -154,17 +165,18 @@ const FlightList = () => {
     };
     const renderSortIndex = (key) => {
         const index = sortConfig.findIndex(s => s.key === key);
-        return index !== -1 && sortConfig.length > 1 ? <sup className="ms-1 text-warning fw-bold">{index + 1}</sup> : null;
+        return index !== -1 && sortConfig.length > 1 ?
+            <sup className="ms-1 text-warning fw-bold">{index + 1}</sup> : null;
     };
     const renderStatusBadge = (st) => {
         const map = {
-            'SCHEDULED': { class: 'bg-info text-dark', text: 'Theo lịch' },
-            'DELAYED': { class: 'bg-warning text-dark', text: 'Hoãn' },
-            'IN_FLIGHT': { class: 'bg-success', text: 'Đang bay' },
-            'CANCELLED': { class: 'bg-danger', text: 'Đã hủy' },
-            'COMPLETED': { class: 'bg-primary', text: 'Hạ cánh' }
+            'SCHEDULED': {class: 'bg-info text-dark', text: 'Theo lịch'},
+            'DELAYED': {class: 'bg-warning text-dark', text: 'Hoãn'},
+            'IN_FLIGHT': {class: 'bg-success', text: 'Đang bay'},
+            'CANCELLED': {class: 'bg-danger', text: 'Đã hủy'},
+            'COMPLETED': {class: 'bg-primary', text: 'Hạ cánh'}
         };
-        const status = map[st] || { class: 'bg-secondary', text: st };
+        const status = map[st] || {class: 'bg-secondary', text: st};
         return <span className={`badge ${status.class} rounded-pill`}>{status.text}</span>;
     };
     const stats = {
@@ -176,7 +188,7 @@ const FlightList = () => {
     const getProgressBarStyle = () => {
         const minPercent = (priceRange.min / 20000000) * 100;
         const maxPercent = (priceRange.max / 20000000) * 100;
-        return { left: `${minPercent}%`, right: `${100 - maxPercent}%` };
+        return {left: `${minPercent}%`, right: `${100 - maxPercent}%`};
     };
     const formatDateDisplay = () => {
         if (dateRange[0].startDate && dateRange[0].endDate) {
@@ -199,31 +211,96 @@ const FlightList = () => {
                     <Link to="/flights/create" className="btn btn-gradient shadow-lg">
                         <i className="bi bi-plus-lg me-2"></i>Thêm chuyến
                     </Link>
-                    <Link to="/report" className="btn btn-outline-dark shadow-sm">
-                        <i className="bi bi-bar-chart-line-fill me-2"></i>Báo cáo
-                    </Link>
                 </div>
             </div>
 
             {/* Stats Cards */}
             <div className="row mb-4">
-                <div className="col-md-3"><div className="glass-card stat-card" style={{borderBottom: '5px solid #2ed573'}}><i className="bi bi-airplane-fill stat-icon text-success"></i><div className="stat-value">{stats.total}</div><div className="stat-label">Tổng chuyến</div></div></div>
-                <div className="col-md-3"><div className="glass-card stat-card" style={{borderBottom: '5px solid #ff4757'}}><i className="bi bi-exclamation-triangle-fill stat-icon text-danger"></i><div className="stat-value">{stats.delayed}</div><div className="stat-label">Bị hoãn</div></div></div>
-                <div className="col-md-3"><div className="glass-card stat-card" style={{borderBottom: '5px solid #ffa502'}}><i className="bi bi-megaphone-fill stat-icon text-warning"></i><div className="stat-value">{stats.inFlight}</div><div className="stat-label">Đang bay</div></div></div>
-                <div className="col-md-3"><div className="glass-card stat-card" style={{borderBottom: '5px solid #1e90ff'}}><i className="bi bi-check-circle-fill stat-icon text-primary"></i><div className="stat-value">{stats.completed}</div><div className="stat-label">Đã hạ cánh</div></div></div>
+                <div className="col-md-3">
+                    <div className="glass-card stat-card" style={{borderBottom: '5px solid #2ed573'}}><i
+                        className="bi bi-airplane-fill stat-icon text-success"></i>
+                        <div className="stat-value">{stats.total}</div>
+                        <div className="stat-label">Tổng chuyến</div>
+                    </div>
+                </div>
+                <div className="col-md-3">
+                    <div className="glass-card stat-card" style={{borderBottom: '5px solid #ff4757'}}><i
+                        className="bi bi-exclamation-triangle-fill stat-icon text-danger"></i>
+                        <div className="stat-value">{stats.delayed}</div>
+                        <div className="stat-label">Bị hoãn</div>
+                    </div>
+                </div>
+                <div className="col-md-3">
+                    <div className="glass-card stat-card" style={{borderBottom: '5px solid #ffa502'}}><i
+                        className="bi bi-megaphone-fill stat-icon text-warning"></i>
+                        <div className="stat-value">{stats.inFlight}</div>
+                        <div className="stat-label">Đang bay</div>
+                    </div>
+                </div>
+                <div className="col-md-3">
+                    <div className="glass-card stat-card" style={{borderBottom: '5px solid #1e90ff'}}><i
+                        className="bi bi-check-circle-fill stat-icon text-primary"></i>
+                        <div className="stat-value">{stats.completed}</div>
+                        <div className="stat-label">Đã hạ cánh</div>
+                    </div>
+                </div>
             </div>
 
             {/* Filter Section */}
-            <div className="glass-card p-3 mb-4" style={{ position: 'relative', zIndex: 10 }}>
+            <div className="glass-card p-3 mb-4" style={{position: 'relative', zIndex: 10}}>
                 <div className="row g-3 mb-3">
-                    <div className="col-md-4"><label className="form-label text-muted small fw-bold">TỪ KHÓA</label><input name="keyword" className="form-control custom-input" placeholder="Hãng / Số hiệu..." onChange={handleFilterChange} list="kwOpt"/><datalist id="kwOpt">{suggestionAirlines.map(a => <option key={a.id} value={a.name}/>)}{suggestionFlightNums.map((n,i) => <option key={i} value={n}/>)}</datalist></div>
-                    <div className="col-md-4"><label className="form-label text-muted small fw-bold">KHOẢNG GIÁ</label><div className="price-range-container"><div className="d-flex justify-content-between mb-1"><span className="text-dark fw-bold small">{(priceRange.min/1000000).toFixed(1)}tr</span><span className="text-dark fw-bold small">{(priceRange.max/1000000).toFixed(1)}tr</span></div><div className="range-slider-wrapper"><div className="slider-track"><div className="slider-range" style={getProgressBarStyle()}></div></div><input type="range" min="0" max="20000000" step="500000" value={priceRange.min} onChange={(e) => handlePriceRangeChange(e, 'min')} className="range-slider-input" /><input type="range" min="0" max="20000000" step="500000" value={priceRange.max} onChange={(e) => handlePriceRangeChange(e, 'max')} className="range-slider-input" /></div></div></div>
-                    <div className="col-md-4"><label className="form-label text-muted small fw-bold">KHOẢNG NGÀY</label><div className="date-range-picker-container" ref={datePickerRef}><div className="custom-input d-flex align-items-center justify-content-between date-input-display" onClick={() => setShowDatePicker(!showDatePicker)}><span>{formatDateDisplay()}</span><i className="bi bi-calendar-range"></i></div>{showDatePicker && (<div className="date-picker-dropdown-calendar"><DateRangePicker ranges={dateRange} onChange={handleDateRangeSelect} months={2} direction="horizontal" locale={vi} showDateDisplay={false} moveRangeOnFirstSelection={false} rangeColors={['#764ba2']} className="custom-date-range-picker" /></div>)}</div></div>
+                    <div className="col-md-4"><label className="form-label text-muted small fw-bold">TỪ
+                        KHÓA</label><input name="keyword" className="form-control custom-input"
+                                           placeholder="Hãng / Số hiệu..." onChange={handleFilterChange} list="kwOpt"/>
+                        <datalist id="kwOpt">{suggestionAirlines.map(a => <option key={a.id}
+                                                                                  value={a.name}/>)}{suggestionFlightNums.map((n, i) =>
+                            <option key={i} value={n}/>)}</datalist>
+                    </div>
+                    <div className="col-md-4"><label className="form-label text-muted small fw-bold">KHOẢNG GIÁ</label>
+                        <div className="price-range-container">
+                            <div className="d-flex justify-content-between mb-1"><span
+                                className="text-dark fw-bold small">{(priceRange.min / 1000000).toFixed(1)}tr</span><span
+                                className="text-dark fw-bold small">{(priceRange.max / 1000000).toFixed(1)}tr</span>
+                            </div>
+                            <div className="range-slider-wrapper">
+                                <div className="slider-track">
+                                    <div className="slider-range" style={getProgressBarStyle()}></div>
+                                </div>
+                                <input type="range" min="0" max="20000000" step="500000" value={priceRange.min}
+                                       onChange={(e) => handlePriceRangeChange(e, 'min')}
+                                       className="range-slider-input"/><input type="range" min="0" max="20000000"
+                                                                              step="500000" value={priceRange.max}
+                                                                              onChange={(e) => handlePriceRangeChange(e, 'max')}
+                                                                              className="range-slider-input"/></div>
+                        </div>
+                    </div>
+                    <div className="col-md-4"><label className="form-label text-muted small fw-bold">KHOẢNG NGÀY</label>
+                        <div className="date-range-picker-container" ref={datePickerRef}>
+                            <div
+                                className="custom-input d-flex align-items-center justify-content-between date-input-display"
+                                onClick={() => setShowDatePicker(!showDatePicker)}><span>{formatDateDisplay()}</span><i
+                                className="bi bi-calendar-range"></i></div>
+                            {showDatePicker && (
+                                <div className="date-picker-dropdown-calendar"><DateRangePicker ranges={dateRange}
+                                                                                                onChange={handleDateRangeSelect}
+                                                                                                months={2}
+                                                                                                direction="horizontal"
+                                                                                                locale={vi}
+                                                                                                showDateDisplay={false}
+                                                                                                moveRangeOnFirstSelection={false}
+                                                                                                rangeColors={['#764ba2']}
+                                                                                                className="custom-date-range-picker"/>
+                                </div>)}</div>
+                    </div>
                 </div>
                 <div className="row g-2 align-items-end">
-                    <div className="col-md-3"><label className="form-label text-muted small fw-bold">NƠI ĐI</label><input name="origin" className="form-control custom-input" placeholder="Nơi đi" onChange={handleFilterChange} list="cityOpt"/></div>
-                    <div className="col-md-3"><label className="form-label text-muted small fw-bold">NƠI ĐẾN</label><input name="destination" className="form-control custom-input" placeholder="Nơi đến" onChange={handleFilterChange} list="cityOpt"/></div>
-                    <datalist id="cityOpt">{suggestionCities.map((c,i) => <option key={i} value={c}/>)}</datalist>
+                    <div className="col-md-3"><label className="form-label text-muted small fw-bold">NƠI
+                        ĐI</label><input name="origin" className="form-control custom-input" placeholder="Nơi đi"
+                                         onChange={handleFilterChange} list="cityOpt"/></div>
+                    <div className="col-md-3"><label className="form-label text-muted small fw-bold">NƠI
+                        ĐẾN</label><input name="destination" className="form-control custom-input" placeholder="Nơi đến"
+                                          onChange={handleFilterChange} list="cityOpt"/></div>
+                    <datalist id="cityOpt">{suggestionCities.map((c, i) => <option key={i} value={c}/>)}</datalist>
                     <div className="col-md-3">
                         <label className="form-label text-muted small fw-bold">TRẠNG THÁI</label>
                         <select name="status" className="form-select custom-input" onChange={handleFilterChange}>
@@ -235,7 +312,11 @@ const FlightList = () => {
                             <option value="CANCELLED">CANCELLED</option>
                         </select>
                     </div>
-                    <div className="col-md-3"><button className="btn btn-primary w-100 fw-bold shadow-sm custom-input" onClick={handleSearchBtn}><i className="bi bi-search me-1"></i> Tìm kiếm</button></div>
+                    <div className="col-md-3">
+                        <button className="btn btn-primary w-100 fw-bold shadow-sm custom-input"
+                                onClick={handleSearchBtn}><i className="bi bi-search me-1"></i> Tìm kiếm
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -243,40 +324,55 @@ const FlightList = () => {
             <div className="sort-toolbar shadow-sm d-flex justify-content-between">
                 <div className="d-flex align-items-center gap-2 flex-wrap">
                     <span className="sort-label"><i className="bi bi-sort-down-alt me-2"></i>Sắp xếp:</span>
-                    <button className={`btn btn-sort ${isSorted('departureTime') ? 'active' : ''}`} onClick={() => handleSort('departureTime')}>Giờ bay {renderSortIcon('departureTime')} {renderSortIndex('departureTime')}</button>
-                    <button className={`btn btn-sort ${isSorted('aircraft.airline.name') ? 'active' : ''}`} onClick={() => handleSort('aircraft.airline.name')}>Hãng {renderSortIcon('aircraft.airline.name')} {renderSortIndex('aircraft.airline.name')}</button>
-                    <button className={`btn btn-sort ${isSorted('status') ? 'active' : ''}`} onClick={() => handleSort('status')}>Trạng thái {renderSortIcon('status')} {renderSortIndex('status')}</button>
+                    <button className={`btn btn-sort ${isSorted('departureTime') ? 'active' : ''}`}
+                            onClick={() => handleSort('departureTime')}>Giờ
+                        bay {renderSortIcon('departureTime')} {renderSortIndex('departureTime')}</button>
+                    <button className={`btn btn-sort ${isSorted('aircraft.airline.name') ? 'active' : ''}`}
+                            onClick={() => handleSort('aircraft.airline.name')}>Hãng {renderSortIcon('aircraft.airline.name')} {renderSortIndex('aircraft.airline.name')}</button>
+                    <button className={`btn btn-sort ${isSorted('status') ? 'active' : ''}`}
+                            onClick={() => handleSort('status')}>Trạng
+                        thái {renderSortIcon('status')} {renderSortIndex('status')}</button>
                 </div>
                 <div className="view-mode-group">
-                    <button className={`btn btn-view-mode ${viewMode === 'table' ? 'active' : ''}`} onClick={() => setViewMode('table')} title="Dạng bảng"><i className="bi bi-table"></i></button>
-                    <button className={`btn btn-view-mode ${viewMode === 'card' ? 'active' : ''}`} onClick={() => setViewMode('card')} title="Dạng thẻ"><i className="bi bi-card-list"></i></button>
+                    <button className={`btn btn-view-mode ${viewMode === 'table' ? 'active' : ''}`}
+                            onClick={() => setViewMode('table')} title="Dạng bảng"><i className="bi bi-table"></i>
+                    </button>
+                    <button className={`btn btn-view-mode ${viewMode === 'card' ? 'active' : ''}`}
+                            onClick={() => setViewMode('card')} title="Dạng thẻ"><i className="bi bi-card-list"></i>
+                    </button>
                 </div>
             </div>
 
             {/* FLIGHT LIST WRAPPER */}
             <div className="flight-list-wrapper">
                 <div className="d-flex justify-content-between align-items-center mb-3 px-2">
-                    <h6 className="fw-bold mb-0 text-secondary" style={{ fontSize: '0.95rem' }}>
+                    <h6 className="fw-bold mb-0 text-secondary" style={{fontSize: '0.95rem'}}>
                         Trang {currentPage + 1} / {totalPages > 0 ? totalPages : 1} ({totalElements} kết quả)
                     </h6>
-                    <span className="badge bg-danger rounded-pill px-3 py-2 live-badge shadow-sm" style={{fontSize: '0.7rem'}}>LIVE <i className="bi bi-broadcast"></i></span>
+                    <span className="badge bg-danger rounded-pill px-3 py-2 live-badge shadow-sm"
+                          style={{fontSize: '0.7rem'}}>LIVE <i className="bi bi-broadcast"></i></span>
                 </div>
 
                 {flights.length === 0 ? (
-                    <div className="text-center py-5 glass-card"><i className="bi bi-cloud-slash text-muted" style={{ fontSize: '3rem' }}></i><p className="mt-3 text-muted fw-bold">Không tìm thấy chuyến bay nào phù hợp.</p></div>
+                    <div className="text-center py-5 glass-card"><i className="bi bi-cloud-slash text-muted"
+                                                                    style={{fontSize: '3rem'}}></i><p
+                        className="mt-3 text-muted fw-bold">Không tìm thấy chuyến bay nào phù hợp.</p></div>
                 ) : (
                     viewMode === 'card' ? (
                         flights.map(f => (
-                            <div key={f.id} className={`flight-card ${f.status === 'CANCELLED' ? 'opacity-75 bg-light' : ''}`}>
+                            <div key={f.id}
+                                 className={`flight-card ${f.status === 'CANCELLED' ? 'opacity-75 bg-light' : ''}`}>
                                 <div className="row align-items-center g-0">
                                     <div className="col-md-4 border-end pe-3">
                                         <div className="d-flex align-items-center gap-3">
-                                            <img src={f.aircraft.airline.logoUrl} alt="Logo" className="fc-airline-logo" />
+                                            <img src={f.aircraft.airline.logoUrl} alt="Logo"
+                                                 className="fc-airline-logo"/>
                                             <div>
                                                 <div className="fc-airline-name">{f.aircraft.airline.name}</div>
                                                 <div className="d-flex gap-2 align-items-center mt-1">
                                                     <span className="fc-plane-badge">{f.aircraft.name}</span>
-                                                    <span className="text-muted small fw-bold">#{f.aircraft.airline.code}{f.flightNumber}</span>
+                                                    <span
+                                                        className="text-muted small fw-bold">#{f.aircraft.airline.code}{f.flightNumber}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -284,8 +380,13 @@ const FlightList = () => {
                                     <div className="col-md-5 px-4 border-end">
                                         <div className="d-flex align-items-center justify-content-between">
                                             <div className="fc-time-group">
-                                                <span className="fc-date">{new Date(f.departureTime).toLocaleDateString('vi-VN')}</span>
-                                                <div className="fc-time">{new Date(f.departureTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</div>
+                                                <span
+                                                    className="fc-date">{new Date(f.departureTime).toLocaleDateString('vi-VN')}</span>
+                                                <div
+                                                    className="fc-time">{new Date(f.departureTime).toLocaleTimeString('vi-VN', {
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                })}</div>
                                                 <div className="fc-city-code">{f.departureAirport.code}</div>
                                                 <div className="fc-city-name">{f.departureAirport.city}</div>
                                             </div>
@@ -301,8 +402,13 @@ const FlightList = () => {
                                                 <div className="fc-line"></div>
                                             </div>
                                             <div className="fc-time-group">
-                                                <span className="fc-date">{new Date(f.arrivalTime).toLocaleDateString('vi-VN')}</span>
-                                                <div className="fc-time">{new Date(f.arrivalTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</div>
+                                                <span
+                                                    className="fc-date">{new Date(f.arrivalTime).toLocaleDateString('vi-VN')}</span>
+                                                <div
+                                                    className="fc-time">{new Date(f.arrivalTime).toLocaleTimeString('vi-VN', {
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                })}</div>
                                                 <div className="fc-city-code">{f.arrivalAirport.code}</div>
                                                 <div className="fc-city-name">{f.arrivalAirport.city}</div>
                                             </div>
@@ -315,10 +421,13 @@ const FlightList = () => {
                                                 {f.seatDetails && f.seatDetails.length > 0 ? (
                                                     f.seatDetails.map((seat) => (
                                                         <div key={seat.id} className="seat-detail-row">
-                                                            <span className="seat-class-name small text-uppercase">{seat.seatClass === 'FIRST_CLASS' ? 'First' : seat.seatClass}</span>
+                                                            <span
+                                                                className="seat-class-name small text-uppercase">{seat.seatClass === 'FIRST_CLASS' ? 'First' : seat.seatClass}</span>
                                                             <div className="text-end">
-                                                                <span className="seat-price d-block">{seat.price.toLocaleString()}đ</span>
-                                                                <span className="seat-avail">Còn {seat.availableSeats}</span>
+                                                                <span
+                                                                    className="seat-price d-block">{seat.price.toLocaleString()}đ</span>
+                                                                <span
+                                                                    className="seat-avail">Còn {seat.availableSeats}</span>
                                                             </div>
                                                         </div>
                                                     ))
@@ -326,7 +435,8 @@ const FlightList = () => {
                                             </div>
                                             {f.status !== 'CANCELLED' && f.status !== 'COMPLETED' && (
                                                 <div className="text-end mt-2">
-                                                    <Link to={`/flights/edit/${f.id}`} className="btn-edit-card"><i className="bi bi-pencil-square me-1"></i> Sửa</Link>
+                                                    <Link to={`/flights/edit/${f.id}`} className="btn-edit-card"><i
+                                                        className="bi bi-pencil-square me-1"></i> Sửa</Link>
                                                 </div>
                                             )}
                                         </div>
@@ -351,40 +461,54 @@ const FlightList = () => {
                                     </thead>
                                     <tbody>
                                     {flights.map(f => (
-                                        <tr key={f.id} className={f.status === 'CANCELLED' ? 'table-secondary opacity-75' : ''}>
+                                        <tr key={f.id}
+                                            className={f.status === 'CANCELLED' ? 'table-secondary opacity-75' : ''}>
                                             <td className="ps-4">
                                                 <div className="d-flex align-items-center gap-2">
-                                                    <img src={f.aircraft.airline.logoUrl} alt="Logo" style={{width: '30px', height: '30px', objectFit:'contain'}} />
+                                                    <img src={f.aircraft.airline.logoUrl} alt="Logo"
+                                                         style={{width: '30px', height: '30px', objectFit: 'contain'}}/>
                                                     <div>
                                                         <div className="fw-bold text-dark">{f.flightNumber}</div>
-                                                        <small className="text-muted" style={{fontSize: '0.75rem'}}>{f.aircraft.airline.name}</small>
+                                                        <small className="text-muted"
+                                                               style={{fontSize: '0.75rem'}}>{f.aircraft.airline.name}</small>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td>
                                                 <div className="d-flex flex-column">
-                                                    <span className="fw-bold">{f.departureAirport.code} <i className="bi bi-arrow-right text-muted mx-1"></i> {f.arrivalAirport.code}</span>
-                                                    <small className="text-muted">{f.departureAirport.city} - {f.arrivalAirport.city}</small>
+                                                    <span className="fw-bold">{f.departureAirport.code} <i
+                                                        className="bi bi-arrow-right text-muted mx-1"></i> {f.arrivalAirport.code}</span>
+                                                    <small
+                                                        className="text-muted">{f.departureAirport.city} - {f.arrivalAirport.city}</small>
                                                 </div>
                                             </td>
                                             <td>
                                                 <div className="d-flex flex-column">
-                                                    <span className="fw-bold">{new Date(f.departureTime).toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'})}</span>
-                                                    <small className="text-muted">{new Date(f.departureTime).toLocaleDateString('vi-VN')}</small>
+                                                    <span
+                                                        className="fw-bold">{new Date(f.departureTime).toLocaleTimeString('vi-VN', {
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    })}</span>
+                                                    <small
+                                                        className="text-muted">{new Date(f.departureTime).toLocaleDateString('vi-VN')}</small>
                                                 </div>
                                             </td>
                                             <td>
                                                 <small className="fw-bold d-block">{f.aircraft.name}</small>
-                                                <small className="text-muted" style={{fontSize: '0.7rem'}}>{f.aircraft.registrationCode}</small>
+                                                <small className="text-muted"
+                                                       style={{fontSize: '0.7rem'}}>{f.aircraft.registrationCode}</small>
                                             </td>
                                             <td>{renderStatusBadge(f.status)}</td>
                                             <td>
                                                 <div style={{minWidth: '180px'}}>
                                                     {f.seatDetails && f.seatDetails.length > 0 ? (
                                                         f.seatDetails.map(s => (
-                                                            <div key={s.id} className="d-flex justify-content-between small border-bottom border-secondary-subtle py-1">
-                                                                <span className="text-muted">{s.seatClass === 'FIRST_CLASS' ? 'First' : s.seatClass}</span>
-                                                                <span className="fw-bold text-primary">{s.price.toLocaleString()}đ</span>
+                                                            <div key={s.id}
+                                                                 className="d-flex justify-content-between small border-bottom border-secondary-subtle py-1">
+                                                                <span
+                                                                    className="text-muted">{s.seatClass === 'FIRST_CLASS' ? 'First' : s.seatClass}</span>
+                                                                <span
+                                                                    className="fw-bold text-primary">{s.price.toLocaleString()}đ</span>
                                                             </div>
                                                         ))
                                                     ) : <small className="text-muted">--</small>}
@@ -392,7 +516,8 @@ const FlightList = () => {
                                             </td>
                                             <td className="text-end pe-4">
                                                 {f.status !== 'CANCELLED' && f.status !== 'COMPLETED' ? (
-                                                    <Link to={`/flights/edit/${f.id}`} className="btn btn-sm btn-outline-primary border-0 rounded-circle">
+                                                    <Link to={`/flights/edit/${f.id}`}
+                                                          className="btn btn-sm btn-outline-primary border-0 rounded-circle">
                                                         <i className="bi bi-pencil-square"></i>
                                                     </Link>
                                                 ) : <span className="text-muted small">--</span>}
@@ -408,7 +533,8 @@ const FlightList = () => {
 
                 {/* --- PAGINATION BAR --- */}
                 {totalPages > 0 && (
-                    <div className="d-flex justify-content-between align-items-center gap-3 mt-4 pt-3 border-top border-light-subtle">
+                    <div
+                        className="d-flex justify-content-between align-items-center gap-3 mt-4 pt-3 border-top border-light-subtle">
                         <div className="d-flex align-items-center">
                             <span className="text-muted small me-2">Hiển thị:</span>
                             <select
