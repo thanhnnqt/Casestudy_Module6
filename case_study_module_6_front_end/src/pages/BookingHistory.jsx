@@ -166,7 +166,8 @@ const BookingHistory = () => {
                                                 </div>
                                             </div>
                                             <div className="text-center small text-muted">
-                                                Ngày khởi hành: {new Date(booking.flight?.departureTime).toLocaleDateString('vi-VN')}
+                                                <i className="bi bi-calendar3 me-1"></i>
+                                                Khởi hành: {formatDate(booking.flight?.departureTime)}
                                             </div>
                                         </div>
 
@@ -180,15 +181,21 @@ const BookingHistory = () => {
                                         {/* Chuyến về hoặc thông tin thêm */}
                                         <div className="col-12 col-md-4 mb-3 mb-md-0">
                                             {booking.returnFlight ? (
-                                                <div className="d-flex align-items-center justify-content-between px-3 px-md-0">
-                                                    <div className="text-center">
-                                                        <h5 className="mb-0 fw-bold">{booking.returnFlight.departureAirport?.code}</h5>
+                                                <>
+                                                    <div className="d-flex align-items-center justify-content-between px-3 px-md-0">
+                                                        <div className="text-center">
+                                                            <h5 className="mb-0 fw-bold">{booking.returnFlight.departureAirport?.code}</h5>
+                                                        </div>
+                                                        <i className="bi bi-airplane-fill text-warning"></i>
+                                                        <div className="text-center">
+                                                            <h5 className="mb-0 fw-bold">{booking.returnFlight.arrivalAirport?.code}</h5>
+                                                        </div>
                                                     </div>
-                                                    <i className="bi bi-airplane-fill text-warning"></i>
-                                                    <div className="text-center">
-                                                        <h5 className="mb-0 fw-bold">{booking.returnFlight.arrivalAirport?.code}</h5>
+                                                    <div className="text-center small text-muted mt-1">
+                                                        <i className="bi bi-calendar3 me-1"></i>
+                                                        Về: {formatDate(booking.returnFlight.departureTime)}
                                                     </div>
-                                                </div>
+                                                </>
                                             ) : (
                                                 <div className="text-center py-2 bg-light rounded"
                                                     style={{ fontSize: '0.9rem' }}>

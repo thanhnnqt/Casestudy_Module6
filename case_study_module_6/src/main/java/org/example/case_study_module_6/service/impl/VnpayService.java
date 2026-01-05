@@ -12,8 +12,8 @@ public class VnpayService implements IVnpayService {
     @Override
     public String createPaymentUrl(Long amount, String bookingCode, HttpServletRequest request) {
         Map<String, String> params = new HashMap<>();
-        // Sanitize txnRef (Remove hyphens/spaces)
-        String txnRef = bookingCode.replaceAll("[^a-zA-Z0-9]", "");
+        // Sanitize txnRef + Add timestamp để đảm bảo unique mỗi lần thanh toán
+        String txnRef = bookingCode.replaceAll("[^a-zA-Z0-9]", "") + "_" + System.currentTimeMillis();
         
         // --- XỬ LÝ THỜI GIAN (UPDATE: Remove Force 2025) ---
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
