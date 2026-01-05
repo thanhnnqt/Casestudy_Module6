@@ -90,6 +90,7 @@ function AppRouter() {
                 <Route path="/employees/add" element={<AddEmployee />} />
                 <Route path="/report" element={<Report />} />
                 <Route path="/revenue-chart" element={<RevenueChart />} />
+                <Route path="/employee-info" element={<EmployeeInfo />} />
 
                 <Route path="/profile" element={
                     <PrivateRoute>
