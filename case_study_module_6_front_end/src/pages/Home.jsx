@@ -84,7 +84,7 @@ function Home() {
                 infant: form.infant
             }
         };
-        navigate("/flights/booking", { state: searchData });
+        navigate("/customer/booking", { state: searchData });
     };
 
     const admin = {
