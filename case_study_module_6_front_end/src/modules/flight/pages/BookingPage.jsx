@@ -6,22 +6,28 @@ import BookingDetailModal from "./BookingDetailModal";
 import PassengerInputPage from "./PassengerInputPage";
 import { toast } from "react-toastify";
 import "./FlightBooking.css";
-import { useNavigate } from "react-router-dom"; // Dùng để chuyển trang
-import { useAuth } from "../../../context/AuthContext"; // Dùng để lấy thông tin user (Lưu ý đường dẫn import tùy thuộc thư mục của bạn)
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext";
 
 const BookingPage = () => {
-    // --- THÊM MỚI: Khai báo Hook ---
     const navigate = useNavigate();
     const { user } = useAuth();
     const location = useLocation();
     const [step, setStep] = useState(1);
 
+    // --- MỚI: Hàm lấy ngày hiện tại (YYYY-MM-DD) để làm mốc so sánh ---
+    const getTodayStr = () => {
+        // Lưu ý: toISOString lấy giờ UTC. Nếu muốn chính xác giờ Việt Nam nên dùng logic khác.
+        // Ở đây dùng new Date() cơ bản để đơn giản hóa.
+        return new Date().toISOString().split('T')[0];
+    };
+
     const [searchParams, setSearchParams] = useState({
-        origin: "HAN",
-        destination: "SGN",
+        origin: "SGN",
+        destination: "HAN",
         date: "2026-01-10",
-        returnDate: "",
-        tripType: "ONE_WAY"
+        returnDate: "2026-01-11",
+        tripType: "ROUND_TRIP"
     });
 
     const [outboundFlights, setOutboundFlights] = useState([]);
@@ -42,29 +48,25 @@ const BookingPage = () => {
         return { startStr: start.toISOString().split('T')[0], endStr: end.toISOString().split('T')[0] };
     };
 
-    // --- HÀM LỌC CHUYẾN BAY CÒN CHỖ (ISSUE 1) ---
     const filterAvailableFlights = (flights) => {
         if (!flights || flights.length === 0) return [];
         return flights.filter(f => {
-            // Kiểm tra xem có ít nhất 1 hạng ghế còn > 0 chỗ
             const hasSeats = f.seatDetails && f.seatDetails.some(s => s.availableSeats > 0);
             return hasSeats && f.status === "SCHEDULED";
         });
     };
 
     const handleSearch = async (targetDateOut, targetDateIn) => {
-        // --- FIX ISSUE 3: Reset Step về 1 để đóng Modal cũ nếu có ---
         setStep(1);
-
         const dateOut = targetDateOut || searchParams.date;
         const dateIn = targetDateIn || searchParams.returnDate;
 
         if (!targetDateOut) setSelectedOutbound(null);
         if (!targetDateIn) setSelectedInbound(null);
 
-        // 1. TÌM CHIỀU ĐI
         const rangeOut = getRangeDates(dateOut);
         try {
+            // 1. TÌM CHIỀU ĐI
             const resOut = await getAllFlights({
                 origin: searchParams.origin,
                 destination: searchParams.destination,
@@ -72,10 +74,8 @@ const BookingPage = () => {
                 endDate: rangeOut.endStr,
                 size: 500
             });
-            // Lọc chuyến bay còn chỗ
             const allFlightsOut = filterAvailableFlights(resOut.content || []);
 
-            // Tính giá
             const priceMapOut = {};
             allFlightsOut.forEach(f => {
                 const d = f.departureTime.split('T')[0];
@@ -84,7 +84,6 @@ const BookingPage = () => {
             });
             setMinPricesOut(priceMapOut);
 
-            // Lọc hiển thị ngày hiện tại
             let displayOut = allFlightsOut.filter(f => f.departureTime.startsWith(dateOut));
             sortFlights(displayOut);
             setOutboundFlights(displayOut);
@@ -145,17 +144,15 @@ const BookingPage = () => {
             const aps = await getAirports();
             setAirports(aps || []);
 
-            // Kiểm tra xem có dữ liệu từ trang Home truyền qua không
             if (location.state) {
                 const { origin, destination, date, returnDate, tripType } = location.state;
                 setSearchParams({
                     origin: origin || "HAN",
                     destination: destination || "SGN",
-                    date: date || new Date().toISOString().split('T')[0],
+                    date: date || getTodayStr(),
                     returnDate: returnDate || "",
                     tripType: tripType || "ONE_WAY"
                 });
-                // Tự động tìm kiếm với dữ liệu mới
                 handleSearch(date, returnDate);
             } else {
                 handleSearch();
@@ -170,16 +167,12 @@ const BookingPage = () => {
     };
 
     const handleConfirmModal = (configData) => {
-        // KIỂM TRA ĐĂNG NHẬP TẠI ĐÂY
         if (!user) {
             toast.warning("Vui lòng đăng nhập để tiếp tục đặt vé!");
-            // Đóng modal chi tiết (nếu cần) và chuyển về login
             setStep(1);
             navigate("/login");
             return;
         }
-
-        // Nếu đã đăng nhập thì cho qua bước 3 (Nhập thông tin khách)
         setBookingConfig(configData);
         setStep(3);
     };
@@ -236,17 +229,29 @@ const BookingPage = () => {
         );
     };
 
-    const DateBar = ({ baseDate, minPrices, onSelect }) => (
+    // --- CẬP NHẬT DateBar: Nhận prop minDate để ẩn ngày quá khứ ---
+    const DateBar = ({ baseDate, minPrices, onSelect, minDate }) => (
         <div className="date-bar-container mb-3">
             <div className="d-flex gap-2 justify-content-center">
                 {[-2, -1, 0, 1, 2].map(offset => {
                     const d = new Date(baseDate);
                     d.setDate(d.getDate() + offset);
                     const dStr = d.toISOString().split('T')[0];
+
                     const isSelected = offset === 0;
                     const price = minPrices[dStr];
+
+                    // Logic: Nếu có minDate và ngày hiện tại nhỏ hơn minDate -> Ẩn đi
+                    const isHidden = minDate && dStr < minDate;
+
                     return (
-                        <div key={offset} className={`date-cell ${isSelected ? 'active' : ''}`} onClick={() => onSelect(dStr)}>
+                        <div
+                            key={offset}
+                            className={`date-cell ${isSelected ? 'active' : ''}`}
+                            // Nếu ẩn thì dùng visibility: hidden để giữ khoảng trống layout không bị giật
+                            style={{ visibility: isHidden ? 'hidden' : 'visible' }}
+                            onClick={() => !isHidden && onSelect(dStr)}
+                        >
                             <div className="small fw-bold">Thứ {d.getDay() + 1}, {d.getDate()}/{d.getMonth() + 1}</div>
                             {price ? (
                                 <div className="text-success fw-bold small mt-1">
@@ -278,7 +283,6 @@ const BookingPage = () => {
                 <i className="bi bi-airplane-fill plane-fly"></i>
             </div>
 
-            {/* --- FIX ISSUE 2: Đẩy Modal ra ngoài container chính để CSS fixed hoạt động đúng --- */}
             {step === 2 && (
                 <BookingDetailModal
                     outboundFlight={selectedOutbound}
@@ -301,7 +305,13 @@ const BookingPage = () => {
 
                         {/* LIST OUTBOUND */}
                         <div className="section-header"><i className="bi bi-airplane-fill me-2"></i> CHIỀU ĐI: {searchParams.origin} ➝ {searchParams.destination}</div>
-                        <DateBar baseDate={searchParams.date} minPrices={minPricesOut} onSelect={(d) => { setSearchParams(prev => ({ ...prev, date: d })); handleSearch(d, null); }} />
+                        {/* --- CẬP NHẬT: Truyền minDate = ngày hiện tại --- */}
+                        <DateBar
+                            baseDate={searchParams.date}
+                            minPrices={minPricesOut}
+                            minDate={getTodayStr()}
+                            onSelect={(d) => { setSearchParams(prev => ({ ...prev, date: d })); handleSearch(d, null); }}
+                        />
                         <div className="flight-list-scroll mb-4">
                             {outboundFlights.length > 0 ? outboundFlights.map(f => renderFlightCard(f, 'OUT')) : <div className="empty-state">Không tìm thấy chuyến bay.</div>}
                         </div>
@@ -312,7 +322,13 @@ const BookingPage = () => {
                                 <div className="section-header bg-success mt-4"><i className="bi bi-airplane-engines-fill me-2"></i> CHIỀU VỀ: {searchParams.destination} ➝ {searchParams.origin}</div>
                                 {searchParams.returnDate ? (
                                     <>
-                                        <DateBar baseDate={searchParams.returnDate} minPrices={minPricesIn} onSelect={(d) => { setSearchParams(prev => ({ ...prev, returnDate: d })); handleSearch(null, d); }} />
+                                        {/* --- CẬP NHẬT: Truyền minDate = ngày đi --- */}
+                                        <DateBar
+                                            baseDate={searchParams.returnDate}
+                                            minPrices={minPricesIn}
+                                            minDate={searchParams.date}
+                                            onSelect={(d) => { setSearchParams(prev => ({ ...prev, returnDate: d })); handleSearch(null, d); }}
+                                        />
                                         <div className="flight-list-scroll mb-4">
                                             {inboundFlights.length > 0 ? inboundFlights.map(f => renderFlightCard(f, 'IN')) : <div className="empty-state">Không tìm thấy chuyến bay về.</div>}
                                         </div>
@@ -325,8 +341,8 @@ const BookingPage = () => {
                     {/* RIGHT SIDEBAR */}
                     <div className="col-md-3">
                         <div className="glass-card p-3 sticky-top" style={{ top: '20px' }}>
-                            {/* ... (Phần Sidebar giữ nguyên code cũ) ... */}
                             <h5 className="fw-bold mb-3"><i className="bi bi-search me-2"></i>TÌM KIẾM</h5>
+                            {/* ... (Các ô input Điểm đi/đến giữ nguyên) ... */}
                             <div className="mb-3">
                                 <label className="form-label small fw-bold">Điểm đi</label>
                                 <select className="form-select custom-input" value={searchParams.origin} onChange={e => setSearchParams({ ...searchParams, origin: e.target.value })}>
@@ -339,10 +355,27 @@ const BookingPage = () => {
                                     {airports.map(a => <option key={a.id} value={a.code}>{a.city} ({a.code})</option>)}
                                 </select>
                             </div>
+
+                            {/* --- CẬP NHẬT NGÀY ĐI --- */}
                             <div className="mb-3">
                                 <label className="form-label small fw-bold">Ngày đi</label>
-                                <input type="date" className="form-control custom-input" value={searchParams.date} onChange={e => setSearchParams({ ...searchParams, date: e.target.value })} />
+                                <input
+                                    type="date"
+                                    className="form-control custom-input"
+                                    value={searchParams.date}
+                                    min={getTodayStr()} // Không chọn được ngày quá khứ
+                                    onChange={e => {
+                                        const newDate = e.target.value;
+                                        setSearchParams(prev => ({
+                                            ...prev,
+                                            date: newDate,
+                                            // Nếu ngày đi mới lớn hơn ngày về hiện tại -> Cập nhật ngày về
+                                            returnDate: (prev.returnDate && prev.returnDate < newDate) ? newDate : prev.returnDate
+                                        }));
+                                    }}
+                                />
                             </div>
+
                             <div className="mb-3">
                                 <label className="form-label small fw-bold">Loại vé</label>
                                 <select className="form-select custom-input" value={searchParams.tripType} onChange={e => setSearchParams({ ...searchParams, tripType: e.target.value })}>
@@ -350,12 +383,21 @@ const BookingPage = () => {
                                     <option value="ROUND_TRIP">Khứ hồi</option>
                                 </select>
                             </div>
+
+                            {/* --- CẬP NHẬT NGÀY VỀ --- */}
                             {isRoundTrip && (
                                 <div className="mb-3">
                                     <label className="form-label small fw-bold">Ngày về</label>
-                                    <input type="date" className="form-control custom-input" value={searchParams.returnDate} onChange={e => setSearchParams({ ...searchParams, returnDate: e.target.value })} />
+                                    <input
+                                        type="date"
+                                        className="form-control custom-input"
+                                        value={searchParams.returnDate}
+                                        min={searchParams.date} // Không chọn được ngày nhỏ hơn ngày đi
+                                        onChange={e => setSearchParams({ ...searchParams, returnDate: e.target.value })}
+                                    />
                                 </div>
                             )}
+
                             <button className="btn btn-warning w-100 fw-bold mb-3" onClick={() => handleSearch()}>TÌM KIẾM</button>
 
                             <hr />
