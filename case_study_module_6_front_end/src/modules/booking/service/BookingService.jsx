@@ -72,5 +72,11 @@ export const FlightService = {
     updateBookingInfo: (data) => {
         // Gửi request PUT kèm dữ liệu đã sửa lên server
         return axios.put(`${API_URL}/bookings/${data.id}`, data);
+    },
+    // 11. Thanh toán VNPAY
+    createPaymentUrl: (amount, bookingCode) => {
+        return axios.get(`${API_URL}/payment/create_payment_url`, {
+            params: { amount: amount, orderInfo: bookingCode }
+        });
     }
 };
