@@ -26,9 +26,10 @@ export const AuthProvider = ({ children }) => {
             setToken(storedToken); // 🔥 THÊM
             const payload = decodeJwt(storedToken);
             setUser({
+                id: payload.userId,
                 username: payload.sub,
                 role: payload.role,
-                customerId: payload.customerId,
+                profileId: payload.profileId,
                 fullName: payload.fullName,
                 provider: payload.provider
             });
@@ -40,9 +41,10 @@ export const AuthProvider = ({ children }) => {
         setToken(newToken); // 🔥 THÊM
         const payload = decodeJwt(newToken);
         setUser({
+            id: payload.userId,
             username: payload.sub,
             role: payload.role,
-            customerId: payload.customerId,
+            profileId: payload.profileId,
             fullName: payload.fullName,
             provider: payload.provider
         });

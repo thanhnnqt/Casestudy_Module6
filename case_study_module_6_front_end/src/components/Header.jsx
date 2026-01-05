@@ -70,11 +70,11 @@ function Header() {
                             </NavLink>
                         </li>
 
-                        <li className="nav-item">
-                            <NavLink className="nav-link fw-semibold" to="/promotion">
-                                Khuyến mãi
-                            </NavLink>
-                        </li>
+                        {/*<li className="nav-item">*/}
+                        {/*    <NavLink className="nav-link fw-semibold" to="/promotion">*/}
+                        {/*        Khuyến mãi*/}
+                        {/*    </NavLink>*/}
+                        {/*</li>*/}
 
                         <li className="nav-item">
                             <NavLink className="nav-link fw-semibold" to="/flights">
@@ -111,7 +111,8 @@ function Header() {
                                     className="nav-link fw-semibold btn btn-link text-decoration-none"
                                     onClick={() => setOpen(!open)}>
                                     <strong style={{ color: "#1ba0e2" }}>
-                                        Xin chào {user.fullName || user.email}
+                                        <span className="d-none d-sm-inline">Xin chào </span>
+                                        {user.fullName || user.email}
                                     </strong>
                                 </button>
 
