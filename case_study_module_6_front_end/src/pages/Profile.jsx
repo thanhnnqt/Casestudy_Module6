@@ -16,8 +16,8 @@ export default function Profile() {
             if (!user) return;
             try {
                 let url = "/api/customers/me";
-                if (user.role === "EMPLOYEE") url = `/v1/api/employees/${user.customerId}`;
-                if (user.role === "ADMIN") url = `/v1/api/admins/${user.customerId}`;
+                if (user.role === "EMPLOYEE") url = `/v1/api/employees/${user.profileId}`;
+                if (user.role === "ADMIN") url = `/v1/api/admins/${user.profileId}`;
 
                 const res = await axios.get(url);
                 setProfileData(res.data);
@@ -80,12 +80,14 @@ export default function Profile() {
                         </button>
                     )}
 
-                    <button
-                        className="sidebar-btn"
-                        onClick={() => navigate("/profile/edit")}
-                    >
-                        ✏️ Chỉnh sửa thông tin
-                    </button>
+                    {user?.role === "CUSTOMER" && (
+                        <button
+                            className="sidebar-btn"
+                            onClick={() => navigate("/profile/edit")}
+                        >
+                            ✏️ Chỉnh sửa thông tin
+                        </button>
+                    )}
                 </div>
 
                 {/* ===== RIGHT: PROFILE INFO ===== */}

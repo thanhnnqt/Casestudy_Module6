@@ -104,6 +104,7 @@ public class AuthController {
                 account.getUsername(),
                 role,
                 profileId,
+                account.getId(),
                 fullName,
                 account.getProvider().name()
         );
@@ -199,6 +200,7 @@ public class AuthController {
                 account.getUsername(), // Dùng username thực tế (có thể đã đổi sau khi upgrade)
                 "ROLE_CUSTOMER",
                 customer.getId(),
+                account.getId(),
                 customer.getFullName(),
                 account.getProvider().name()
         );
@@ -226,9 +228,10 @@ public class AuthController {
 
         return ResponseEntity.ok(
                 Map.of(
+                        "userId", claims.get("userId"),
                         "username", claims.getSubject(),
                         "role", claims.get("role"),
-                        "customerId", claims.get("customerId"),
+                        "profileId", claims.get("profileId"),
                         "fullName", claims.get("fullName"),
                         "provider", claims.get("provider")
                 )

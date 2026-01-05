@@ -1,6 +1,7 @@
 package org.example.case_study_module_6.service.impl;
 
 import org.example.case_study_module_6.entity.Account;
+import org.example.case_study_module_6.repository.IAccountRepository;
 import org.example.case_study_module_6.service.IAdminChatService;
 import lombok.RequiredArgsConstructor;
 import org.example.case_study_module_6.dto.CustomerChatSummaryDTO;
@@ -17,15 +18,11 @@ import java.util.List;
 public class AdminChatService implements IAdminChatService {
 
     private final IChatMessageRepository chatRepo;
+    private final IAccountRepository accountRepo;
 
     @Override
     public List<CustomerChatSummaryDTO> getCustomerInbox() {
-
-        // 🔑 LẤY ADMIN ID TỪ TOKEN
-        Long adminId = getCurrentAccountId();
-
-        List<Account> customers =
-                chatRepo.findDistinctCustomersChatWithAdmin(adminId);
+        List<Account> customers = chatRepo.findAllCustomersInConversations();
 
         List<CustomerChatSummaryDTO> result = new ArrayList<>();
 
@@ -44,10 +41,11 @@ public class AdminChatService implements IAdminChatService {
     }
 
     private Long getCurrentAccountId() {
-        Authentication auth = SecurityContextHolder
-                .getContext()
-                .getAuthentication();
-
-        return (Long) auth.getPrincipal();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) return null;
+        String username = auth.getName();
+        return accountRepo.findByUsername(username)
+                .map(Account::getId)
+                .orElse(null);
     }
 }

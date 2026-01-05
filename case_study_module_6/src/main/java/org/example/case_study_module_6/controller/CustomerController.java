@@ -93,9 +93,9 @@ public class CustomerController {
     ) {
         String token = authHeader.substring(7); // bỏ "Bearer "
         Claims claims = jwtService.extractClaims(token);
-        Long customerId = claims.get("customerId", Long.class);
+        Long profileId = claims.get("profileId", Long.class);
 
-        Customer customer = customerService.getCustomerById(customerId)
+        Customer customer = customerService.getCustomerById(profileId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng"));
 
         return ResponseEntity.ok(customer);
@@ -109,9 +109,9 @@ public class CustomerController {
         String token = authHeader.substring(7);
         Claims claims = jwtService.extractClaims(token);
 
-        Long customerId = claims.get("customerId", Long.class);
+        Long profileId = claims.get("profileId", Long.class);
 
-        customerService.updateProfileById(customerId, req);
+        customerService.updateProfileById(profileId, req);
         return ResponseEntity.ok("Cập nhật thành công");
     }
 }
