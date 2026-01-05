@@ -65,9 +65,9 @@ function Header() {
 
                         {/* MENU */}
                         <li className="nav-item dropdown">
-                            <span className="nav-link fw-semibold">
+                            <NavLink className="nav-link fw-semibold" to="/customer/booking">
                                 Vé máy bay
-                            </span>
+                            </NavLink>
                         </li>
 
                         <li className="nav-item">
@@ -77,7 +77,7 @@ function Header() {
                         </li>
 
                         <li className="nav-item">
-                            <NavLink className="nav-link fw-semibold" to="/customer/booking">
+                            <NavLink className="nav-link fw-semibold" to="/flights">
                                 Chuyến bay
                             </NavLink>
                         </li>
