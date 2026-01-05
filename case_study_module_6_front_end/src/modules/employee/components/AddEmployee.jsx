@@ -4,8 +4,8 @@ import {
     checkIdentificationExists,
     checkEmailExists,
     checkPhoneExists,
-    checkImageHashExists,
     checkUsernameExists,
+    checkImageHashExists,
     updateEmployeeImage,
 } from "../service/employeeService.js";
 import {useNavigate} from "react-router-dom";
@@ -48,11 +48,11 @@ const AddEmployee = () => {
             fullName: Yup.string().required("Không để trống họ và tên"),
             phoneNumber: Yup.string().required("Không để trống số điện thoại").matches(/^0\d{9}$/, "10 số"),
             email: Yup.string().required("Không để trống email").email("Sai định dạng email"),
-            username: Yup.string().required("Không trống tài khoản").min(4),
-            password: Yup.string().required("Không trống mật khẩu"),
+            username: Yup.string().required("Không để trống tài khoản").min(4),
+            password: Yup.string().required("Không để trống mật khẩu"),
             ...(role === "EMPLOYEE" && {
                 identificationId: Yup.string().required("Không để trống CCCD").matches(/^\d{9}(\d{3})?$/, "CCCD 9 hoặc 12 số"),
-                dob: Yup.date().required("Không trống ngày sinh").max(min18, "≥ 18 tuổi"),
+                dob: Yup.date().required("Không để trống ngày sinh").max(min18, "≥ 18 tuổi"),
                 gender: Yup.string().required("Chọn giới tính"),
                 address: Yup.string().required("Không để trống địa chỉ"),
             }),
@@ -84,7 +84,57 @@ const AddEmployee = () => {
         return res.json();
     };
 
+    const validateUsername = async (value) => {
+        if (!value) return;
+        if (await checkUsernameExists(value)) {
+            setErrorsServer(prev => ({...prev, username: "Tài khoản đã tồn tại"}));
+        } else {
+            setErrorsServer(prev => ({...prev, username: ""}));
+        }
+    };
+
+    const validateEmail = async (value) => {
+        if (!value) return;
+        if (await checkEmailExists(value)) {
+            setErrorsServer(prev => ({...prev, email: "Email đã tồn tại"}));
+        } else {
+            setErrorsServer(prev => ({...prev, email: ""}));
+        }
+    };
+
+    const validatePhone = async (value) => {
+        if (!value) return;
+        if (await checkPhoneExists(value)) {
+            setErrorsServer(prev => ({...prev, phoneNumber: "Số điện thoại đã tồn tại"}));
+        } else {
+            setErrorsServer(prev => ({...prev, phoneNumber: ""}));
+        }
+    };
+
+    const validateIdentification = async (value) => {
+        if (!value) return;
+        if (await checkIdentificationExists(value)) {
+            setErrorsServer(prev => ({...prev, identificationId: "CCCD đã tồn tại"}));
+        } else {
+            setErrorsServer(prev => ({...prev, identificationId: ""}));
+        }
+    };
+
     const handleSubmit = async (values, {setErrors}) => {
+
+        // ⛔ CHỐT CHẶN FORM
+        const serverErrors = {};
+
+        if (errorsServer.username) serverErrors.username = errorsServer.username;
+        if (errorsServer.email) serverErrors.email = errorsServer.email;
+        if (errorsServer.phoneNumber) serverErrors.phoneNumber = errorsServer.phoneNumber;
+        if (errorsServer.identificationId) serverErrors.identificationId = errorsServer.identificationId;
+
+        if (Object.keys(serverErrors).length > 0) {
+            setErrors(serverErrors); // 👈 báo lỗi cho Formik
+            return; // ⛔ DỪNG SUBMIT
+        }
+
         try {
             const role = values.targetRole;
 
@@ -194,8 +244,8 @@ const AddEmployee = () => {
                                             {/* SĐT */}
                                             <div className="col-md-6">
                                                 <label>SĐT <Required/></label>
-                                                <Field name="phoneNumber" className="form-control form-control-sm"/>
-                                                <div className="text-danger small">{errorsServer.phoneNumber}</div>
+                                                <Field name="phoneNumber" onBlur={(e) => validatePhone(e.target.value)}
+                                                       className="form-control form-control-sm"/>
                                                 <ErrorMessage name="phoneNumber" component="div"
                                                               className="text-danger small"/>
                                             </div>
@@ -203,8 +253,8 @@ const AddEmployee = () => {
                                             {/* Email hiển thị cho cả Admin */}
                                             <div className="col-md-6">
                                                 <label>Email <Required/></label>
-                                                <Field name="email" className="form-control form-control-sm"/>
-                                                <div className="text-danger small">{errorsServer.email}</div>
+                                                <Field name="email" onBlur={(e) => validateEmail(e.target.value)}
+                                                       className="form-control form-control-sm"/>
                                                 <ErrorMessage name="email" component="div"
                                                               className="text-danger small"/>
                                             </div>
@@ -214,6 +264,7 @@ const AddEmployee = () => {
                                                     <div className="col-md-6">
                                                         <label>CCCD <Required/></label>
                                                         <Field name="identificationId"
+                                                               onBlur={(e) => validateIdentification(e.target.value)}
                                                                className="form-control form-control-sm"/>
                                                         <ErrorMessage name="identificationId"
                                                                       className="text-danger small" component="div"/>
