@@ -363,6 +363,7 @@ public class BookingService {
         // (Copy lại nội dung hàm này từ file ông gửi trước đó)
         Flight outboundFlight = flightRepository.findById(request.getFlightId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy chuyến bay đi!"));
+        // 2. Validate Chuyến về (Nếu có)
         Flight inboundFlight = null;
         if (request.getReturnFlightId() != null) {
             inboundFlight = flightRepository.findById(request.getReturnFlightId())
@@ -371,25 +372,29 @@ public class BookingService {
         } else {
             request.setTripType(TripType.ONE_WAY);
         }
-
+        // 3. Validate Hạng ghế
         SeatClass classOut = SeatClass.valueOf(request.getSeatClassOut());
-        SeatClass classIn = (inboundFlight != null && request.getSeatClassIn() != null) ? SeatClass.valueOf(request.getSeatClassIn()) : null;
-
+        SeatClass classIn = (inboundFlight != null && request.getSeatClassIn() != null)
+                ? SeatClass.valueOf(request.getSeatClassIn())
+                : null;
+        // 4. Khởi tạo Booking
         Booking booking = new Booking();
-        booking.setCustomerAccount(account);
-        booking.setBookingCode("TEMP" + System.currentTimeMillis());
+        booking.setCustomerAccount(account); // <--- GÁN TÀI KHOẢN ĐANG LOGIN
+
+        booking.setBookingCode("TEMP" + System.currentTimeMillis()); // Sẽ cập nhật sau khi lưu
         booking.setBookingDate(LocalDateTime.now());
-        booking.setStatus(BookingStatus.PENDING);
+        booking.setStatus(BookingStatus.PENDING);       // Chờ thanh toán
         booking.setPaymentStatus(PaymentStatus.UNPAID);
         booking.setChannel(Channel.ONLINE);
         booking.setPaymentMethod(PaymentMethod.valueOf(request.getPaymentMethod()));
+        // Thông tin người liên hệ
         booking.setContactName(request.getContactName());
         booking.setContactEmail(request.getContactEmail());
         booking.setContactPhone(request.getContactPhone());
         booking.setFlight(outboundFlight);
         booking.setReturnFlight(inboundFlight);
         booking.setTripType(request.getTripType());
-
+        // 5. Xử lý Hành khách & Vé
         BigDecimal totalAmount = BigDecimal.ZERO;
         List<Ticket> tickets = new ArrayList<>();
         List<Passenger> savedPassengers = new ArrayList<>();
@@ -401,9 +406,20 @@ public class BookingService {
 
         for (OnlinePassengerDTO pDto : request.getPassengers()) {
             index++;
-            if (pDto.getFullName() == null || pDto.getFullName().length() < 2 || pDto.getFullName().length() > 50)
-                throw new RuntimeException("Tên hành khách thứ " + index + " lỗi.");
 
+            // --- VALIDATE DỮ LIỆU HÀNH KHÁCH (Backend Validation) ---
+            if (pDto.getFullName() == null || pDto.getFullName().length() < 2 || pDto.getFullName().length() > 50) {
+                throw new RuntimeException("Tên hành khách thứ " + index + " phải từ 2-50 ký tự.");
+            }
+            if (pDto.getGender() == null || pDto.getGender().isEmpty()) {
+                throw new RuntimeException("Giới tính hành khách thứ " + index + " là bắt buộc.");
+            }
+            if (!pDto.isChild()) {
+                if (pDto.getIdentityCard() == null || pDto.getIdentityCard().trim().isEmpty()) {
+                    throw new RuntimeException("CMND/Passport là bắt buộc với người lớn (Hành khách " + index + ")");
+                }
+            }
+            // A. Lưu Passenger
             Passenger passenger = new Passenger();
             passenger.setBooking(booking);
             passenger.setFullName(pDto.getFullName());
@@ -414,16 +430,14 @@ public class BookingService {
             passenger.setPassengerType(pDto.isChild() ? "CHILD" : "ADULT");
             passenger.setHasInfant(pDto.isHasInfant());
             savedPassengers.add(passenger);
-
-            // Vé chiều đi
+            // B. Tạo vé chiều đi
             BigDecimal priceOut = getPriceFromFlight(outboundFlight, classOut);
             Ticket tOut = createSingleTicket(booking, outboundFlight, pDto.getFullName(), classOut, prefixOut + (soldOut + index));
             tOut.setPrice(priceOut);
             tickets.add(tOut);
             totalAmount = totalAmount.add(priceOut);
             decreaseSeatQuantity(outboundFlight.getId(), classOut, 1);
-
-            // Vé chiều về
+            // C. Tạo vé chiều về
             if (inboundFlight != null) {
                 BigDecimal priceIn = getPriceFromFlight(inboundFlight, classIn);
                 Ticket tIn = createSingleTicket(booking, inboundFlight, pDto.getFullName(), classIn, prefixIn + (soldIn + index));
@@ -434,12 +448,14 @@ public class BookingService {
             }
         }
         booking.setTotalAmount(totalAmount);
+        // 6. Lưu xuống DB
         Booking finalBooking = bookingRepository.save(booking);
         for (Passenger p : savedPassengers) p.setBooking(finalBooking);
         for (Ticket t : tickets) t.setBooking(finalBooking);
         passengerRepository.saveAll(savedPassengers);
         ticketRepository.saveAll(tickets);
 
+        // Cập nhật mã booking theo ID (ví dụ: BK0029)
         finalBooking.setBookingCode(String.format("BK%04d", finalBooking.getId()));
         return bookingRepository.save(finalBooking);
     }

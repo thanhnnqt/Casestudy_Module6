@@ -29,22 +29,28 @@ const PassengerInputPage = ({
     };
 
     /* ================= VALIDATION ================= */
+
+    const nameRegex = /^[A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*(\s[A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*)*$/;
+    const idCardOrPassportRegex = /^(\d{12}|[A-Z]\d{7})$/;
+    const phoneRegex = /^0\d{9}$/;
     const validationSchema = Yup.object().shape({
         passengers: Yup.array().of(
             Yup.object().shape({
                 fullName: Yup.string()
-                    .min(5, "Tên quá ngắn")
-                    .required("Họ tên là bắt buộc"),
-                gender: Yup.string().required("Bắt buộc"),
+                    .required("Họ tên là bắt buộc")
+                    .min(2, "Tên phải từ 2 ký tự trở lên")
+                    .max(50, "Tên không quá 50 ký tự")
+                    .matches(nameRegex, "Tên phải in hoa chữ cái đầu, không chứa số/ký tự đặc biệt"),
+                gender: Yup.string().required("Giới tính là bắt buộc"),
                 identityCard: Yup.string().when("isChild", {
                     is: false,
-                    then: () => Yup.string().required("Bắt buộc với người lớn"),
+                    then: () => Yup.string()
+                        .required("Cần nhập CMND hoặc Passport cho người lớn")
+                        .matches(idCardOrPassportRegex, "Định dạng sai: CCCD (12 số) hoặc Passport (1 chữ hoa + 7 số)"),
                     otherwise: () => Yup.string().nullable()
                 }),
                 email: Yup.string().email("Email sai định dạng").nullable(),
-                phone: Yup.string()
-                    .matches(/^\+84\d{9,11}$/, "SĐT không hợp lệ")
-                    .nullable()
+                phone: Yup.string().matches(phoneRegex, "SĐT phải có 10 chữ số và bắt đầu bằng số 0").nullable()
             })
         )
     });
