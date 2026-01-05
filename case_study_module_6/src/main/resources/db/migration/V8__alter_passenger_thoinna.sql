@@ -200,3 +200,128 @@ VALUES
 (59, 'ECONOMY', 1900000, 150, 140), (59, 'BUSINESS', 4600000, 20, 15),
 -- Flight 60
 (60, 'ECONOMY', 1550000, 160, 150), (60, 'BUSINESS', 3800000, 20, 18);
+
+/* ====================================================================================
+   PHẦN BỔ SUNG: CẬP NHẬT LOGO & THÊM HÃNG BAY MỚI, CHUYẾN BAY MỚI (NGÀY 10-11/01/2026)
+   ==================================================================================== */
+
+-- 1. CẬP NHẬT LOGO CÁC HÃNG CŨ CHO ĐỒNG BỘ --
+UPDATE airlines SET logo_url = 'https://danangairport.vn/files/media/202411/d8a44873-4441-4663-8b0b-415a687e7f89.jpg' WHERE code = 'VN';
+UPDATE airlines SET logo_url = 'https://danangairport.vn/files/media/202411/VJ.jpg' WHERE code = 'VJ';
+UPDATE airlines SET logo_url = 'https://danangairport.vn/files/media/202411/6b1deea9-2644-4164-bfef-e28b69b0f4a4.jpg' WHERE code = 'QH';
+UPDATE airlines SET logo_url = 'https://danangairport.vn/files/media/202501/pacific.jpg' WHERE code = 'BL';
+UPDATE airlines SET logo_url = 'https://danangairport.vn/files/media/202411/17ed00d1-5fe4-4a85-b847-01b5fed39345.jpg' WHERE code = '7C';
+UPDATE airlines SET logo_url = 'https://danangairport.vn/files/media/202411/AK.jpg' WHERE code = 'AK';
+UPDATE airlines SET logo_url = 'https://danangairport.vn/files/media/202411/b6354f97-8558-4983-94f5-44f5c5fc7fff.jpg' WHERE code = 'SQ';
+
+-- 2. THÊM 3 HÃNG BAY MỚI --
+INSERT INTO airlines (code, name, logo_url)
+VALUES
+    ('HX', 'Hong Kong Airlines', 'https://danangairport.vn/files/media/202411/377d2fa9-8856-473d-a2ed-fa22fe416108.jpg'),
+    ('VU', 'Vietravel Airlines', 'https://danangairport.vn/files/media/202411/0affdec8-9557-4bb5-8397-a2e6fa39a10d.jpg'),
+    ('IT', 'Tigerair Taiwan', 'https://danangairport.vn/files/media/202411/3e449e6e-0110-4314-afa6-b78ade34f559.jpg');
+
+-- 3. THÊM MÁY BAY CHO 3 HÃNG MỚI (Để có thể xếp lịch bay) --
+-- Giả sử ID hãng mới lần lượt là 8 (HX), 9 (VU), 10 (IT) do bảng airlines tự tăng
+INSERT INTO aircrafts (name, registration_code, total_seats, airline_id)
+VALUES
+    ('Airbus A330-300', 'HX-A330', 285, (SELECT id FROM airlines WHERE code='HX')),
+    ('Airbus A321ceo', 'VU-A321', 220, (SELECT id FROM airlines WHERE code='VU')),
+    ('Airbus A320neo', 'IT-A320', 180, (SELECT id FROM airlines WHERE code='IT'));
+
+/* ====================================================================================
+   TẠO 50 CHUYẾN BAY MỚI (ID 61 -> 110)
+   Quy tắc:
+   - Ngày 10/01/2026: SGN (ID 4) -> HAN (ID 1)
+   - Ngày 11/01/2026: HAN (ID 1) -> SGN (ID 4)
+   - Đủ các hãng bay xoay vòng
+   ====================================================================================
+*/
+
+INSERT INTO flights (flight_number, aircraft_id, departure_airport_id, arrival_airport_id, departure_time, arrival_time, status)
+VALUES
+-- === NGÀY 10/01/2026: SGN (Hồ Chí Minh) -> HAN (Hà Nội) ===
+-- Buổi sáng
+('VN1001', 1, 4, 1, '2026-01-10 05:30', '2026-01-10 07:40', 'SCHEDULED'),
+('VJ1002', 2, 4, 1, '2026-01-10 06:00', '2026-01-10 08:10', 'SCHEDULED'),
+('QH1003', 3, 4, 1, '2026-01-10 06:30', '2026-01-10 08:40', 'SCHEDULED'),
+('BL1004', 4, 4, 1, '2026-01-10 07:00', '2026-01-10 09:10', 'SCHEDULED'),
+('VU1005', 9, 4, 1, '2026-01-10 07:30', '2026-01-10 09:40', 'SCHEDULED'), -- Vietravel
+('VN1006', 1, 4, 1, '2026-01-10 08:00', '2026-01-10 10:10', 'SCHEDULED'),
+('VJ1007', 2, 4, 1, '2026-01-10 08:30', '2026-01-10 10:40', 'SCHEDULED'),
+('HX1008', 8, 4, 1, '2026-01-10 09:00', '2026-01-10 11:10', 'SCHEDULED'), -- Hong Kong Air
+('IT1009', 10, 4, 1, '2026-01-10 09:30', '2026-01-10 11:40', 'SCHEDULED'), -- Tigerair
+('VN1010', 2, 4, 1, '2026-01-10 10:00', '2026-01-10 12:10', 'SCHEDULED'),
+
+-- Buổi trưa - chiều
+('VJ1011', 3, 4, 1, '2026-01-10 11:00', '2026-01-10 13:10', 'SCHEDULED'),
+('QH1012', 4, 4, 1, '2026-01-10 11:45', '2026-01-10 13:55', 'SCHEDULED'),
+('VU1013', 9, 4, 1, '2026-01-10 12:30', '2026-01-10 14:40', 'SCHEDULED'),
+('VN1014', 1, 4, 1, '2026-01-10 13:15', '2026-01-10 15:25', 'SCHEDULED'),
+('BL1015', 5, 4, 1, '2026-01-10 14:00', '2026-01-10 16:10', 'SCHEDULED'),
+('SQ1016', 7, 4, 1, '2026-01-10 14:45', '2026-01-10 16:55', 'SCHEDULED'),
+('VJ1017', 2, 4, 1, '2026-01-10 15:30', '2026-01-10 17:40', 'SCHEDULED'),
+('AK1018', 6, 4, 1, '2026-01-10 16:15', '2026-01-10 18:25', 'SCHEDULED'),
+('VN1019', 3, 4, 1, '2026-01-10 17:00', '2026-01-10 19:10', 'SCHEDULED'),
+('QH1020', 4, 4, 1, '2026-01-10 17:45', '2026-01-10 19:55', 'SCHEDULED'),
+
+-- Buổi tối
+('VU1021', 9, 4, 1, '2026-01-10 18:30', '2026-01-10 20:40', 'SCHEDULED'),
+('VJ1022', 2, 4, 1, '2026-01-10 19:30', '2026-01-10 21:40', 'SCHEDULED'),
+('VN1023', 1, 4, 1, '2026-01-10 20:30', '2026-01-10 22:40', 'SCHEDULED'),
+('7C1024', 5, 4, 1, '2026-01-10 21:30', '2026-01-10 23:40', 'SCHEDULED'),
+('IT1025', 10, 4, 1, '2026-01-10 22:30', '2026-01-11 00:40', 'SCHEDULED'),
+
+-- === NGÀY 11/01/2026: HAN (Hà Nội) -> SGN (Hồ Chí Minh) ===
+-- Buổi sáng
+('VN1101', 1, 1, 4, '2026-01-11 05:45', '2026-01-11 07:55', 'SCHEDULED'),
+('VJ1102', 2, 1, 4, '2026-01-11 06:15', '2026-01-11 08:25', 'SCHEDULED'),
+('QH1103', 3, 1, 4, '2026-01-11 07:00', '2026-01-11 09:10', 'SCHEDULED'),
+('BL1104', 4, 1, 4, '2026-01-11 07:45', '2026-01-11 09:55', 'SCHEDULED'),
+('VU1105', 9, 1, 4, '2026-01-11 08:30', '2026-01-11 10:40', 'SCHEDULED'),
+('VN1106', 2, 1, 4, '2026-01-11 09:15', '2026-01-11 11:25', 'SCHEDULED'),
+('VJ1107', 3, 1, 4, '2026-01-11 10:00', '2026-01-11 12:10', 'SCHEDULED'),
+('HX1108', 8, 1, 4, '2026-01-11 10:45', '2026-01-11 12:55', 'SCHEDULED'),
+('IT1109', 10, 1, 4, '2026-01-11 11:30', '2026-01-11 13:40', 'SCHEDULED'),
+('VN1110', 1, 1, 4, '2026-01-11 12:15', '2026-01-11 14:25', 'SCHEDULED'),
+
+-- Buổi trưa - chiều
+('VJ1111', 2, 1, 4, '2026-01-11 13:00', '2026-01-11 15:10', 'SCHEDULED'),
+('QH1112', 4, 1, 4, '2026-01-11 13:45', '2026-01-11 15:55', 'SCHEDULED'),
+('VU1113', 9, 1, 4, '2026-01-11 14:30', '2026-01-11 16:40', 'SCHEDULED'),
+('VN1114', 3, 1, 4, '2026-01-11 15:15', '2026-01-11 17:25', 'SCHEDULED'),
+('BL1115', 5, 1, 4, '2026-01-11 16:00', '2026-01-11 18:10', 'SCHEDULED'),
+('SQ1116', 7, 1, 4, '2026-01-11 16:45', '2026-01-11 18:55', 'SCHEDULED'),
+('VJ1117', 2, 1, 4, '2026-01-11 17:30', '2026-01-11 19:40', 'SCHEDULED'),
+('AK1118', 6, 1, 4, '2026-01-11 18:15', '2026-01-11 20:25', 'SCHEDULED'),
+('VN1119', 1, 1, 4, '2026-01-11 19:00', '2026-01-11 21:10', 'SCHEDULED'),
+('QH1120', 4, 1, 4, '2026-01-11 19:45', '2026-01-11 21:55', 'SCHEDULED'),
+
+-- Buổi tối
+('VU1121', 9, 1, 4, '2026-01-11 20:30', '2026-01-11 22:40', 'SCHEDULED'),
+('VJ1122', 3, 1, 4, '2026-01-11 21:15', '2026-01-11 23:25', 'SCHEDULED'),
+('VN1123', 2, 1, 4, '2026-01-11 22:00', '2026-01-12 00:10', 'SCHEDULED'),
+('7C1124', 5, 1, 4, '2026-01-11 22:45', '2026-01-12 00:55', 'SCHEDULED'),
+('IT1125', 10, 1, 4, '2026-01-11 23:30', '2026-01-12 01:40', 'SCHEDULED');
+
+/* ====================================================================================
+   THÊM CHI TIẾT GHẾ CHO 50 CHUYẾN BAY VỪA TẠO
+   Mỗi chuyến bay có 3 hạng: ECONOMY, BUSINESS, FIRST
+   ====================================================================================
+*/
+
+-- Chúng ta sẽ sử dụng vòng lặp hoặc chèn hàng loạt. Vì là script SQL thuần, ta dùng INSERT hàng loạt.
+-- ID chuyến bay từ 61 đến 110.
+
+INSERT INTO flight_seat_details (flight_id, seat_class, price, total_seats, available_seats)
+SELECT id, 'ECONOMY', 1500000 + (FLOOR(RAND() * 500000)), 150, 150 FROM flights WHERE id BETWEEN 61 AND 110
+UNION ALL
+SELECT id, 'BUSINESS', 3500000 + (FLOOR(RAND() * 1000000)), 30, 30 FROM flights WHERE id BETWEEN 61 AND 110
+UNION ALL
+SELECT id, 'FIRST_CLASS', 6000000 + (FLOOR(RAND() * 2000000)), 10, 10 FROM flights WHERE id BETWEEN 61 AND 110;
+
+-- Ghi chú: Đoạn lệnh trên dùng UNION ALL để chèn 3 dòng cho mỗi ID.
+-- Giá vé (price) được random nhẹ để tạo sự đa dạng:
+-- Economy: ~1.5tr - 2tr
+-- Business: ~3.5tr - 4.5tr
+-- First: ~6tr - 8tr
