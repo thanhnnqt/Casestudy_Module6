@@ -38,11 +38,6 @@
     font-size: 12.5px;
 }
 
-/* ====== ACTION BUTTONS ====== */
-.chart-actions {
-    margin-top: 14px;
-}
-
 .chart-actions .btn {
     padding: 4px 20px;
     font-size: 13px;
@@ -79,3 +74,17 @@
     fill: transparent !important;
     stroke: none !important;
 }
+
+/* Tạo khoảng cách dưới biểu đồ tròn */
+.recharts-pie {
+    margin-bottom: 32px;
+}
+
+/* Tạo khoảng cách thật giữa chart (SVG) và action buttons */
+.recharts-responsive-container + .chart-actions {
+    margin-top: 36px;
+}
+
+
+
+
