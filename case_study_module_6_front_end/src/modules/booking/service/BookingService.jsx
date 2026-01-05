@@ -101,6 +101,11 @@ export const FlightService = {
     // 11. Tạo link thanh toán VNPAY (QUAN TRỌNG: ĐÃ THÊM RETURN)
     createPaymentUrl: (amount, bookingCode) => {
         return axios.post(`${API_URL}/payment/create-payment-url`, { amount, bookingCode }, getAuthConfig());
+    },
+
+    // 12. Lấy lịch sử đặt vé của tôi
+    getMyBookings: () => {
+        return axios.get(`${API_URL}/bookings/my-history`, getAuthConfig());
     }
 }
 

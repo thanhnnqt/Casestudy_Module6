@@ -365,7 +365,7 @@ function Home() {
             <section className="container my-5">
                 <div className="row g-4">
 
-                    <div className="col-md-7">
+                    <div className="col-md-6">
                         <h4 className="fw-bold mb-3">🌍 Gợi ý điểm đến nổi bật</h4>
 
                         <div className="destination-big-card">
@@ -391,7 +391,7 @@ function Home() {
                         </div>
                     </div>
 
-                    <div className="col-md-5">
+                    <div className="col-md-6">
                         <h4 className="fw-bold mb-3">🎁 Mã ưu đãi tặng bạn mới</h4>
 
                         <div className="promo-list">

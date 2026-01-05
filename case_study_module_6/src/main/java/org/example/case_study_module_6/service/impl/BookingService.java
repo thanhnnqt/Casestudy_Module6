@@ -190,8 +190,109 @@ public class BookingService {
         return null;
     }
 
-    public Booking createOnlineBooking(OnlineBookingRequest r, Account a) { /* ... Logic cũ ... */
-        return null;
+    @Transactional(rollbackFor = Exception.class)
+    public Booking createOnlineBooking(OnlineBookingRequest request, Account account) {
+        // 1. Validate Chuyến đi
+        Flight outboundFlight = flightRepository.findById(request.getFlightId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy chuyến bay đi!"));
+        // 2. Validate Chuyến về (Nếu có)
+        Flight inboundFlight = null;
+        if (request.getReturnFlightId() != null) {
+            inboundFlight = flightRepository.findById(request.getReturnFlightId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy chuyến bay về!"));
+            if (request.getTripType() == TripType.ONE_WAY) {
+                throw new RuntimeException("Vé một chiều không được có chuyến bay về!");
+            }
+        } else {
+            request.setTripType(TripType.ONE_WAY);
+        }
+        // 3. Validate Hạng ghế
+        SeatClass classOut = SeatClass.valueOf(request.getSeatClassOut());
+        SeatClass classIn = (inboundFlight != null && request.getSeatClassIn() != null)
+                ? SeatClass.valueOf(request.getSeatClassIn())
+                : null;
+        // 4. Khởi tạo Booking
+        Booking booking = new Booking();
+        booking.setCustomerAccount(account); // <--- GÁN TÀI KHOẢN ĐANG LOGIN
+
+        booking.setBookingCode("TEMP" + System.currentTimeMillis()); // Sẽ cập nhật sau khi lưu
+        booking.setBookingDate(LocalDateTime.now());
+        booking.setStatus(BookingStatus.PENDING);       // Chờ thanh toán
+        booking.setPaymentStatus(PaymentStatus.UNPAID);
+        booking.setChannel(Channel.ONLINE);
+        booking.setPaymentMethod(PaymentMethod.valueOf(request.getPaymentMethod()));
+        // Thông tin người liên hệ
+        booking.setContactName(request.getContactName());
+        booking.setContactEmail(request.getContactEmail());
+        booking.setContactPhone(request.getContactPhone());
+        booking.setFlight(outboundFlight);
+        booking.setReturnFlight(inboundFlight);
+        booking.setTripType(request.getTripType());
+        // 5. Xử lý Hành khách & Vé
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        List<Ticket> tickets = new ArrayList<>();
+        List<Passenger> savedPassengers = new ArrayList<>();
+        long soldOut = ticketRepository.countByFlightIdAndSeatClass(outboundFlight.getId(), classOut);
+        long soldIn = (inboundFlight != null) ? ticketRepository.countByFlightIdAndSeatClass(inboundFlight.getId(), classIn) : 0;
+        String prefixOut = getSeatPrefix(classOut);
+        String prefixIn = (classIn != null) ? getSeatPrefix(classIn) : "";
+        int index = 0;
+        for (OnlinePassengerDTO pDto : request.getPassengers()) {
+            index++;
+
+            // --- VALIDATE DỮ LIỆU HÀNH KHÁCH (Backend Validation) ---
+            if (pDto.getFullName() == null || pDto.getFullName().length() < 2 || pDto.getFullName().length() > 50) {
+                throw new RuntimeException("Tên hành khách thứ " + index + " phải từ 2-50 ký tự.");
+            }
+            if (pDto.getGender() == null || pDto.getGender().isEmpty()) {
+                throw new RuntimeException("Giới tính hành khách thứ " + index + " là bắt buộc.");
+            }
+            if (!pDto.isChild()) {
+                if (pDto.getIdentityCard() == null || pDto.getIdentityCard().trim().isEmpty()) {
+                    throw new RuntimeException("CMND/Passport là bắt buộc với người lớn (Hành khách " + index + ")");
+                }
+            }
+            // A. Lưu Passenger
+            Passenger passenger = new Passenger();
+            passenger.setBooking(booking);
+            passenger.setFullName(pDto.getFullName());
+            passenger.setGender(pDto.getGender());
+            passenger.setEmail(pDto.getEmail());
+            passenger.setPhoneNumber(pDto.getPhone());
+            passenger.setIdentityCard(pDto.getIdentityCard());
+            passenger.setPassengerType(pDto.isChild() ? "CHILD" : "ADULT");
+            passenger.setHasInfant(pDto.isHasInfant());
+            savedPassengers.add(passenger);
+            // B. Tạo vé chiều đi
+            BigDecimal priceOut = getPriceFromFlight(outboundFlight, classOut);
+            String seatNumOut = prefixOut + (soldOut + index);
+            Ticket tOut = createSingleTicket(booking, outboundFlight, pDto.getFullName(), classOut, seatNumOut);
+            tOut.setPrice(priceOut);
+            tickets.add(tOut);
+            totalAmount = totalAmount.add(priceOut);
+            decreaseSeatQuantity(outboundFlight.getId(), classOut, 1);
+            // C. Tạo vé chiều về
+            if (inboundFlight != null) {
+                BigDecimal priceIn = getPriceFromFlight(inboundFlight, classIn);
+                String seatNumIn = prefixIn + (soldIn + index);
+                Ticket tIn = createSingleTicket(booking, inboundFlight, pDto.getFullName(), classIn, seatNumIn);
+                tIn.setPrice(priceIn);
+                tickets.add(tIn);
+                totalAmount = totalAmount.add(priceIn);
+                decreaseSeatQuantity(inboundFlight.getId(), classIn, 1);
+            }
+        }
+        booking.setTotalAmount(totalAmount);
+        // 6. Lưu xuống DB
+        Booking finalBooking = bookingRepository.save(booking);
+        for (Passenger p : savedPassengers) p.setBooking(finalBooking);
+        for (Ticket t : tickets) t.setBooking(finalBooking);
+        passengerRepository.saveAll(savedPassengers);
+        ticketRepository.saveAll(tickets);
+
+        // Cập nhật mã booking theo ID (ví dụ: BK0029)
+        finalBooking.setBookingCode(String.format("BK%04d", finalBooking.getId()));
+        return bookingRepository.save(finalBooking);
     }
 
     public Booking createBooking(BookingRequestDTO r) { /* ... Logic cũ ... */
@@ -199,12 +300,23 @@ public class BookingService {
     }
 
     public List<Booking> findHistoryByAccountId(Long id) {
-        return new ArrayList<>();
+        return bookingRepository.findByCustomerAccountIdOrderByBookingDateDesc(id);
     }
 
     public List<Booking> findHistoryByEmail(String e) {
-        return new ArrayList<>();
+        return bookingRepository.findByContactEmailOrderByBookingDateDesc(e);
     }
 
-    public void updateStatusByCode(String c, BookingStatus s, String t) { /* ... Logic cũ ... */ }
+    public void updateStatusByCode(String bookingCode, BookingStatus status, String transactionNo) {
+        Booking booking = bookingRepository
+                .findByBookingCode(bookingCode)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+        booking.setStatus(status);
+        if (status == BookingStatus.PAID) {
+            booking.setPaymentStatus(PaymentStatus.PAID);
+            booking.setTransactionCode(transactionNo); // <--- LƯU MÃ GIAO DỊCH
+            booking.setPaidAt(LocalDateTime.now());    // <--- LƯU THỜI GIAN
+        }
+        bookingRepository.save(booking);
+    }
 }
