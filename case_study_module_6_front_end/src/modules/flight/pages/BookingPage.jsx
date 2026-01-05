@@ -191,14 +191,28 @@ const BookingPage = () => {
                 const departureIn = new Date(flight.departureTime);
 
                 // Tính chênh lệch (ms -> giờ)
+                // Tính chênh lệch (ms -> giờ)
                 const diffMs = departureIn - arrivalOut;
                 const diffHours = diffMs / (1000 * 60 * 60);
 
-                // Check điều kiện: 3 <= diff <= 6
+                // Check điều kiện: < 3 giờ (Báo lỗi và chặn)
+                if (diffHours < 3) {
+                    toast.error(
+                        <div>
+                            <strong><i className="bi bi-x-circle-fill"></i> KHÔNG THỂ CHỌN</strong> <br />
+                            Khoảng cách giữa chiều đi và về quá ngắn ({diffHours.toFixed(1)} tiếng).
+                            Vui lòng chọn chuyến về cách chiều đi ít nhất 3 tiếng để đảm bảo an toàn!
+                        </div>,
+                        { autoClose: 5000 }
+                    );
+                    return; // Không cho phép chọn
+                }
+
+                // Check điều kiện: 3 <= diff <= 6 (Cảnh báo)
                 if (diffHours >= 3 && diffHours <= 6) {
                     toast.warning(
                         <div>
-                            <strong><i className="bi bi-exclamation-triangle"></i> CẢNH BÁO NỐI CHUYẾN</strong> <br/>
+                            <strong><i className="bi bi-exclamation-triangle"></i> CẢNH BÁO NỐI CHUYẾN</strong> <br />
                             Khoảng cách chuyến đi & về khá ngắn ({diffHours.toFixed(1)} tiếng).
                             Nếu chuyến đi bị delay, bạn có nguy cơ bị lỡ chuyến về. Vui lòng cân nhắc!
                         </div>,
@@ -227,18 +241,28 @@ const BookingPage = () => {
         const end = new Date(flight.arrivalTime);
         const duration = (end - start) / 3600000;
 
-        // --- [MỚI] HIỂN THỊ CẢNH BÁO TRÊN CARD NẾU GIỜ SÁT NHAU ---
+        // --- [MỚI] HIỂN THỊ CẢNH BÁO/CHẶN TRÊN CARD NẾU GIỜ SÁT NHAU ---
         let gapWarning = null;
+        let isBlocked = false;
+
         if (type === 'IN' && selectedOutbound) {
             const arrivalOut = new Date(selectedOutbound.arrivalTime);
             const departureIn = new Date(flight.departureTime);
             const diffHours = (departureIn - arrivalOut) / (1000 * 60 * 60);
 
-            if (diffHours >= 3 && diffHours <= 6) {
+            if (diffHours < 3) {
+                isBlocked = true;
                 gapWarning = (
-                    <div className="alert alert-warning py-1 px-2 mb-2 small" style={{fontSize: '0.8rem'}}>
+                    <div className="alert alert-danger py-1 px-2 mb-2 small" style={{ fontSize: '0.8rem' }}>
+                        <i className="bi bi-x-circle-fill me-1"></i>
+                        Cách chiều đi {diffHours.toFixed(1)}h. Không hợp lệ. 2 chuyến cách nhau ít nhất 3h!
+                    </div>
+                );
+            } else if (diffHours >= 3 && diffHours <= 6) {
+                gapWarning = (
+                    <div className="alert alert-warning py-1 px-2 mb-2 small" style={{ fontSize: '0.8rem' }}>
                         <i className="bi bi-clock-history me-1"></i>
-                        Cách chuyến đi {diffHours.toFixed(1)}h. Nguy cơ delay!
+                        Cách chiều đi {diffHours.toFixed(1)}h. Nguy cơ delay!
                     </div>
                 );
             }
@@ -282,10 +306,12 @@ const BookingPage = () => {
                             ))}
                         </div>
                         <button
-                            className={`btn w-100 fw-bold btn-sm ${isSelected ? 'btn-success' : 'btn-outline-primary'}`}
-                            onClick={() => handleSelectFlight(flight, type)}
+                            className={`btn w-100 fw-bold btn-sm ${isSelected ? 'btn-success' : (isBlocked ? 'btn-secondary' : 'btn-outline-primary')}`}
+                            onClick={() => !isBlocked && handleSelectFlight(flight, type)}
+                            disabled={isBlocked}
+                            style={{ cursor: isBlocked ? 'not-allowed' : 'pointer' }}
                         >
-                            {isSelected ? <><i className="bi bi-check-lg"></i> Đã chọn</> : "Chọn chuyến bay"}
+                            {isSelected ? <><i className="bi bi-check-lg"></i> Đã chọn</> : (isBlocked ? "Giờ bay không hợp lệ" : "Chọn chuyến bay")}
                         </button>
                     </div>
                 </div>
@@ -454,10 +480,10 @@ const BookingPage = () => {
                             <div className="mb-3">
                                 <label className="form-label small fw-bold">Sắp xếp</label>
                                 <select className="form-select custom-input" value={`${sortConfig.key}-${sortConfig.direction}`}
-                                        onChange={e => {
-                                            const [key, dir] = e.target.value.split('-');
-                                            setSortConfig({ key, direction: dir });
-                                        }}
+                                    onChange={e => {
+                                        const [key, dir] = e.target.value.split('-');
+                                        setSortConfig({ key, direction: dir });
+                                    }}
                                 >
                                     <option value="price-asc">Giá thấp đến cao</option>
                                     <option value="price-desc">Giá cao xuống thấp</option>
