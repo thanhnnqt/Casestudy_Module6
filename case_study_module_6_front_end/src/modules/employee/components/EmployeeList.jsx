@@ -31,10 +31,39 @@ const EmployeeList = () => {
         setShowModal(prev => !prev);
         setSelectedEmployee(employee);
     };
-    const reloadAfterDelete = () => {
-        setShowModal(prev => !prev);
-        setDeleteFlag(prev => !prev);
+
+    const reloadAfterDelete = async () => {
+        try {
+            let currentPage = page;
+
+            while (currentPage >= 0) {
+                const data = await getEmployeeListBySearch(
+                    fullName,
+                    phoneNumber,
+                    currentPage,
+                    pageSize
+                );
+
+                // Nếu trang này còn dữ liệu
+                if (data.content.length > 0 || currentPage === 0) {
+                    setPage(currentPage);
+                    setEmployeeList(data.content || []);
+                    setTotalPages(data.totalPages || 0);
+                    setTotalElements(data.totalElements || 0);
+                    break;
+                }
+
+                // Trang rỗng → lùi tiếp
+                currentPage--;
+            }
+
+        } catch (e) {
+            toast.error("Lỗi tải lại danh sách");
+        } finally {
+            setShowModal(false);
+        }
     };
+
     // --- FETCH DATA ---
     const fetchEmployees = async (pageIndex = page) => {
         try {
@@ -64,9 +93,9 @@ const EmployeeList = () => {
 
 
     useEffect(() => {
-        fetchEmployees(0);
-        setPage(0);
+        fetchEmployees(page);
     }, [deleteFlag]);
+
 
     // --- HANDLERS ---
     const handleSearch = () => {
