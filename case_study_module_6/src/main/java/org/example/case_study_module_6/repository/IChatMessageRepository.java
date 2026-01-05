@@ -14,14 +14,10 @@ public interface IChatMessageRepository
         extends JpaRepository<ChatMessage, Long> {
 
     @Query("""
-        SELECT DISTINCT c.conversation.customer
-        FROM ChatMessage c
-        WHERE c.receiver.id = :adminId
-           OR c.sender.id = :adminId
+        SELECT DISTINCT conv.customer
+        FROM ChatConversation conv
     """)
-    List<Account> findDistinctCustomersChatWithAdmin(
-            @Param("adminId") Long adminId
-    );
+    List<Account> findAllCustomersInConversations();
 
     List<ChatMessage> findByConversationIdOrderByCreatedAtAsc(Long conversationId);
 }

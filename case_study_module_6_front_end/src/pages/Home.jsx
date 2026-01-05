@@ -7,6 +7,8 @@ import ChatBox from "../components/chat/ChatBox.jsx";
 import AdminFloatingChat from "../components/chat/AdminFloatingChat";
 import { useAuth } from "../context/AuthContext";
 
+const CHAT_ADMIN_TARGET = { customerAccountId: 1, customerUsername: "admin" };
+
 function Home() {
     /* ================= CITY LIST ================= */
     const cities = [
@@ -567,7 +569,7 @@ function Home() {
                             <AdminFloatingChat onClose={() => setOpenChat(false)} />
                         ) : (
                             <ChatBox
-                                customer={{ customerAccountId: 1, customerUsername: "admin" }}
+                                customer={CHAT_ADMIN_TARGET}
                                 onClose={() => setOpenChat(false)}
                             />
                         )

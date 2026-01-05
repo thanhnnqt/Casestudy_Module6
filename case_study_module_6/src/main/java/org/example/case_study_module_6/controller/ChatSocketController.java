@@ -24,7 +24,7 @@ public class ChatSocketController {
     }
 
     @GetMapping("/api/chat/history/{customerId}")
-    public List<ChatMessage> getHistory(@PathVariable Long customerId) {
+    public List<org.example.case_study_module_6.dto.ChatResponseDTO> getHistory(@PathVariable Long customerId) {
         return chatService.getHistory(customerId);
     }
 }
