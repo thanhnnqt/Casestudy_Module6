@@ -14,6 +14,7 @@ import java.util.Optional;
 @Repository
 public interface IBookingRepository extends JpaRepository<Booking, Long> {
     Optional<Booking> findByBookingCode(String bookingCode);
+    List<Booking> findByContactEmailOrderByBookingDateDesc(String email);
 
     @Query(value = """
     SELECT CAST(b.booking_date AS DATE) AS bookingDate,
@@ -122,5 +123,5 @@ public interface IBookingRepository extends JpaRepository<Booking, Long> {
     LIMIT 3
 """, nativeQuery = true)
     List<Object[]> getTop3Airlines(LocalDateTime start, LocalDateTime end);
-
+    List<Booking> findByCustomerAccountIdOrderByBookingDateDesc(Long accountId);
 }

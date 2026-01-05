@@ -1,47 +1,97 @@
+/* ======================================================
+   PROFILE PAGE – FULL WIDTH LAYOUT
+====================================================== */
+
 .profile-container {
-    display: flex;
-    justify-content: center;
-    padding: 40px 16px;
+    width: 100%;
+    max-width: 1400px;        /* 👈 dàn rộng màn hình */
+    margin: 32px auto;
+    padding: 0 24px;
 }
 
-.profile-card {
+.profile-layout {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    gap: 32px;
+}
+
+/* ===== LEFT SIDEBAR ===== */
+.profile-sidebar {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+.profile-sidebar h3 {
+    margin-bottom: 18px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.sidebar-btn {
     width: 100%;
-    max-width: 600px;
-    background: #fff;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #f5f5f5;
+    cursor: pointer;
+    text-align: left;
+    font-size: 15px;
+    transition: background 0.2s, transform 0.15s;
+}
+
+.sidebar-btn:hover {
+    background: #e6f4ff;
+    transform: translateX(3px);
+}
+
+.sidebar-btn.primary {
+    background: #52c41a;
+    color: #fff;
+}
+
+.sidebar-btn.primary:hover {
+    background: #389e0d;
+}
+
+/* ===== RIGHT CONTENT ===== */
+.profile-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 32px 36px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
 }
 
 .profile-card h2 {
-    margin-bottom: 20px;
-    text-align: center;
+    margin-bottom: 28px;
+    font-size: 22px;
 }
 
+/* ===== PROFILE ROW ===== */
 .profile-row {
     display: flex;
     justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid #eee;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid #f0f0f0;
 }
 
 .profile-row span:first-child {
     font-weight: 500;
-    color: #555;
+    color: #666;
 }
 
-.btn-change-password {
-    margin-top: 20px;
-    width: 100%;
-    padding: 10px;
-    background: #1677ff;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
+.profile-row span:last-child {
+    font-weight: 500;
+    color: #111;
 }
 
-/* ===== MODAL ===== */
+/* ======================================================
+   MODAL (CHANGE PASSWORD, ETC)
+====================================================== */
+
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -49,27 +99,26 @@
     display: flex;
     align-items: center;
     justify-content: center;
-
-    z-index: 99999; /* 🔥 CAO HƠN HEADER + SIDEBAR */
+    z-index: 99999;
 }
 
 .modal {
     background: #ffffff;
     padding: 24px;
-    border-radius: 10px;
+    border-radius: 12px;
     width: 100%;
-    max-width: 400px;
-
-    z-index: 100000; /* 🔥 QUAN TRỌNG */
+    max-width: 420px;
+    z-index: 100000;
     box-shadow: 0 10px 30px rgba(0,0,0,0.25);
 }
 
 .modal input {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     margin-top: 12px;
-    border-radius: 6px;
+    border-radius: 8px;
     border: 1px solid #ccc;
+    font-size: 14px;
 }
 
 .modal-actions {
@@ -83,10 +132,15 @@
     background: #1677ff;
     color: white;
     border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
 }
-/* ===== AUTH PAGE (LOGIN / CHANGE PASSWORD) ===== */
+
+/* ======================================================
+   AUTH PAGES (LOGIN / CHANGE PASSWORD)
+====================================================== */
+
 .auth-page {
     min-height: 70vh;
     display: flex;
@@ -100,7 +154,7 @@
     max-width: 420px;
     background: #fff;
     padding: 32px;
-    border-radius: 14px;
+    border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
@@ -135,7 +189,6 @@
     box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.15);
 }
 
-/* ===== ACTIONS ===== */
 .auth-actions {
     display: flex;
     justify-content: space-between;
@@ -164,4 +217,15 @@
 
 .btn-primary:hover {
     background: #0958d9;
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 992px) {
+    .profile-layout {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
 }

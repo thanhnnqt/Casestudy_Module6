@@ -3,7 +3,7 @@ package org.example.case_study_module_6.config;
 import org.example.case_study_module_6.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod; // <--- Đã thêm import này để dùng HttpMethod.GET
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,7 +12,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,48 +29,61 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
                 .authorizeHttpRequests(auth -> auth
-                        // --- CÁC CẤU HÌNH CŨ (GIỮ NGUYÊN) ---
-                        .requestMatchers("/auth/**").permitAll()
 
-                        .requestMatchers("/api/bookings/online")
-                        .hasAnyRole("CUSTOMER")
+                        // 1. PREFLIGHT
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        .requestMatchers("/api/bookings/**")
-                        .hasAnyRole("EMPLOYEE", "ADMIN")
+                        // 2. AUTH - PUBLIC
+                        .requestMatchers(
+                                "/auth/login",
+                                "/auth/register",
+                                "/auth/google",
+                                "/auth/verify-email",
+                                "/auth/forgot-password",
+                                "/auth/reset-password",
+                                "/auth/me"
+                        ).permitAll()
 
-                        .requestMatchers("/api/master/**")
-                        .hasAnyRole("EMPLOYEE", "ADMIN", "CUSTOMER")
+                        // 3. AUTH - REQUIRE LOGIN
+                        .requestMatchers("/auth/change-password")
+                        .hasAnyRole("CUSTOMER", "EMPLOYEE", "ADMIN")
 
-                        .requestMatchers("/api/flights/**")
-                        .hasAnyRole("EMPLOYEE", "ADMIN")
+                        // 4. CUSTOMER
+                        .requestMatchers("/api/customers/me")
+                        .hasAnyRole("CUSTOMER", "EMPLOYEE", "ADMIN")
 
-                        .requestMatchers("/v1/api/employees/**")
-                        .hasAnyRole( "ADMIN")
+                        // 5. PUBLIC APIs
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/ws-chat/**", "/app/**", "/topic/**", "/queue/**", "/user/**",
+                                "/api/payment/**",
+                                "/api/bookings/online",
+                                "/api/master/airports",
+                                "/api/master/airlines",
+                                "/api/master/routes",
+                                "/api/news/**"
+                        ).permitAll()
 
-                        .requestMatchers("/api/customers/**")
-                        .hasAnyRole("EMPLOYEE", "ADMIN")
+                        // 6. SEARCH
+                        .requestMatchers(HttpMethod.GET, "/api/flights/**").permitAll()
 
-                        .requestMatchers("/api/reports/**")
-                        .hasAnyRole("ADMIN")
+                        // 7. ROLE BASED
+                        .requestMatchers("/api/bookings/my-history")
+                        .hasAnyRole("CUSTOMER", "EMPLOYEE", "ADMIN")
 
-                        // 1. Cho phép TẤT CẢ mọi người (kể cả chưa đăng nhập) được XEM tin tức
-                        // (Chỉ áp dụng cho phương thức GET)
-                        .requestMatchers(HttpMethod.GET, "/api/news/**").permitAll()
+                        .requestMatchers("/api/bookings/**").hasAnyRole("EMPLOYEE", "ADMIN")
+                        .requestMatchers("/api/flights/**").hasAnyRole("EMPLOYEE", "ADMIN")
+                        .requestMatchers("/api/customers/**").hasAnyRole("EMPLOYEE", "ADMIN")
+                        .requestMatchers("/api/master/**").hasAnyRole("EMPLOYEE", "ADMIN", "CUSTOMER")
+                        .requestMatchers("/v1/api/employees/**").hasRole("ADMIN")
+                        .requestMatchers("/api/reports/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/news/**").hasRole("ADMIN")
 
-                        // 2. Các hành động còn lại (Thêm, Sửa, Xóa - POST/PUT/DELETE)
-                        // Bắt buộc phải là ADMIN mới được phép truy cập
-                        .requestMatchers("/api/news/**").hasAnyRole("ADMIN")
-
-                        // (Nếu bạn có một API riêng biệt tên là /api/admin/news thì giữ dòng dưới,
-                        // còn nếu dùng chung /api/news thì dòng trên đã bao phủ rồi)
-                        .requestMatchers("/api/admin/news").hasAnyRole("ADMIN")
-
-                        // --- QUY TẮC CUỐI CÙNG (GIỮ NGUYÊN) ---
+                        // 8. DEFAULT
                         .anyRequest().authenticated()
                 )
-
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -81,7 +93,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:5173"));
-        config.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 

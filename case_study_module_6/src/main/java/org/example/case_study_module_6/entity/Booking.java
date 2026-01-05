@@ -67,6 +67,15 @@ public class Booking {
     @Column(name = "contact_phone")
     private String contactPhone;
 
+    @Column(name = "transaction_code")
+    private String transactionCode;
+
+    @Column(name = "paid_at")
+    private LocalDateTime paidAt;
+
+    @ManyToOne
+    @JoinColumn(name = "customer_account_id")
+    private Account customerAccount;
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
     private List<Ticket> tickets;
