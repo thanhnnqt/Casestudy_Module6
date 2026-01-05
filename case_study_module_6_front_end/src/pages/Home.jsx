@@ -514,33 +514,6 @@ function Home() {
                 </div>
             </section>
 
-            <div className="row g-4 text-center">
-                {[
-                    {
-                        title: "Kinh nghiệm săn vé giá rẻ",
-                        img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
-                    },
-                    {
-                        title: "Top điểm du lịch hè 2025",
-                        img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee"
-                    },
-                    {
-                        title: "Du lịch tiết kiệm cho gia đình",
-                        img: "https://i.pinimg.com/736x/62/cc/cb/62cccb838eae9810e2d750f7ec0070b2.jpg"
-                    }
-                ].map((n, i) => (
-                    <div className="col-md-4" key={i}>
-                        <div className="news-card h-100 shadow-sm">
-                            <div className="news-thumb">
-                                <img src={n.img} alt={n.title} />
-                            </div>
-                            <div className="card-body">
-                                <h6 className="fw-bold">{n.title}</h6>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
 
             {/* ================= CHAT FLOATING ================= */}
             {user && (
