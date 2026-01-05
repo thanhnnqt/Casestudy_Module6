@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import "./Report.css";
 
@@ -44,7 +44,7 @@ const Report = () => {
         switch (period) {
             case "Tuần này": {
                 const monday = getMonday(today);
-                return { start: toYMD(monday), end: toYMD(today) };
+                return {start: toYMD(monday), end: toYMD(today)};
             }
             case "Tuần trước": {
                 const monday = getMonday(today);
@@ -52,37 +52,37 @@ const Report = () => {
                 start.setDate(monday.getDate() - 7);
                 const end = new Date(start);
                 end.setDate(start.getDate() + 6);
-                return { start: toYMD(start), end: toYMD(end) };
+                return {start: toYMD(start), end: toYMD(end)};
             }
             case "Tháng này": {
                 const start = new Date(today.getFullYear(), today.getMonth(), 1);
-                return { start: toYMD(start), end: toYMD(today) };
+                return {start: toYMD(start), end: toYMD(today)};
             }
             case "Tháng trước": {
                 const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
                 const end = new Date(today.getFullYear(), today.getMonth(), 0);
-                return { start: toYMD(start), end: toYMD(end) };
+                return {start: toYMD(start), end: toYMD(end)};
             }
             case "Quý này": {
                 const q = Math.floor(today.getMonth() / 3);
                 const start = new Date(today.getFullYear(), q * 3, 1);
-                return { start: toYMD(start), end: toYMD(today) };
+                return {start: toYMD(start), end: toYMD(today)};
             }
             case "Quý trước": {
                 const q = Math.floor(today.getMonth() / 3) - 1;
                 const start = new Date(today.getFullYear(), q * 3, 1);
                 const end = new Date(today.getFullYear(), q * 3 + 3, 0);
-                return { start: toYMD(start), end: toYMD(end) };
+                return {start: toYMD(start), end: toYMD(end)};
             }
             case "Năm này":
-                return { start: `${today.getFullYear()}-01-01`, end: toYMD(today) };
+                return {start: `${today.getFullYear()}-01-01`, end: toYMD(today)};
             case "Năm trước":
                 return {
                     start: `${today.getFullYear() - 1}-01-01`,
                     end: `${today.getFullYear() - 1}-12-31`
                 };
             default:
-                return { start: toYMD(today), end: toYMD(today) };
+                return {start: toYMD(today), end: toYMD(today)};
         }
     };
 
@@ -90,9 +90,8 @@ const Report = () => {
 
         const mainRange = mainMode === "period"
             ? getDateRange(selectedPeriod)
-            : { start: mainStartDate, end: mainEndDate };
+            : {start: mainStartDate, end: mainEndDate};
 
-        // ❗ KHÔNG BẬT SO SÁNH → CHỈ XEM KỲ CHÍNH
         if (!enableCompare) {
             navigate(
                 `/revenue-chart?chart=${chartType}&type=${reportType}` +
@@ -101,10 +100,9 @@ const Report = () => {
             return;
         }
 
-        // ✅ BẬT SO SÁNH → LOGIC CŨ
         const compareRange = compareMode === "period"
             ? getDateRange(selectedComparePeriod)
-            : { start: compareStartDate, end: compareEndDate };
+            : {start: compareStartDate, end: compareEndDate};
 
         navigate(
             `/revenue-chart?chart=${chartType}&type=${reportType}` +
@@ -115,7 +113,7 @@ const Report = () => {
 
     return (
         <div className="container report-wrapper d-flex justify-content-center align-items-center">
-            <div className="report-card p-3 border rounded shadow-sm w-100" style={{ maxWidth: 520 }}>
+            <div className="report-card p-3 border rounded shadow-sm w-100" style={{maxWidth: 520}}>
 
                 <h5 className="fw-bold text-center text-primary mb-3">
                     Báo cáo thống kê
@@ -145,14 +143,13 @@ const Report = () => {
                     </div>
                 </div>
 
-                {/* Thời gian chính */}
                 <fieldset className="border rounded p-3 mb-3">
                     <legend className="small text-muted px-2">Thời gian chính</legend>
 
                     <div className="form-check small mb-1">
                         <input type="radio" className="form-check-input"
                                checked={mainMode === "period"}
-                               onChange={() => setMainMode("period")} />
+                               onChange={() => setMainMode("period")}/>
                         <label className="ms-1">Mốc thời gian</label>
                     </div>
 
@@ -167,7 +164,7 @@ const Report = () => {
                     <div className="form-check small mt-2 mb-1">
                         <input type="radio" className="form-check-input"
                                checked={mainMode === "range"}
-                               onChange={() => setMainMode("range")} />
+                               onChange={() => setMainMode("range")}/>
                         <label className="ms-1">Chọn khoảng</label>
                     </div>
 
@@ -175,23 +172,20 @@ const Report = () => {
                         <div className="d-flex gap-2">
                             <input type="date" className="form-control form-control-sm"
                                    value={mainStartDate}
-                                   onChange={(e) => setMainStartDate(e.target.value)} />
+                                   onChange={(e) => setMainStartDate(e.target.value)}/>
                             <input type="date" className="form-control form-control-sm"
                                    value={mainEndDate}
-                                   onChange={(e) => setMainEndDate(e.target.value)} />
+                                   onChange={(e) => setMainEndDate(e.target.value)}/>
                         </div>
                     )}
                 </fieldset>
 
-                {/* So sánh */}
                 <fieldset className="border rounded p-3 mb-3">
-                    <legend className="small text-muted px-2">So sánh với</legend>
-
                     <div className="form-check small mb-2">
                         <input type="checkbox" className="form-check-input"
                                checked={enableCompare}
-                               onChange={() => setEnableCompare(!enableCompare)} />
-                        <label className="ms-1">Bật so sánh</label>
+                               onChange={() => setEnableCompare(!enableCompare)}/>
+                        <label className="ms-1">So sánh</label>
                     </div>
 
                     <div style={{
@@ -201,7 +195,7 @@ const Report = () => {
                         <div className="form-check small mb-1">
                             <input type="radio" className="form-check-input"
                                    checked={compareMode === "period"}
-                                   onChange={() => setCompareMode("period")} />
+                                   onChange={() => setCompareMode("period")}/>
                             <label className="ms-1">Mốc thời gian</label>
                         </div>
 
@@ -216,7 +210,7 @@ const Report = () => {
                         <div className="form-check small mt-2 mb-1">
                             <input type="radio" className="form-check-input"
                                    checked={compareMode === "range"}
-                                   onChange={() => setCompareMode("range")} />
+                                   onChange={() => setCompareMode("range")}/>
                             <label className="ms-1">Chọn khoảng</label>
                         </div>
 
@@ -224,10 +218,10 @@ const Report = () => {
                             <div className="d-flex gap-2">
                                 <input type="date" className="form-control form-control-sm"
                                        value={compareStartDate}
-                                       onChange={(e) => setCompareStartDate(e.target.value)} />
+                                       onChange={(e) => setCompareStartDate(e.target.value)}/>
                                 <input type="date" className="form-control form-control-sm"
                                        value={compareEndDate}
-                                       onChange={(e) => setCompareEndDate(e.target.value)} />
+                                       onChange={(e) => setCompareEndDate(e.target.value)}/>
                             </div>
                         )}
                     </div>
@@ -248,8 +242,6 @@ const Report = () => {
                         Quay lại
                     </Link>
                 </div>
-
-
             </div>
         </div>
     );
