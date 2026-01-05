@@ -20,7 +20,7 @@
 .flight-list-container {
     font-family: 'Poppins', sans-serif;
     /* Background xanh sáng như bạn yêu cầu */
-    background: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%);
+    background: linear-gradient(180deg, #66a6ff 0%, #89f7fe 100%);
     min-height: 100vh;
     overflow-x: hidden;
     position: relative;
@@ -30,15 +30,86 @@
 /* Sky Background */
 .sky-container { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
 .cloud { position: absolute; color: rgba(255, 255, 255, 0.6); filter: blur(3px); animation: floatCloud linear infinite; }
-@keyframes floatCloud { from { transform: translateX(-150px); } to { transform: translateX(110vw); } }
+@keyframes floatCloud { from { transform: translateX(-900px); } to { transform: translateX(90vw); } }
 
-/* Plane Animation */
-.plane-vertical { position: absolute; color: rgba(255, 255, 255, 0.5); filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8)); bottom: -150px; animation: flyUp linear infinite; }
-@keyframes flyUp {
-    0% { transform: translateY(0) scale(0.4); opacity: 0; }
-    5% { opacity: 0.9; }
-    95% { opacity: 0.9; }
-    100% { transform: translateY(-130vh) scale(1.2); opacity: 0; }
+/* =========================================
+   PLANE ANIMATION (ĐA HƯỚNG, ĐA VỊ TRÍ)
+   ========================================= */
+
+/* Class chung thiết lập vị trí ban đầu */
+.plane-vertical {
+    position: absolute;
+    color: rgba(255, 255, 255, 1); /* Trắng mờ */
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8));
+    bottom: -15vh; /* Ẩn dưới màn hình */
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* 1. Hướng bay: Thẳng đứng (Dành cho máy bay ở giữa) */
+@keyframes flyStraight {
+    0% { transform: translateY(0) scale(0.5); opacity: 0; }
+    10% { opacity: 0.8; }
+    90% { opacity: 0.8; }
+    100% { transform: translateY(-120vh) scale(1.2); opacity: 0; }
+}
+
+/* 2. Hướng bay: Chéo sang Phải (Dành cho máy bay xuất phát bên Trái) */
+@keyframes flyVeerRight {
+    0% { transform: translateY(0) translateX(0) rotate(15deg) scale(0.4); opacity: 0; }
+    10% { opacity: 0.8; }
+    100% { transform: translateY(-120vh) translateX(30vw) rotate(15deg) scale(1.1); opacity: 0; }
+}
+
+/* 3. Hướng bay: Chéo sang Trái (Dành cho máy bay xuất phát bên Phải) */
+@keyframes flyVeerLeft {
+    0% { transform: translateY(0) translateX(0) rotate(-15deg) scale(0.6); opacity: 0; }
+    10% { opacity: 0.7; }
+    100% { transform: translateY(-120vh) translateX(-30vw) rotate(-15deg) scale(1.3); opacity: 0; }
+}
+
+/* --- CẤU HÌNH TỪNG MÁY BAY --- */
+
+/* Máy bay 1: Xuất phát sát TRÁI -> Bay chéo sang PHẢI */
+.plane-v1 {
+    left: 5%; /* Sát mép trái */
+    font-size: 1.5rem;
+    animation: flyVeerRight 18s linear infinite; /* Chạy animation bay sang phải */
+    animation-delay: 0s;
+}
+
+/* Máy bay 2: Xuất phát lệch TRÁI -> Bay THẲNG */
+.plane-v2 {
+    left: 25%;
+    font-size: 2.2rem;
+    color: rgba(255, 255, 255, 0.3);
+    animation: flyStraight 25s linear infinite; /* Bay thẳng */
+    animation-delay: 5s;
+}
+
+/* Máy bay 3: Xuất phát GIỮA -> Bay THẲNG */
+.plane-v3 {
+    left: 50%;
+    font-size: 1.8rem;
+    animation: flyStraight 20s linear infinite; /* Bay thẳng */
+    animation-delay: 2s;
+}
+
+/* Máy bay 4: Xuất phát lệch PHẢI -> Bay chéo sang TRÁI */
+.plane-v4 {
+    left: 75%;
+    font-size: 1.4rem;
+    animation: flyVeerLeft 22s linear infinite; /* Bay chéo sang trái */
+    animation-delay: 8s;
+}
+
+/* Máy bay 5: Xuất phát sát PHẢI -> Bay chéo sang TRÁI mạnh hơn */
+.plane-v5 {
+    left: 90%; /* Sát mép phải */
+    font-size: 2rem;
+    animation: flyVeerLeft 19s linear infinite; /* Bay chéo sang trái */
+    animation-delay: 12s;
 }
 
 /* =========================================
