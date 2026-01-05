@@ -61,6 +61,20 @@ function AppRouter() {
                 <Route path="/profile/edit" element={<PrivateRoute><EditProfile /></PrivateRoute>} />
                 <Route path="/payment-result" element={<PaymentResult />} />
                 <Route path="/bookings" element={<PrivateRoute><BookingHistory /></PrivateRoute>} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/change-password" element={<PrivateRoute><ChangePassword /></PrivateRoute>} />
+                <Route path="/profile/edit" element={<PrivateRoute><EditProfile /></PrivateRoute>} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/change-password" element={<PrivateRoute><ChangePassword /></PrivateRoute>} />
+                <Route path="/profile/edit" element={<PrivateRoute><EditProfile /></PrivateRoute>} />
+                <Route path="/payment-result" element={<PaymentResult />} />
+                <Route path="/bookings" element={<PrivateRoute><BookingHistory /></PrivateRoute>} />
 
                 {/* Route quản lý chuyến bay */}
                 <Route path="/flights" element={<FlightList />} />

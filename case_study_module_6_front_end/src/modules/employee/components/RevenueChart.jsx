@@ -203,18 +203,6 @@ const RevenueChart = () => {
         <div className="container py-3">
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className="fw-bold text-primary">{reportType}</h5>
-                <div className="d-flex gap-2">
-                    <button
-                        className="btn btn-success btn-sm"
-                        onClick={handleExportExcel}
-                        disabled={!labels.length}
-                    >
-                        Xuất Excel
-                    </button>
-                    <Link to="/report" className="btn btn-secondary btn-sm">
-                        Quay lại
-                    </Link>
-                </div>
             </div>
 
 
@@ -222,6 +210,24 @@ const RevenueChart = () => {
             {hasCompare && <p className="small">So sánh: {compareStart} → {compareEnd}</p>}
 
             {loading ? "Đang tải..." : message ? message : renderChart()}
+
+            {/* Actions dưới biểu đồ */}
+            {!loading && !message && (
+                <div className="d-flex justify-content-center gap-3 chart-actions">
+                <button
+                        className="btn btn-success btn-sm px-4"
+                        onClick={handleExportExcel}
+                        disabled={!labels.length}
+                    >
+                        Xuất Excel
+                    </button>
+
+                    <Link to="/report" className="btn btn-secondary btn-sm px-4">
+                        Quay lại
+                    </Link>
+                </div>
+            )}
+
         </div>
     );
 };
