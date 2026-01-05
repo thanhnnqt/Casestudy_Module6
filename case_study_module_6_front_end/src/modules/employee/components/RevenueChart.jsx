@@ -184,7 +184,7 @@ const RevenueChart = () => {
                     {/* Biểu đồ kỳ chính */}
                     <div className={hasCompare ? "col-md-6" : "col-md-12"}>
                         <p className="text-center fw-bold small">Kỳ chính</p>
-                        <ResponsiveContainer width="100%" height={350}>
+                        <ResponsiveContainer width="100%" height={300}>
                             <PieChart>
                                 <Pie
                                     data={pieDataMain}
@@ -206,7 +206,7 @@ const RevenueChart = () => {
                     {hasCompare && (
                         <div className="col-md-6">
                             <p className="text-center fw-bold small">Kỳ so sánh</p>
-                            <ResponsiveContainer width="100%" height={350}>
+                            <ResponsiveContainer width="100%" height={300}>
                                 <PieChart>
                                     <Pie
                                         data={pieDataCompare}
