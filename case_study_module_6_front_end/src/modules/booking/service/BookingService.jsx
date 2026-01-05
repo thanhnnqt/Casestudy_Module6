@@ -1,87 +1,114 @@
-import axios from "../../../modules/login/service/axiosConfig";
+import axios from "axios";
 import qs from "qs";
 
-// URL gốc trỏ về Backend Spring Boot
 const API_URL = "http://localhost:8080/api";
+
+// --- HÀM LẤY TOKEN CỰC KỲ CẨN THẬN ---
+const getAuthConfig = () => {
+    let token = localStorage.getItem("accessToken") || localStorage.getItem("token");
+
+    // Nếu token chưa có, thử tìm trong object 'user'
+    if (!token) {
+        const userStr = localStorage.getItem("user");
+        if (userStr) {
+            try {
+                const userObj = JSON.parse(userStr);
+                token = userObj.token || userObj.accessToken || userObj.jwt;
+            } catch (e) {
+                console.error("Lỗi parse JSON user:", e);
+            }
+        }
+    }
+
+    // [QUAN TRỌNG] Loại bỏ dấu ngoặc kép thừa nếu có
+    if (token && typeof token === 'string') {
+        token = token.replace(/^"|"$/g, '');
+    }
+
+    if (!token) {
+        console.warn("⛔ Cảnh báo: Không tìm thấy Token hợp lệ! Request có thể bị 403.");
+        return {};
+    }
+
+    return {
+        headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+        }
+    };
+};
 
 export const FlightService = {
     // 1. Tìm chuyến bay
     searchFlights: (from, to, date) => {
         const params = {
-            date: date,           // Khớp với @RequestParam("date")
-            origin: from,         // <--- SỬA THÀNH 'origin' để khớp với Backend
-            destination: to,      // <--- SỬA THÀNH 'destination' để khớp với Backend
+            date: date,
+            origin: from,
+            destination: to,
             status: 'SCHEDULED',
             page: 0,
             size: 100
         };
-
-        console.log("Calling API with params:", params); // Log ra để kiểm tra
-
         return axios.get(`${API_URL}/flights/search-by-date`, {
             params: params,
-            paramsSerializer: params => {
-                return qs.stringify(params, { arrayFormat: 'repeat' })
-            }
+            paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' })
         });
     },
 
-    // 2. Lấy chi tiết 1 chuyến bay
+    // 2. Lấy chi tiết
     getFlightById: (id) => {
         return axios.get(`${API_URL}/flights/${id}`);
     },
 
-    // 3. Tạo Booking (Online)
+    // 3. Tạo Booking (Online/Pending)
     createBooking: (bookingPayload) => {
-        return axios.post(`${API_URL}/bookings`, bookingPayload);
+        return axios.post(`${API_URL}/bookings`, bookingPayload, getAuthConfig());
     },
 
-    // 4. Lấy toàn bộ danh sách (Cho Admin/Sales)
+    // 4. Lấy danh sách
     getAllBookings: () => {
-        return axios.get(`${API_URL}/bookings`);
+        return axios.get(`${API_URL}/bookings`, getAuthConfig());
     },
 
-    // 4b. Lấy lịch sử của tôi (Cho Customer)
-    getMyBookings: () => {
-        return axios.get(`${API_URL}/bookings/my-history`);
-    },
-
-    // 5. Lấy danh sách sân bay
+    // 5. Danh sách sân bay
     getAllAirports: () => {
-        return axios.get(`${API_URL}/airports`);
+        return axios.get(`${API_URL}/master/airports`);
     },
 
-    // 6. Gợi ý số hiệu
-    getFlightNumberSuggestions: () => {
-        return axios.get(`${API_URL}/flights/suggestions/numbers`);
-    },
-
-    // 7. Cập nhật trạng thái booking (Thanh toán/Hủy)
+    // 7. Update trạng thái
     updateBookingStatus: (id, status) => {
         return axios.put(`${API_URL}/bookings/${id}/status`, null, {
-            params: { newStatus: status }
+            params: { newStatus: status },
+            ...getAuthConfig()
         });
     },
 
-    // 8. BÁN VÉ TẠI QUẦY
+    // 8. Bán tại quầy (CẦN TOKEN)
     createCounterBooking: (data) => {
-        return axios.post(`${API_URL}/bookings/sell-at-counter`, data);
+        return axios.post(`${API_URL}/bookings/sell-at-counter`, data, getAuthConfig());
     },
 
-    // 9. XÓA VÉ (DELETE) ---
+    // 9. Xóa vé
     deleteBooking: (id) => {
-        return axios.delete(`${API_URL}/bookings/${id}`);
+        return axios.delete(`${API_URL}/bookings/${id}`, getAuthConfig());
     },
 
-    // 10. CẬP NHẬT THÔNG TIN VÉ (Sửa tên, SĐT...) ---
+    // 10. Update thông tin
     updateBookingInfo: (data) => {
-        // Gửi request PUT kèm dữ liệu đã sửa lên server
-        return axios.put(`${API_URL}/bookings/${data.id}`, data);
+        return axios.put(`${API_URL}/bookings/${data.id}`, data, getAuthConfig());
+    },
+
+    // 11. Tạo link thanh toán VNPAY (QUAN TRỌNG: ĐÃ THÊM RETURN)
+    createPaymentUrl: (amount, bookingCode) => {
+        return axios.post(`${API_URL}/payment/create-payment-url`, { amount, bookingCode }, getAuthConfig());
+    },
+
+    // 12. Lấy lịch sử đặt vé của tôi
+    getMyBookings: () => {
+        return axios.get(`${API_URL}/bookings/my-history`, getAuthConfig());
     }
-};
-// 11. ĐẶT VÉ ONLINE + THANH TOÁN VNPAY
+}
+
 export const createOnlineBooking = (bookingPayload) => {
-    return axios
-        .post(`${API_URL}/bookings/online`, bookingPayload)
-        .then(res => res.data);
+    return axios.post(`${API_URL}/bookings/online`, bookingPayload);
 };

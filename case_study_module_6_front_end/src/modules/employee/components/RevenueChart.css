@@ -1,21 +1,137 @@
-/* Không đổi màu cột khi hover */
+/* ====== CONTAINER ====== */
+.container {
+    max-width: 1100px;
+}
+
+/* ====== HEADER ====== */
+.container h5 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #005eff;
+    margin-bottom: 4px;
+}
+
+/* ====== INFO RANGE ====== */
+.container p.small {
+    margin-bottom: 2px;
+    color: #6c757d;
+    font-size: 12.5px;
+}
+
+/* ====== CHART AREA ====== */
+.recharts-responsive-container {
+    background: #ffffff;
+    border: 1px solid #e1e5ea;
+    border-radius: 6px;
+    padding: 12px;
+}
+
+/* ====== LEGEND ====== */
+.recharts-legend-wrapper {
+    font-size: 12.5px;
+}
+
+/* ====== TOOLTIP ====== */
+.recharts-default-tooltip {
+    border-radius: 4px !important;
+    border: 1px solid #dee2e6 !important;
+    font-size: 12.5px;
+}
+
+.chart-actions .btn {
+    padding: 4px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 4px;
+}
+
+/* Excel nổi bật hơn */
+.chart-actions .btn-success {
+    background-color: #00a651;
+    border-color: #00a651;
+}
+
+.chart-actions .btn-success:hover {
+    background-color: #008f46;
+    border-color: #008f46;
+}
+
+/* ====== BAR HOVER BEHAVIOR (GIỮ NGUYÊN MÀU) ====== */
 .recharts-bar-rectangle {
     transition: none !important;
 }
 
-/* Cột đang active vẫn giữ màu gradient */
 .recharts-active-bar .recharts-rectangle {
     opacity: 1 !important;
-    fill: url(#revenueGradient) !important;
 }
 
-/* Ngăn các cột còn lại bị mờ đi */
 .recharts-bar-rectangle .recharts-rectangle {
     opacity: 1 !important;
 }
 
-/* Tooltip active hiệu ứng không thay fill */
+/* Tooltip cursor không che chart */
 .recharts-tooltip-cursor {
     fill: transparent !important;
     stroke: none !important;
 }
+
+/* Tạo khoảng cách dưới biểu đồ tròn */
+.recharts-pie {
+    margin-bottom: 32px;
+}
+
+/* Tạo khoảng cách thật giữa chart (SVG) và action buttons */
+.recharts-responsive-container + .chart-actions {
+    margin-top: 36px;
+}
+
+/* ====== CONTAINER ====== */
+.container {
+    max-width: 1100px;
+    padding-top: 10px !important; /* Giảm padding top */
+    padding-bottom: 10px !important;
+}
+
+/* ====== HEADER & INFO ====== */
+.container h5 {
+    font-size: 15px; /* Giảm nhẹ size */
+    margin-bottom: 2px;
+}
+
+.container p.small {
+    margin-bottom: 0px; /* Sát lại nhau */
+    line-height: 1.2;
+}
+
+/* ====== CHART AREA ====== */
+/* Quan trọng: Giảm chiều cao từ 350px xuống khoảng 300px để không bị lố màn hình */
+.recharts-responsive-container {
+    background: #ffffff;
+    border: 1px solid #e1e5ea;
+    border-radius: 6px;
+    padding: 8px;
+    height: 300px !important; /* Fix chiều cao cố định để tránh scroll */
+}
+
+/* ====== ACTION BUTTONS ====== */
+.chart-actions {
+    margin-top: 15px !important; /* Giảm từ 50px xuống 15px */
+    padding-bottom: 10px;
+}
+
+/* Biểu đồ tròn */
+.recharts-pie {
+    margin-bottom: 0px; /* Bỏ margin cũ gây tốn diện tích */
+}
+
+/* Khi dùng Row/Col cho 2 biểu đồ tròn */
+.row.w-100 {
+    margin: 0;
+    padding: 0;
+}
+
+.col-md-6 p.text-center {
+    margin-bottom: 5px; /* Giảm khoảng cách tiêu đề Kỳ chính/Kỳ so sánh */
+}
+
+

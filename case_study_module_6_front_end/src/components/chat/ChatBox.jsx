@@ -17,22 +17,20 @@ export default function ChatBox({ customer, onClose, adminMode = false }) {
                 .then(res => setMessages(res.data))
                 .catch(err => console.log("Chưa có lịch sử chat", err));
         }
-    }, [customer, adminMode, user?.id]);
+    }, [customer?.customerAccountId, adminMode, user?.id]);
 
     // 2. Kết nối WebSocket
     useEffect(() => {
         if (!token || !customer) return;
 
         const handleNewMessage = (msg) => {
-            console.log("ChatBox: Tin nhắn mới nhận từ WebSocket:", msg);
-            // ⭐ LOGIC LỌC CHUẨN: Chỉ lấy tin nhắn thuộc về Customer ID của hội thoại này
+            console.log("ChatBox: Tin nhắn mới nhận:", msg);
+            // ⭐ LOGIC LỌC CHUẨN: Dùng ID phẳng từ DTO
             const targetCustomerId = adminMode ? customer.customerAccountId : user?.id;
 
-            // Determine if the message is relevant to the current chat session
-            // A message belongs to this conversation if its sender or receiver is the target customer.
-            const isTargetMsg = (msg.sender.id === targetCustomerId || msg.receiver.id === targetCustomerId);
+            const isTargetMsg = (msg.senderId === targetCustomerId || msg.receiverId === targetCustomerId);
 
-            console.log(`ChatBox: Lọc tin nhắn (isTargetMsg: ${isTargetMsg}). TargetID: ${targetCustomerId}`);
+            console.log(`ChatBox: Lọc (isTargetMsg: ${isTargetMsg}). TargetID: ${targetCustomerId}`);
 
             if (isTargetMsg) {
                 setMessages(prev => {
@@ -47,7 +45,7 @@ export default function ChatBox({ customer, onClose, adminMode = false }) {
         return () => {
             disconnectChat(handleNewMessage);
         };
-    }, [token, customer, adminMode, user?.id]);
+    }, [token, customer?.customerAccountId, adminMode, user?.id]);
 
     useEffect(() => {
         scrollRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -59,12 +57,12 @@ export default function ChatBox({ customer, onClose, adminMode = false }) {
         // Xác định ai là người nhận
         // Nếu tôi là Admin -> Gửi cho Customer
         // Nếu tôi là Customer -> Gửi cho Admin (mặc định ID 1)
-        const receiverId = adminMode ? customer.customerAccountId : 1;
-        const receiverUsername = adminMode ? customer.customerUsername : "admin";
+        const receiverId = adminMode ? customer.customerAccountId : null;
+        const receiverUsername = adminMode ? customer.customerUsername : null;
         const receiverRole = adminMode ? "CUSTOMER" : "ADMIN";
 
         const msgData = {
-            senderId: user.id,
+            senderId: user.id, // Account ID từ AuthContext
             senderUsername: user.username,
             senderRole: user.role,
             receiverId: receiverId,
@@ -79,7 +77,7 @@ export default function ChatBox({ customer, onClose, adminMode = false }) {
             console.log("ChatBox: Tin nhắn đã đẩy lên WebSocket thành công.");
             const tempMsg = {
                 id: Date.now(),
-                sender: { id: user.id },
+                senderId: user.id,
                 senderUsername: user.username,
                 senderRole: user.role,
                 content: text,

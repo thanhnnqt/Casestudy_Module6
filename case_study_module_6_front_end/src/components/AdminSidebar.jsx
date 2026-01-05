@@ -22,9 +22,9 @@ const AdminSidebar = ({ collapsed, toggleSidebar, onLogout }) => {
                 </NavLink>
 
                 {/* 2. ĐẶT VÉ */}
-                <NavLink to="/bookings" className={({isActive}) => `nav-link ${isActive ? 'active' : ''}`}>
+                <NavLink to="/customers" className={({isActive}) => `nav-link ${isActive ? 'active' : ''}`}>
                     <i className="bi bi-ticket-perforated-fill"></i>
-                    {!collapsed && <span>  Quản lý đặt chỗ</span>}
+                    {!collapsed && <span>  Quản lý đặt vé</span>}
                 </NavLink>
 
                 {/* 3. NHÂN VIÊN */}

@@ -87,7 +87,6 @@ public class EmployeeController {
     public ResponseEntity<?> create(
             @RequestHeader("Authorization") String authHeader,
             @RequestBody EmployeeDTO employeeDTO) {
-
         if (accountService.existsByUsername(employeeDTO.getUsername())) {
             return ResponseEntity.badRequest().body("Tài khoản đã tồn tại");
         }
@@ -132,7 +131,6 @@ public class EmployeeController {
             return ResponseEntity.status(HttpStatus.CREATED).body(employeeCreated);
         }
     }
-
 
     @GetMapping("/check-identification")
     public boolean checkIdentification(@RequestParam String value) {

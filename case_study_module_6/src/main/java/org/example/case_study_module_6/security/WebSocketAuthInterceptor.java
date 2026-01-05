@@ -33,13 +33,17 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
 
                 String username = jwtService.getUsernameFromToken(token);
                 String role = jwtService.getRoleFromToken(token);
-                Long customerId = jwtService.getCustomerIdFromToken(token);
 
-                // ⭐ KEY QUAN TRỌNG
+                var claims = jwtService.extractClaims(token);
+                Long profileId = claims.get("profileId", Long.class);
+                Long userId = claims.get("userId", Long.class);
+
+                // ⭐ KEY QUAN TRỌNG: Gán username cho STOMP Principal
                 accessor.setUser(() -> username);
 
                 accessor.getSessionAttributes().put("role", role);
-                accessor.getSessionAttributes().put("customerId", customerId);
+                accessor.getSessionAttributes().put("profileId", profileId);
+                accessor.getSessionAttributes().put("userId", userId);
             }
         }
         return message;

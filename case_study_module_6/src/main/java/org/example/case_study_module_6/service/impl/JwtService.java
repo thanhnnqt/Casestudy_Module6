@@ -23,14 +23,16 @@ public class JwtService {
     public String generateToken(
             String username,
             String role,
-            Long customerId,
+            Long profileId,
+            Long accountId,
             String fullName,
             String provider
     ) {
         return Jwts.builder()
                 .setSubject(username)
                 .claim("role", role.replace("ROLE_", ""))
-                .claim("customerId", customerId)
+                .claim("profileId", profileId)
+                .claim("userId", accountId)
                 .claim("fullName", fullName)
                 .claim("provider", provider)
                 .setIssuedAt(new Date())

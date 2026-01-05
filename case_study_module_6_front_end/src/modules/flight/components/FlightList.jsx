@@ -1,10 +1,10 @@
-import React, {useEffect, useState, useCallback, useRef} from "react";
-import {Link} from "react-router-dom";
-import {getAllFlights} from "../service/flightService";
-import {getAirports, getAirlines, getFlightNumberSuggestions} from "../service/masterDataService";
-import {toast} from "react-toastify";
-import {DateRangePicker} from 'react-date-range';
-import {vi} from 'date-fns/locale';
+import React, { useEffect, useState, useCallback, useRef } from "react";
+import { Link } from "react-router-dom";
+import { getAllFlights } from "../service/flightService";
+import { getAirports, getAirlines, getFlightNumberSuggestions } from "../service/masterDataService";
+import { toast } from "react-toastify";
+import { DateRangePicker } from 'react-date-range';
+import { vi } from 'date-fns/locale';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import "./FlightList.css";
@@ -29,9 +29,9 @@ const FlightList = () => {
         minPrice: "", maxPrice: "", status: ""
     });
 
-    const [priceRange, setPriceRange] = useState({min: 0, max: 20000000});
+    const [priceRange, setPriceRange] = useState({ min: 0, max: 20000000 });
     const [showDatePicker, setShowDatePicker] = useState(false);
-    const [dateRange, setDateRange] = useState([{startDate: null, endDate: null, key: 'selection'}]);
+    const [dateRange, setDateRange] = useState([{ startDate: null, endDate: null, key: 'selection' }]);
     const [sortConfig, setSortConfig] = useState([]);
 
     const [suggestionAirlines, setSuggestionAirlines] = useState([]);
@@ -52,7 +52,7 @@ const FlightList = () => {
     const performSearch = useCallback(async (currentFilters, currentSorts, page = 0, size = pageSize) => {
         try {
             const sortParams = currentSorts.map(s => `${s.key},${s.direction}`);
-            const params = {...currentFilters, sort: sortParams, page: page, size: size};
+            const params = { ...currentFilters, sort: sortParams, page: page, size: size };
             Object.keys(params).forEach(key => (params[key] === "" || params[key] === null) && delete params[key]);
 
             const data = await getAllFlights(params);
@@ -97,7 +97,7 @@ const FlightList = () => {
         if (newPage >= 0 && newPage < totalPages) {
             setCurrentPage(newPage);
             performSearch(filters, sortConfig, newPage, pageSize);
-            window.scrollTo({top: 0, behavior: 'smooth'});
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
 
@@ -201,6 +201,20 @@ const FlightList = () => {
     // --- MAIN RENDER ---
     return (
         <AdminLayout>
+            {/* --- HIỆU ỨNG NỀN & MÁY BAY BAY --- */}
+            <div className="sky-container">
+                <i className="bi bi-cloud-fill cloud c1"></i>
+                <i className="bi bi-cloud-fill cloud c2"></i>
+                <i className="bi bi-cloud-fill cloud c3"></i>
+
+                {/* Máy bay: 5 chiếc với vị trí và tốc độ khác nhau */}
+                <i className="bi bi-airplane-fill plane-vertical plane-v1"></i>
+                <i className="bi bi-airplane-fill plane-vertical plane-v2"></i>
+                <i className="bi bi-airplane-fill plane-vertical plane-v3"></i>
+                <i className="bi bi-airplane-fill plane-vertical plane-v4"></i>
+                <i className="bi bi-airplane-fill plane-vertical plane-v5"></i>
+            </div>
+
             {/* Header */}
             <div className="glass-card d-flex justify-content-between align-items-center mb-4 sticky-header">
                 <div>

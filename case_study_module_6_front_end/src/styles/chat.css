@@ -1,6 +1,8 @@
 .chat-box-container {
-    width: 360px !important;
+    width: calc(100% - 40px) !important;
+    max-width: 360px !important;
     height: 500px !important;
+    max-height: 80vh !important;
     display: flex !important;
     flex-direction: column !important;
     border: 1px solid #e0e0e0 !important;
@@ -139,8 +141,10 @@
 }
 
 .admin-floating-container {
-    width: 380px !important;
+    width: calc(100% - 40px) !important;
+    max-width: 380px !important;
     height: 550px !important;
+    max-height: 85vh !important;
     position: fixed !important;
     bottom: 0 !important;
     right: 20px !important;

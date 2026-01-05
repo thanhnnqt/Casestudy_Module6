@@ -61,13 +61,27 @@ function AppRouter() {
                 <Route path="/profile/edit" element={<PrivateRoute><EditProfile /></PrivateRoute>} />
                 <Route path="/payment-result" element={<PaymentResult />} />
                 <Route path="/bookings" element={<PrivateRoute><BookingHistory /></PrivateRoute>} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/change-password" element={<PrivateRoute><ChangePassword /></PrivateRoute>} />
+                <Route path="/profile/edit" element={<PrivateRoute><EditProfile /></PrivateRoute>} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/change-password" element={<PrivateRoute><ChangePassword /></PrivateRoute>} />
+                <Route path="/profile/edit" element={<PrivateRoute><EditProfile /></PrivateRoute>} />
+                <Route path="/payment-result" element={<PaymentResult />} />
+                <Route path="/bookings" element={<PrivateRoute><BookingHistory /></PrivateRoute>} />
 
                 {/* Route quản lý chuyến bay */}
                 <Route path="/flights" element={<FlightList />} />
                 <Route path="/flights/create" element={<FlightForm />} />
                 <Route path="flights/edit/:id" element={<FlightForm />} />
 
-                <Route path="/flights/booking" element={<BookingPage />} />
+                <Route path="/customer/booking" element={<BookingPage />} />
                 <Route path="/flights/passenger" element={<PassengerForm />} />
 
                 {/* Route nhân viên */}
