@@ -83,7 +83,7 @@ const EmployeeList = () => {
                         <p className="text-muted mb-0">Theo dõi và quản lý hồ sơ nhân sự</p>
                     </div>
                     <div className="d-flex gap-2">
-                        <Link to="/employees/create" className="btn btn-primary shadow-lg fw-bold rounded-pill px-4">
+                        <Link to="/employees/add" className="btn btn-primary shadow-lg fw-bold rounded-pill px-4">
                             <i className="bi bi-person-plus-fill me-2"></i>Thêm mới
                         </Link>
                     </div>
