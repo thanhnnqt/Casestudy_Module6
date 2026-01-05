@@ -85,6 +85,53 @@
     margin-top: 36px;
 }
 
+/* ====== CONTAINER ====== */
+.container {
+    max-width: 1100px;
+    padding-top: 10px !important; /* Giảm padding top */
+    padding-bottom: 10px !important;
+}
 
+/* ====== HEADER & INFO ====== */
+.container h5 {
+    font-size: 15px; /* Giảm nhẹ size */
+    margin-bottom: 2px;
+}
+
+.container p.small {
+    margin-bottom: 0px; /* Sát lại nhau */
+    line-height: 1.2;
+}
+
+/* ====== CHART AREA ====== */
+/* Quan trọng: Giảm chiều cao từ 350px xuống khoảng 300px để không bị lố màn hình */
+.recharts-responsive-container {
+    background: #ffffff;
+    border: 1px solid #e1e5ea;
+    border-radius: 6px;
+    padding: 8px;
+    height: 300px !important; /* Fix chiều cao cố định để tránh scroll */
+}
+
+/* ====== ACTION BUTTONS ====== */
+.chart-actions {
+    margin-top: 15px !important; /* Giảm từ 50px xuống 15px */
+    padding-bottom: 10px;
+}
+
+/* Biểu đồ tròn */
+.recharts-pie {
+    margin-bottom: 0px; /* Bỏ margin cũ gây tốn diện tích */
+}
+
+/* Khi dùng Row/Col cho 2 biểu đồ tròn */
+.row.w-100 {
+    margin: 0;
+    padding: 0;
+}
+
+.col-md-6 p.text-center {
+    margin-bottom: 5px; /* Giảm khoảng cách tiêu đề Kỳ chính/Kỳ so sánh */
+}
 
 

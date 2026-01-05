@@ -36,42 +36,73 @@ const RevenueChart = () => {
     const handleExportExcel = () => {
         if (!labels.length) return;
 
-        const unitLabel =
-            reportType === "Hiệu suất nhân viên" ? "Vé" : "VND";
+        // 1. Xác định ngữ nghĩa tiêu đề cột
+        let nameCol = "Tên";
+        let mainCol = "Kỳ chính";
+        let compareCol = "Kỳ so sánh";
+        let unitLabel = "VND";
 
+        if (reportType === "Doanh thu") {
+            nameCol = "Hạng mục";
+            mainCol = "Doanh thu kỳ chính (VND)";
+            compareCol = "Doanh thu kỳ so sánh (VND)";
+            unitLabel = "VND";
+        } else if (reportType === "Hiệu suất nhân viên") {
+            nameCol = "Nhân viên";
+            mainCol = "Số vé kỳ chính";
+            compareCol = "Số vé kỳ so sánh";
+            unitLabel = "Vé";
+        } else if (reportType === "Theo hãng") {
+            nameCol = "Hãng bay";
+            mainCol = "Doanh thu kỳ chính (VND)";
+            compareCol = "Doanh thu kỳ so sánh (VND)";
+            unitLabel = "VND";
+        }
+
+        // 2. Map dữ liệu: Chỉ thêm cột so sánh nếu hasCompare là true
         const rows = labels.map((label, i) => {
             const row = {
-                "Tên": label,
-                "Kỳ chính": mainData[i]
+                [nameCol]: label,
+                [mainCol]: mainData[i]
             };
 
+            // Chỉ thêm thuộc tính này vào object nếu đang ở chế độ so sánh
             if (hasCompare) {
-                row["Kỳ so sánh"] = compareData[i] ?? 0;
+                row[compareCol] = compareData[i] ?? 0;
             }
 
             return row;
         });
 
-        const worksheet = XLSX.utils.json_to_sheet(rows);
+        // 3. Chuẩn bị mảng dữ liệu cho Worksheet (bao gồm cả header mô tả)
+        const headerInfo = [
+            [`BÁO CÁO: ${reportType.toUpperCase()}`],
+            [`Kỳ chính: ${start} → ${end}`],
+        ];
 
-        // Thêm metadata (header trên cùng)
-        XLSX.utils.sheet_add_aoa(
-            worksheet,
-            [
-                [`BÁO CÁO: ${reportType.toUpperCase()}`],
-                [`Kỳ chính: ${start} → ${end}`],
-                hasCompare ? [`So sánh: ${compareStart} → ${compareEnd}`] : [],
-                [`Đơn vị: ${unitLabel}`],
-                []
-            ],
-            {origin: "A1"}
-        );
+        if (hasCompare) {
+            headerInfo.push([`So sánh: ${compareStart} → ${compareEnd}`]);
+        }
 
+        headerInfo.push([`Đơn vị: ${unitLabel}`], []); // Thêm dòng trống
+
+        // Lấy tiêu đề cột từ object đầu tiên (sẽ tự động có 2 hoặc 3 cột tùy hasCompare)
+        const tableHeaders = Object.keys(rows[0]);
+        const tableData = rows.map(r => Object.values(r));
+
+        // Kết hợp thông tin chung và bảng dữ liệu
+        const finalData = [
+            ...headerInfo,
+            tableHeaders,
+            ...tableData
+        ];
+
+        // 4. Tạo sheet và xuất file
+        const worksheet = XLSX.utils.aoa_to_sheet(finalData);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
 
-        const fileName =
-            `bao_cao_${reportType.replace(/\s/g, "_")}_${start}_${end}.xlsx`;
+        const fileName = `bao_cao_${reportType.replace(/\s/g, "_")}_${start}_${end}${hasCompare ? '_so_sanh' : ''}.xlsx`;
 
         XLSX.writeFile(workbook, fileName);
     };
@@ -130,27 +161,83 @@ const RevenueChart = () => {
         }));
 
         if (chartType.includes("tròn")) {
-            const total = mainData.reduce((t, v) => t + v, 0);
-            const pieData = labels.map((l, i) => ({
+            const totalMain = mainData.reduce((t, v) => t + v, 0);
+            const pieDataMain = labels.map((l, i) => ({
                 name: l,
                 value: mainData[i],
-                percent: ((mainData[i] / total) * 100).toFixed(1)
+                percent: ((mainData[i] / totalMain) * 100).toFixed(1)
             }));
 
+            // Nếu có so sánh, tạo thêm tập dữ liệu cho kỳ 2
+            let pieDataCompare = [];
+            if (hasCompare) {
+                const totalCompare = compareData.reduce((t, v) => t + v, 0);
+                pieDataCompare = labels.map((l, i) => ({
+                    name: l,
+                    value: compareData[i],
+                    percent: ((compareData[i] / totalCompare) * 100).toFixed(1)
+                }));
+            }
+
             return (
-                <ResponsiveContainer width="100%" height={350}>
-                    <PieChart>
-                        <Pie data={pieData} dataKey="value" nameKey="name"
-                             label={({name, value, percent}) =>
-                                 `${name}: ${value} (${percent}%)`
-                             }>
-                            {pieData.map((_, i) =>
-                                <Cell key={i} fill={COLORS[i % COLORS.length]}/>)}
-                        </Pie>
-                        <Tooltip/>
-                        <Legend/>
-                    </PieChart>
-                </ResponsiveContainer>
+                <div className="row w-100">
+                    {/* Biểu đồ kỳ chính */}
+                    <div className={hasCompare ? "col-md-6" : "col-md-12"}>
+                        <p className="text-center fw-bold small">Kỳ chính</p>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <PieChart>
+                                <Pie
+                                    data={pieDataMain}
+                                    dataKey="value"
+                                    nameKey="name"
+                                    label={({ name, percent }) => `${name}: ${percent}%`}
+                                >
+                                    {pieDataMain.map((_, i) => (
+                                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip formatter={formatValue} />
+                                {!hasCompare && <Legend />}
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+
+                    {/* Biểu đồ kỳ so sánh (chỉ hiện khi hasCompare = true) */}
+                    {hasCompare && (
+                        <div className="col-md-6">
+                            <p className="text-center fw-bold small">Kỳ so sánh</p>
+                            <ResponsiveContainer width="100%" height={300}>
+                                <PieChart>
+                                    <Pie
+                                        data={pieDataCompare}
+                                        dataKey="value"
+                                        nameKey="name"
+                                        label={({ name, percent }) => `${name}: ${percent}%`}
+                                    >
+                                        {pieDataCompare.map((_, i) => (
+                                            <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip formatter={formatValue} />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
+                    )}
+
+                    {/* Legend chung ở dưới nếu là so sánh */}
+                    {hasCompare && (
+                        <div className="col-12 d-flex justify-content-center mt-2">
+                            <div className="d-flex flex-wrap justify-content-center gap-3">
+                                {labels.map((l, i) => (
+                                    <div key={i} className="small d-flex align-items-center">
+                                        <div style={{ width: 12, height: 12, backgroundColor: COLORS[i % COLORS.length], marginRight: 5 }}></div>
+                                        {l}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
             );
         }
 
