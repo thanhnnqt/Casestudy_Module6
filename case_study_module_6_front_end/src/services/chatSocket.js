@@ -1,48 +1,51 @@
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 
-let client;
-let connected = false;
+let client = null;
+let subscribers = new Set();
+let isConnected = false;
 
-export const connectChat = (token, onMessage, onConnected) => {
+export const connectChat = (token, onMessage) => {
+    if (onMessage) subscribers.add(onMessage);
+
+    if (client && isConnected) {
+        return;
+    }
+
+    if (client && client.active) {
+        return;
+    }
+
     client = new Client({
-        webSocketFactory: () =>
-            new SockJS("http://localhost:8080/ws-chat"),
-
-        connectHeaders: {
-            Authorization: "Bearer " + token
-        },
-
-        debug: str => console.log("STOMP:", str),
-
+        webSocketFactory: () => new SockJS("http://localhost:8080/ws-chat"),
+        connectHeaders: { Authorization: "Bearer " + token },
         onConnect: () => {
-            console.log("✅ STOMP CONNECTED");
-            connected = true;
-
+            isConnected = true;
+            console.log("✅ WebSocket Connected");
             client.subscribe("/user/queue/messages", msg => {
-                onMessage(JSON.parse(msg.body));
+                const data = JSON.parse(msg.body);
+                subscribers.forEach(cb => cb(data));
             });
-
-            onConnected && onConnected();
         },
-
-        onStompError: frame => {
-            console.error("❌ STOMP ERROR", frame);
+        onDisconnect: () => {
+            isConnected = false;
         }
     });
 
     client.activate();
 };
 
+export const disconnectChat = (onMessage) => {
+    if (onMessage) subscribers.delete(onMessage);
+};
+
 export const sendChatMessage = (data) => {
-    if (!connected) {
-        return false; // 🔥 CHO CHATBOX BIẾT
+    if (client && isConnected) {
+        client.publish({
+            destination: "/app/chat.send",
+            body: JSON.stringify(data)
+        });
+        return true;
     }
-
-    client.publish({
-        destination: "/app/chat.send",
-        body: JSON.stringify(data)
-    });
-
-    return true;
+    return false;
 };

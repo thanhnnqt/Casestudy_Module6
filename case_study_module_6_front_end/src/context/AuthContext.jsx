@@ -29,7 +29,8 @@ export const AuthProvider = ({ children }) => {
                 username: payload.sub,
                 role: payload.role,
                 customerId: payload.customerId,
-                fullName: payload.fullName
+                fullName: payload.fullName,
+                provider: payload.provider
             });
         }
     }, []);
@@ -42,7 +43,8 @@ export const AuthProvider = ({ children }) => {
             username: payload.sub,
             role: payload.role,
             customerId: payload.customerId,
-            fullName: payload.fullName
+            fullName: payload.fullName,
+            provider: payload.provider
         });
     };
 

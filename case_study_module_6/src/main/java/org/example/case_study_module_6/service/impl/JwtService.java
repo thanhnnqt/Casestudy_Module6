@@ -24,13 +24,15 @@ public class JwtService {
             String username,
             String role,
             Long customerId,
-            String fullName
+            String fullName,
+            String provider
     ) {
         return Jwts.builder()
                 .setSubject(username)
                 .claim("role", role.replace("ROLE_", ""))
                 .claim("customerId", customerId)
                 .claim("fullName", fullName)
+                .claim("provider", provider)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -58,5 +60,9 @@ public class JwtService {
 
     public String getFullNameFromToken(String token) {
         return extractClaims(token).get("fullName", String.class);
+    }
+
+    public String getProviderFromToken(String token) {
+        return extractClaims(token).get("provider", String.class);
     }
 }

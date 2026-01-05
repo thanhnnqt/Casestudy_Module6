@@ -1,5 +1,7 @@
 /* ================= GLOBAL ================= */
-html, body, #root {
+html,
+body,
+#root {
     margin: 0;
     padding: 0;
     width: 100%;
@@ -20,11 +22,9 @@ html, body, #root {
 
 .hero-overlay {
     min-height: inherit;
-    background: linear-gradient(
-            to bottom,
+    background: linear-gradient(to bottom,
             rgba(10, 35, 66, 0.75),
-            rgba(10, 35, 66, 0.4)
-    );
+            rgba(10, 35, 66, 0.4));
     padding: 120px 0;
     position: relative;
     z-index: 1;
@@ -191,8 +191,13 @@ html, body, #root {
 }
 
 @keyframes fade {
-    from { opacity: 0.6; }
-    to { opacity: 1; }
+    from {
+        opacity: 0.6;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 .destination-big-overlay {
@@ -201,11 +206,9 @@ html, body, #root {
     left: 0;
     right: 0;
     padding: 16px;
-    background: linear-gradient(
-            to top,
-            rgba(0,0,0,0.65),
-            transparent
-    );
+    background: linear-gradient(to top,
+            rgba(0, 0, 0, 0.65),
+            transparent);
     color: #fff;
 }
 
@@ -303,12 +306,10 @@ html, body, #root {
     font-size: 16px;
     font-weight: 700;
     line-height: 1.4;
-    background: linear-gradient(
-            90deg,
+    background: linear-gradient(90deg,
             #222 0%,
             #FF512F 50%,
-            #222 100%
-    );
+            #222 100%);
     background-size: 200% auto;
     color: transparent;
     background-clip: text;
@@ -320,8 +321,13 @@ html, body, #root {
 }
 
 @keyframes shimmerText {
-    from { background-position: 0% center; }
-    to { background-position: 200% center; }
+    from {
+        background-position: 0% center;
+    }
+
+    to {
+        background-position: 200% center;
+    }
 }
 
 /* ================= RESPONSIVE ================= */

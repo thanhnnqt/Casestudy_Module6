@@ -28,7 +28,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String uri = request.getRequestURI();
 
-        return uri.startsWith("/auth/")
+        return uri.equals("/auth/login")
+                || uri.equals("/auth/register")
+                || uri.equals("/auth/google")
+                || uri.equals("/auth/verify-email")
+                || uri.equals("/auth/forgot-password")
+                || uri.equals("/auth/reset-password")
                 || uri.startsWith("/ws-chat")
                 || uri.startsWith("/app/")
                 || uri.startsWith("/topic/")
@@ -55,9 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
             var claims = jwtService.extractClaims(token);
 
-            String username = claims.getSubject();
             String role = claims.get("role", String.class);
-
             if (role == null) {
                 throw new RuntimeException("Token không chứa role");
             }
@@ -70,7 +73,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
-                            accountId,   // 👈 principal = accountId
+                            accountId,
                             null,
                             List.of(new SimpleGrantedAuthority(role))
                     );

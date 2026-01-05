@@ -36,9 +36,14 @@ export const FlightService = {
         return axios.post(`${API_URL}/bookings`, bookingPayload);
     },
 
-    // 4. Lấy danh sách Booking
+    // 4. Lấy toàn bộ danh sách (Cho Admin/Sales)
     getAllBookings: () => {
         return axios.get(`${API_URL}/bookings`);
+    },
+
+    // 4b. Lấy lịch sử của tôi (Cho Customer)
+    getMyBookings: () => {
+        return axios.get(`${API_URL}/bookings/my-history`);
     },
 
     // 5. Lấy danh sách sân bay

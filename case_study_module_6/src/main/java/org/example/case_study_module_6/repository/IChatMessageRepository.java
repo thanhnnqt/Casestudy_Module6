@@ -22,4 +22,6 @@ public interface IChatMessageRepository
     List<Account> findDistinctCustomersChatWithAdmin(
             @Param("adminId") Long adminId
     );
+
+    List<ChatMessage> findByConversationIdOrderByCreatedAtAsc(Long conversationId);
 }

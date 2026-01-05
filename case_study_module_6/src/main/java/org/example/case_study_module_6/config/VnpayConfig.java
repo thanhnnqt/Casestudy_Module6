@@ -1,12 +1,28 @@
 package org.example.case_study_module_6.config;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class VnpayConfig {
-    public static final String VNP_TMN_CODE = "X6K83D36";
-    public static final String VNP_HASH_SECRET = "VF2JAJMLU1D5TKVHF9Y70HU5UT56WM3Z";
-    public static final String VNP_PAY_URL = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static final String VNP_RETURN_URL = "http://127.0.0.1/payment-result";
-    public static final String VNP_IPN_URL = "http://localhost:8080/api/payment/callback";
+    @Value("${vnpay.tmn-code}")
+    public static String VNP_TMN_CODE;
+    @Value("${vnpay.hash-secret}")
+    public static String VNP_HASH_SECRET;
+    @Value("${vnpay.pay-url}")
+    public static String VNP_PAY_URL;
+    @Value("${vnpay.return-url}")
+    public static String VNP_RETURN_URL;
+    @Value("${vnpay.ipn-url}")
+    public static String VNP_IPN_URL;
+    // Setters for static injection
+    @Value("${vnpay.tmn-code}")
+    public void setVnpTmnCode(String v) { VNP_TMN_CODE = (v != null) ? v.trim() : null; }
+    @Value("${vnpay.hash-secret}")
+    public void setVnpHashSecret(String v) { VNP_HASH_SECRET = (v != null) ? v.trim() : null; }
+    @Value("${vnpay.pay-url}")
+    public void setVnpPayUrl(String v) { VNP_PAY_URL = (v != null) ? v.trim() : null; }
+    @Value("${vnpay.return-url}")
+    public void setVnpReturnUrl(String v) { VNP_RETURN_URL = (v != null) ? v.trim() : null; }
+    @Value("${vnpay.ipn-url}")
+    public void setVnpIpnUrl(String v) { VNP_IPN_URL = (v != null) ? v.trim() : null; }
 }

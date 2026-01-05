@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from "react";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import * as Yup from "yup";
-import { createOnlineBooking } from "../service/bookingService";
+import { createOnlineBooking, createPaymentUrl } from "../service/bookingService"; // Import thêm createPaymentUrl
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+
 
 const PassengerInputPage = ({
                                 bookingConfig,
@@ -74,53 +75,45 @@ const PassengerInputPage = ({
     }, [selectedOutbound, selectedInbound, bookingConfig]);
 
     /* ================= SUBMIT (VNPAY) ================= */
+    /* ================= SUBMIT (VNPAY) ================= */
     const handleSubmit = async (values) => {
         if (totalAmount <= 0) {
             toast.error("Tổng tiền không hợp lệ");
             return;
         }
-
         try {
             setPaying(true);
-
+            // 1. Tạo Booking trước (Giữ nguyên payload cũ của bạn)
             const payload = {
                 flightId: selectedOutbound?.id || null,
                 returnFlightId: selectedInbound?.id || null,
-                tripType:
-                    selectedOutbound && selectedInbound
-                        ? "ROUND_TRIP"
-                        : "ONE_WAY",
-
+                tripType: selectedOutbound && selectedInbound ? "ROUND_TRIP" : "ONE_WAY",
                 seatClassOut: bookingConfig.seatClassOut,
                 seatClassIn: bookingConfig.seatClassIn,
-
                 contactName: values.passengers[0].fullName,
-                contactEmail:
-                    values.passengers[0].email ||
-                    "no-email@system.com",
-                contactPhone:
-                    values.passengers[0].phone || "0000000000",
-
+                contactEmail: values.passengers[0].email || "no-email@system.com",
+                contactPhone: values.passengers[0].phone || "0000000000",
                 paymentMethod: "VNPAY",
                 totalAmount: totalAmount,
-
                 passengers: values.passengers
             };
+            const bookingRes = await createOnlineBooking(payload);
+            // 2. [MỚI] Có Booking ID -> Gọi tiếp API lấy link thanh toán
+            if (bookingRes && bookingRes.bookingCode) {
+                const paymentRes = await createPaymentUrl(bookingRes.totalAmount, bookingRes.bookingCode);
 
-            const res = await createOnlineBooking(payload);
-
-            if (!res.paymentUrl) {
-                throw new Error("Không nhận được link thanh toán VNPay");
+                if (paymentRes.url) {
+                    // 👉 Redirect sang VNPay
+                    window.location.href = paymentRes.url;
+                } else {
+                    throw new Error("Không lấy được link thanh toán");
+                }
+            } else {
+                throw new Error("Lỗi khi tạo Booking");
             }
-
-            // 👉 Redirect sang VNPay
-            window.location.href = res.paymentUrl;
         } catch (err) {
             console.error(err);
-            toast.error(
-                "Lỗi tạo thanh toán: " +
-                (err.message || "Vui lòng thử lại")
-            );
+            toast.error(err.message || "Đã có lỗi xảy ra");
             setPaying(false);
         }
     };
