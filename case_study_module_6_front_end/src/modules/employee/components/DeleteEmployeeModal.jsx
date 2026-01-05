@@ -2,7 +2,7 @@ import {deleteEmployee} from "../service/employeeService.js";
 import {useNavigate} from "react-router-dom";
 import {toast} from "react-toastify";
 import {Button, Modal} from "react-bootstrap";
-
+import './Modal.css';
 
 const DeleteEmployeeModal = ({
                                  show,
@@ -50,8 +50,8 @@ const DeleteEmployeeModal = ({
         <Modal
             show={show}
             onHide={handleToggleModal}
-            centered
             backdrop="static"
+            keyboard={false}
         >
             <Modal.Header closeButton className="border-0 pb-0">
                 <Modal.Title className="fw-semibold text-danger d-flex align-items-center gap-2">

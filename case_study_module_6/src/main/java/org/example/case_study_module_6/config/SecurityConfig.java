@@ -12,7 +12,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,40 +29,61 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
                 .authorizeHttpRequests(auth -> auth
 
+                        // 1. PREFLIGHT
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // 2. AUTH - PUBLIC
+                        .requestMatchers(
+                                "/auth/login",
+                                "/auth/register",
+                                "/auth/google",
+                                "/auth/verify-email",
+                                "/auth/forgot-password",
+                                "/auth/reset-password",
+                                "/auth/me"
+                        ).permitAll()
+
+                        // 3. AUTH - REQUIRE LOGIN
+                        .requestMatchers("/auth/change-password")
+                        .hasAnyRole("CUSTOMER", "EMPLOYEE", "ADMIN")
+
+                        // 4. CUSTOMER
                         .requestMatchers("/api/customers/me")
-                        .hasAnyRole("CUSTOMER")
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/api/bookings/online")
-                        .hasAnyRole("CUSTOMER")
+                        .hasAnyRole("CUSTOMER", "EMPLOYEE", "ADMIN")
 
-                        // 1. CHO PHÉP XEM CHUYẾN BAY (Ai cũng xem được)
+                        // 5. PUBLIC APIs
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/ws-chat/**", "/app/**", "/topic/**", "/queue/**", "/user/**",
+                                "/api/payment/**",
+                                "/api/bookings/online",
+                                "/api/master/airports",
+                                "/api/master/airlines",
+                                "/api/master/routes",
+                                "/api/news/**"
+                        ).permitAll()
+
+                        // 6. SEARCH
                         .requestMatchers(HttpMethod.GET, "/api/flights/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/master/**").permitAll() // Sân bay, hạng ghế...
 
-                        .requestMatchers("/api/master/**")
-                        .hasAnyRole("EMPLOYEE", "ADMIN")
+                        // 7. ROLE BASED
+                        .requestMatchers("/api/bookings/my-history")
+                        .hasAnyRole("CUSTOMER", "EMPLOYEE", "ADMIN")
 
+                        .requestMatchers("/api/bookings/**").hasAnyRole("EMPLOYEE", "ADMIN")
+                        .requestMatchers("/api/flights/**").hasAnyRole("EMPLOYEE", "ADMIN")
+                        .requestMatchers("/api/customers/**").hasAnyRole("EMPLOYEE", "ADMIN")
+                        .requestMatchers("/api/master/**").hasAnyRole("EMPLOYEE", "ADMIN", "CUSTOMER")
+                        .requestMatchers("/v1/api/employees/**").hasAnyRole("EMPLOYEE", "ADMIN")
+                        .requestMatchers("/api/reports/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/news/**").hasRole("ADMIN")
 
-                        .requestMatchers("/api/news/**")
-                        .permitAll()
-
-
-                        .requestMatchers("/api/flights/**")
-                        .hasAnyRole("EMPLOYEE", "ADMIN")
-
-
-                        .requestMatchers("/v1/api/employees/**")
-                        .hasAnyRole("EMPLOYEE", "ADMIN")
-
-                        .requestMatchers("/api/customers/**")
-                        .hasAnyRole("EMPLOYEE", "ADMIN")
-
+                        // 8. DEFAULT
                         .anyRequest().authenticated()
                 )
-
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -73,7 +93,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:5173"));
-        config.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 

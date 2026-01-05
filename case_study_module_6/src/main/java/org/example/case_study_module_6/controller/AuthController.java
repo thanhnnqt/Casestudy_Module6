@@ -104,7 +104,8 @@ public class AuthController {
                 account.getUsername(),
                 role,
                 profileId,
-                fullName
+                fullName,
+                account.getProvider().name()
         );
 
         return ResponseEntity.ok(Map.of("token", token));
@@ -120,8 +121,30 @@ public class AuthController {
             errors.put("username", "Tên đăng nhập đã tồn tại");
         }
 
-        if (customerService.existsByEmail(req.getEmail())) {
-            errors.put("email", "Email đã tồn tại");
+        Customer existingCustomer = customerService.findByEmail(req.getEmail());
+        if (existingCustomer != null) {
+            Account existingAccount = existingCustomer.getAccount();
+            // ✨ TRƯỜNG HỢP NÂNG CẤP: Email đã tồn tại và là tài khoản Google chưa có password
+            if (existingAccount != null && existingAccount.getProvider() == Provider.GOOGLE && existingAccount.getPassword() == null) {
+                if (errors.isEmpty()) {
+                    existingAccount.setUsername(req.getUsername());
+                    existingAccount.setPassword(passwordEncoder.encode(req.getPassword()));
+                    existingAccount.setProvider(Provider.LOCAL); // Cho phép login qua password
+                    accountService.save(existingAccount);
+
+                    existingCustomer.setFullName(req.getFullName());
+                    existingCustomer.setDateOfBirth(req.getDateOfBirth());
+                    existingCustomer.setGender(req.getGender());
+                    existingCustomer.setPhoneNumber(req.getPhoneNumber());
+                    existingCustomer.setIdentityCard(req.getIdentityCard());
+                    existingCustomer.setAddress(req.getAddress());
+                    customerService.save(existingCustomer);
+
+                    return ResponseEntity.ok("Nâng cấp tài khoản thành công! Vui lòng đăng nhập.");
+                }
+            } else {
+                errors.put("email", "Email đã tồn tại");
+            }
         }
 
         if (!errors.isEmpty()) {
@@ -144,8 +167,16 @@ public class AuthController {
         String email = payload.getEmail();
         String name = (String) payload.get("name");
 
+        // 1. Ưu tiên tìm Customer trước để xác định Account đang liên kết
         Customer customer = customerService.findByEmail(email);
-        Account account = accountService.findByUsername(email).orElse(null);
+        Account account = null;
+
+        if (customer != null) {
+            account = customer.getAccount();
+        } else {
+            // 2. Fallback: Tìm Account theo username (trường hợp email chính là username)
+            account = accountService.findByUsername(email).orElse(null);
+        }
 
         if (account == null) {
             account = new Account();
@@ -165,10 +196,11 @@ public class AuthController {
         }
 
         String token = jwtService.generateToken(
-                email,
+                account.getUsername(), // Dùng username thực tế (có thể đã đổi sau khi upgrade)
                 "ROLE_CUSTOMER",
                 customer.getId(),
-                customer.getFullName()
+                customer.getFullName(),
+                account.getProvider().name()
         );
 
         return ResponseEntity.ok(Map.of("token", token));
@@ -197,7 +229,8 @@ public class AuthController {
                         "username", claims.getSubject(),
                         "role", claims.get("role"),
                         "customerId", claims.get("customerId"),
-                        "fullName", claims.get("fullName")
+                        "fullName", claims.get("fullName"),
+                        "provider", claims.get("provider")
                 )
         );
     }
@@ -222,5 +255,24 @@ public class AuthController {
         verificationTokenService.delete(vt);
 
         return ResponseEntity.ok("Xác nhận email thành công");
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(
+            @RequestParam String email
+    ) {
+        authService.forgotPassword(email);
+        return ResponseEntity.ok(
+                "Nếu email tồn tại, link đặt lại mật khẩu đã được gửi"
+        );
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(
+            @RequestParam String token,
+            @RequestParam String newPassword
+    ) {
+        authService.resetPassword(token, newPassword);
+        return ResponseEntity.ok("Đặt lại mật khẩu thành công");
     }
 }

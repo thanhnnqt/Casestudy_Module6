@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { getAllFlights } from "../service/flightService";
 import { getAirports } from "../service/masterDataService";
 import BookingDetailModal from "./BookingDetailModal";
@@ -12,6 +13,7 @@ const BookingPage = () => {
     // --- THÊM MỚI: Khai báo Hook ---
     const navigate = useNavigate();
     const { user } = useAuth();
+    const location = useLocation();
     const [step, setStep] = useState(1);
 
     const [searchParams, setSearchParams] = useState({
@@ -142,10 +144,25 @@ const BookingPage = () => {
         const init = async () => {
             const aps = await getAirports();
             setAirports(aps || []);
-            handleSearch();
+
+            // Kiểm tra xem có dữ liệu từ trang Home truyền qua không
+            if (location.state) {
+                const { origin, destination, date, returnDate, tripType } = location.state;
+                setSearchParams({
+                    origin: origin || "HAN",
+                    destination: destination || "SGN",
+                    date: date || new Date().toISOString().split('T')[0],
+                    returnDate: returnDate || "",
+                    tripType: tripType || "ONE_WAY"
+                });
+                // Tự động tìm kiếm với dữ liệu mới
+                handleSearch(date, returnDate);
+            } else {
+                handleSearch();
+            }
         };
         init();
-    }, []);
+    }, [location.state]);
 
     const handleSelectFlight = (flight, type) => {
         if (type === 'OUT') setSelectedOutbound(selectedOutbound?.id === flight.id ? null : flight);
@@ -177,14 +194,14 @@ const BookingPage = () => {
             <div key={flight.id} className={`flight-card-custom ${isSelected ? 'selected' : ''}`}>
                 <div className="row g-0 align-items-center">
                     <div className="col-3 text-center border-end p-2">
-                        <img src={flight.aircraft?.airline?.logoUrl} className="airline-logo-md" alt="Logo"/>
+                        <img src={flight.aircraft?.airline?.logoUrl} className="airline-logo-md" alt="Logo" />
                         <div className="fw-bold small">{flight.aircraft?.airline?.name}</div>
                         <span className="badge bg-light text-dark border">{flight.flightNumber}</span>
                     </div>
                     <div className="col-5 text-center px-3 border-end">
                         <div className="d-flex justify-content-between align-items-center">
                             <div className="text-start">
-                                <div className="fs-4 fw-bold">{start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+                                <div className="fs-4 fw-bold">{start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                 <div className="small fw-bold text-muted">{flight.departureAirport.code}</div>
                             </div>
                             <div className="flex-grow-1 mx-2 position-relative">
@@ -193,7 +210,7 @@ const BookingPage = () => {
                                 <small className="text-muted">Bay thẳng</small>
                             </div>
                             <div className="text-end">
-                                <div className="fs-4 fw-bold">{end.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+                                <div className="fs-4 fw-bold">{end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                 <div className="small fw-bold text-muted">{flight.arrivalAirport.code}</div>
                             </div>
                         </div>
@@ -272,19 +289,19 @@ const BookingPage = () => {
                 />
             )}
 
-            <div className="container-fluid pt-4 px-4 position-relative" style={{zIndex: 10}}>
+            <div className="container-fluid pt-4 px-4 position-relative" style={{ zIndex: 10 }}>
                 <div className="row">
                     {/* LEFT CONTENT */}
                     <div className="col-md-9">
                         <div className="d-flex justify-content-end mb-3 gap-2">
                             <span className="text-white fw-bold align-self-center">Sắp xếp:</span>
-                            <button className={`btn btn-sm btn-light ${sortConfig.key==='price'?'active-sort':''}`} onClick={()=>setSortConfig({key:'price', direction: sortConfig.direction==='asc'?'desc':'asc'})}>Giá</button>
-                            <button className={`btn btn-sm btn-light ${sortConfig.key==='time'?'active-sort':''}`} onClick={()=>setSortConfig({key:'time', direction: sortConfig.direction==='asc'?'desc':'asc'})}>Giờ</button>
+                            <button className={`btn btn-sm btn-light ${sortConfig.key === 'price' ? 'active-sort' : ''}`} onClick={() => setSortConfig({ key: 'price', direction: sortConfig.direction === 'asc' ? 'desc' : 'asc' })}>Giá</button>
+                            <button className={`btn btn-sm btn-light ${sortConfig.key === 'time' ? 'active-sort' : ''}`} onClick={() => setSortConfig({ key: 'time', direction: sortConfig.direction === 'asc' ? 'desc' : 'asc' })}>Giờ</button>
                         </div>
 
                         {/* LIST OUTBOUND */}
                         <div className="section-header"><i className="bi bi-airplane-fill me-2"></i> CHIỀU ĐI: {searchParams.origin} ➝ {searchParams.destination}</div>
-                        <DateBar baseDate={searchParams.date} minPrices={minPricesOut} onSelect={(d) => { setSearchParams(prev => ({...prev, date: d})); handleSearch(d, null); }} />
+                        <DateBar baseDate={searchParams.date} minPrices={minPricesOut} onSelect={(d) => { setSearchParams(prev => ({ ...prev, date: d })); handleSearch(d, null); }} />
                         <div className="flight-list-scroll mb-4">
                             {outboundFlights.length > 0 ? outboundFlights.map(f => renderFlightCard(f, 'OUT')) : <div className="empty-state">Không tìm thấy chuyến bay.</div>}
                         </div>
@@ -295,7 +312,7 @@ const BookingPage = () => {
                                 <div className="section-header bg-success mt-4"><i className="bi bi-airplane-engines-fill me-2"></i> CHIỀU VỀ: {searchParams.destination} ➝ {searchParams.origin}</div>
                                 {searchParams.returnDate ? (
                                     <>
-                                        <DateBar baseDate={searchParams.returnDate} minPrices={minPricesIn} onSelect={(d) => { setSearchParams(prev => ({...prev, returnDate: d})); handleSearch(null, d); }} />
+                                        <DateBar baseDate={searchParams.returnDate} minPrices={minPricesIn} onSelect={(d) => { setSearchParams(prev => ({ ...prev, returnDate: d })); handleSearch(null, d); }} />
                                         <div className="flight-list-scroll mb-4">
                                             {inboundFlights.length > 0 ? inboundFlights.map(f => renderFlightCard(f, 'IN')) : <div className="empty-state">Không tìm thấy chuyến bay về.</div>}
                                         </div>
@@ -307,28 +324,28 @@ const BookingPage = () => {
 
                     {/* RIGHT SIDEBAR */}
                     <div className="col-md-3">
-                        <div className="glass-card p-3 sticky-top" style={{top: '20px'}}>
+                        <div className="glass-card p-3 sticky-top" style={{ top: '20px' }}>
                             {/* ... (Phần Sidebar giữ nguyên code cũ) ... */}
                             <h5 className="fw-bold mb-3"><i className="bi bi-search me-2"></i>TÌM KIẾM</h5>
                             <div className="mb-3">
                                 <label className="form-label small fw-bold">Điểm đi</label>
-                                <select className="form-select custom-input" value={searchParams.origin} onChange={e => setSearchParams({...searchParams, origin: e.target.value})}>
+                                <select className="form-select custom-input" value={searchParams.origin} onChange={e => setSearchParams({ ...searchParams, origin: e.target.value })}>
                                     {airports.map(a => <option key={a.id} value={a.code}>{a.city} ({a.code})</option>)}
                                 </select>
                             </div>
                             <div className="mb-3">
                                 <label className="form-label small fw-bold">Điểm đến</label>
-                                <select className="form-select custom-input" value={searchParams.destination} onChange={e => setSearchParams({...searchParams, destination: e.target.value})}>
+                                <select className="form-select custom-input" value={searchParams.destination} onChange={e => setSearchParams({ ...searchParams, destination: e.target.value })}>
                                     {airports.map(a => <option key={a.id} value={a.code}>{a.city} ({a.code})</option>)}
                                 </select>
                             </div>
                             <div className="mb-3">
                                 <label className="form-label small fw-bold">Ngày đi</label>
-                                <input type="date" className="form-control custom-input" value={searchParams.date} onChange={e => setSearchParams({...searchParams, date: e.target.value})}/>
+                                <input type="date" className="form-control custom-input" value={searchParams.date} onChange={e => setSearchParams({ ...searchParams, date: e.target.value })} />
                             </div>
                             <div className="mb-3">
                                 <label className="form-label small fw-bold">Loại vé</label>
-                                <select className="form-select custom-input" value={searchParams.tripType} onChange={e => setSearchParams({...searchParams, tripType: e.target.value})}>
+                                <select className="form-select custom-input" value={searchParams.tripType} onChange={e => setSearchParams({ ...searchParams, tripType: e.target.value })}>
                                     <option value="ONE_WAY">Một chiều</option>
                                     <option value="ROUND_TRIP">Khứ hồi</option>
                                 </select>
@@ -336,12 +353,12 @@ const BookingPage = () => {
                             {isRoundTrip && (
                                 <div className="mb-3">
                                     <label className="form-label small fw-bold">Ngày về</label>
-                                    <input type="date" className="form-control custom-input" value={searchParams.returnDate} onChange={e => setSearchParams({...searchParams, returnDate: e.target.value})}/>
+                                    <input type="date" className="form-control custom-input" value={searchParams.returnDate} onChange={e => setSearchParams({ ...searchParams, returnDate: e.target.value })} />
                                 </div>
                             )}
                             <button className="btn btn-warning w-100 fw-bold mb-3" onClick={() => handleSearch()}>TÌM KIẾM</button>
 
-                            <hr/>
+                            <hr />
                             <div className="small fw-bold mb-2">Đã chọn:</div>
                             <div className="d-flex justify-content-between small mb-1">
                                 <span>Chiều đi:</span>
