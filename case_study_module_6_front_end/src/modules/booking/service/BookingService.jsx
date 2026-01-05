@@ -77,6 +77,19 @@ export const FlightService = {
     updateBookingInfo: (data) => {
         // Gửi request PUT kèm dữ liệu đã sửa lên server
         return axios.put(`${API_URL}/bookings/${data.id}`, data);
+    },
+    // 11. Lấy link thanh toán VNPay cho vé có sẵn
+    createPaymentUrl: async (amount, bookingCode) => {
+        try {
+            const response = await axios.post(`${API_URL}/payment/create-payment-url`, {
+                amount,
+                bookingCode
+            });
+            return response.data; // Trả về { url: "..." }
+        } catch (error) {
+            console.error("Lỗi lấy link thanh toán", error);
+            throw error;
+        }
     }
 };
 // 11. ĐẶT VÉ ONLINE + THANH TOÁN VNPAY
