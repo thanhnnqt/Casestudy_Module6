@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface IAdminChatService {
     public List<CustomerChatSummaryDTO> getCustomerInbox();
+    public void markMessagesAsRead(Long customerId, Long adminId);
 }
