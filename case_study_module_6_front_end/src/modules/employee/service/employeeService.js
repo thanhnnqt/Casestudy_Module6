@@ -165,6 +165,45 @@ export async function checkUsernameExists(username) {
     }
 }
 
+const token = localStorage.getItem("token");
+const config = {
+    headers: { Authorization: `Bearer ${token}` }
+};
+
+// export const getRevenue = async (start, end) => {
+//     const res = await axios.get(`/api/reports/revenue`, {
+//         params: { start, end },
+//         ...config
+//     });
+//     return res.data;
+// };
+//
+// export const getSalesPerformance = async (start, end) => {
+//     const res = await axios.get(`/api/reports/revenue/sales-performance`, {
+//         params: { start, end },
+//         ...config
+//     });
+//     return res.data;
+// };
+//
+// export const getAirlineRevenue = async (start, end) => {
+//     const res = await axios.get(`/api/reports/revenue/airline-revenue`, {
+//         params: { start, end },
+//         ...config
+//     });
+//     return res.data;
+// };
+
+export const getCompareReport = async (type, start, end, compareStart, compareEnd) => {
+    const res = await axios.get(`/api/reports/compare`, {
+        params: { type, start, end, compareStart, compareEnd }
+    });
+    return res.data;
+}
+
+
+
+
 
 
 

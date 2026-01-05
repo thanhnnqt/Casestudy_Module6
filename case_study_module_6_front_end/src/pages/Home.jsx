@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import "../styles/home.css";
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
 import { getAllNews } from "../services/NewsService";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import ChatBox from "../components/chat/ChatBox.jsx";
+import AdminFloatingChat from "../components/chat/AdminFloatingChat";
+import { useAuth } from "../context/AuthContext";
+
 function Home() {
     /* ================= CITY LIST ================= */
     const cities = [
@@ -54,6 +58,37 @@ function Home() {
     /* WEATHER STATE */
     const [weatherFrom, setWeatherFrom] = useState(null);
     const [weatherTo, setWeatherTo] = useState(null);
+
+    const { user } = useAuth();
+    const navigate = useNavigate();
+    const [openChat, setOpenChat] = useState(false);
+
+    /* ================= HELPER ================= */
+    const extractAirportCode = (cityStr) => {
+        const match = cityStr.match(/\(([^)]+)\)/);
+        return match ? match[1] : cityStr;
+    };
+
+    const handleSearchClick = () => {
+        const searchData = {
+            origin: extractAirportCode(form.from),
+            destination: extractAirportCode(form.to),
+            date: form.departureDate,
+            returnDate: form.returnDate,
+            tripType: tripType,
+            passengers: {
+                adult: form.adult,
+                child: form.child,
+                infant: form.infant
+            }
+        };
+        navigate("/flights/booking", { state: searchData });
+    };
+
+    const admin = {
+        id: 1,
+        username: "admin"
+    };
 
     /* ================= HANDLER ================= */
     const handleChange = (e) => {
@@ -292,7 +327,7 @@ function Home() {
                                 )}
                             </div>
 
-                            <button className="btn-search">🔍</button>
+                            <button className="btn-search" onClick={handleSearchClick}>🔍</button>
                         </div>
 
                         {/* ===== WEATHER INFO (NEW) ===== */}
@@ -355,7 +390,7 @@ function Home() {
                     </div>
 
                     <div className="col-md-5">
-                        <h4 className="fw-bold mb-3">🎁 Mã Ưu Đãi Tặng Bạn Mới</h4>
+                        <h4 className="fw-bold mb-3">🎁 Mã ưu đãi tặng bạn mới</h4>
 
                         <div className="promo-list">
                             {promoCodes.map((promo, i) => (
@@ -416,69 +451,129 @@ function Home() {
                 </div>
             </section>
 
-                {/* ================= NEWS SECTION (ĐÃ CẬP NHẬT LINK CHI TIẾT) ================= */}
-                <section className="container my-5">
-                    <h4 className="fw-bold mb-4">📰 Tin tức & Cẩm nang du lịch</h4>
+            {/* ================= NEWS SECTION (ĐÃ CẬP NHẬT LINK CHI TIẾT) ================= */}
+            <section className="container my-5">
+                <h4 className="fw-bold mb-4">📰 Tin tức & Cẩm nang du lịch</h4>
 
-                    {newsList.length === 0 ? (
-                        <div className="text-center py-4">
-                            <div className="spinner-border text-primary" role="status">
-                                <span className="visually-hidden">Loading...</span>
-                            </div>
-                            <p className="text-muted mt-2">Đang tải tin tức...</p>
+                {newsList.length === 0 ? (
+                    <div className="text-center py-4">
+                        <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">Loading...</span>
                         </div>
-                    ) : (
-                        <div className="row g-4 text-center">
-                            {newsList.map((n) => (
-                                <div className="col-md-4" key={n.newsId}>
-                                    <div className="news-card h-100 shadow-sm">
-                                        <div className="news-thumb">
-                                            {/* 1. Bọc ảnh bằng Link để bấm vào ảnh cũng xem được */}
-                                            <Link to={`/news/${n.newsId}`}>
-                                                <img
-                                                    src={n.thumbnail}
-                                                    alt={n.title}
-                                                    style={{ width: '100%', height: '200px', objectFit: 'cover' }}
-                                                    onError={(e) => e.target.src = 'https://via.placeholder.com/300x200?text=No+Image'}
-                                                />
+                        <p className="text-muted mt-2">Đang tải tin tức...</p>
+                    </div>
+                ) : (
+                    <div className="row g-4 text-center">
+                        {newsList.map((n) => (
+                            <div className="col-md-4" key={n.newsId}>
+                                <div className="news-card h-100 shadow-sm">
+                                    <div className="news-thumb">
+                                        {/* 1. Bọc ảnh bằng Link để bấm vào ảnh cũng xem được */}
+                                        <Link to={`/news/${n.newsId}`}>
+                                            <img
+                                                src={n.thumbnail}
+                                                alt={n.title}
+                                                style={{ width: '100%', height: '200px', objectFit: 'cover' }}
+                                                onError={(e) => e.target.src = 'https://via.placeholder.com/300x200?text=No+Image'}
+                                            />
+                                        </Link>
+                                    </div>
+                                    <div className="card-body d-flex flex-column">
+                                        <h6 className="fw-bold text-truncate" title={n.title}>
+                                            {/* 2. Bọc tiêu đề bằng Link */}
+                                            <Link to={`/news/${n.newsId}`} className="text-decoration-none text-dark">
+                                                {n.title}
                                             </Link>
-                                        </div>
-                                        <div className="card-body d-flex flex-column">
-                                            <h6 className="fw-bold text-truncate" title={n.title}>
-                                                {/* 2. Bọc tiêu đề bằng Link */}
-                                                <Link to={`/news/${n.newsId}`} className="text-decoration-none text-dark">
-                                                    {n.title}
-                                                </Link>
-                                            </h6>
-                                            <p className="small text-muted mb-2 text-truncate">
-                                                {n.summary || "Xem chi tiết bài viết..."}
-                                            </p>
-                                            <div className="mt-auto d-flex justify-content-between align-items-center small text-secondary">
+                                        </h6>
+                                        <p className="small text-muted mb-2 text-truncate">
+                                            {n.summary || "Xem chi tiết bài viết..."}
+                                        </p>
+                                        <div className="mt-auto d-flex justify-content-between align-items-center small text-secondary">
                                             <span>
                                                 <i className="bi bi-calendar3 me-1"></i>
                                                 {n.publishedAt ? new Date(n.publishedAt).toLocaleDateString('vi-VN') : ''}
                                             </span>
-                                                {n.category && (
-                                                    <span className="badge bg-light text-dark border">
+                                            {n.category && (
+                                                <span className="badge bg-light text-dark border">
                                                     {n.category}
                                                 </span>
-                                                )}
-                                            </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
-                            ))}
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                <div className="text-center mt-4">
+                    {/* 3. Thay thẻ button thành Link để chuyển sang trang danh sách tin tức */}
+                    <Link to="/news" className="btn btn-outline-primary rounded-pill px-4 fw-bold">
+                        Xem tất cả tin tức <i className="bi bi-arrow-right ms-1"></i>
+                    </Link>
+                </div>
+            </section>
+
+            <div className="row g-4 text-center">
+                {[
+                    {
+                        title: "Kinh nghiệm săn vé giá rẻ",
+                        img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
+                    },
+                    {
+                        title: "Top điểm du lịch hè 2025",
+                        img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee"
+                    },
+                    {
+                        title: "Du lịch tiết kiệm cho gia đình",
+                        img: "https://i.pinimg.com/736x/62/cc/cb/62cccb838eae9810e2d750f7ec0070b2.jpg"
+                    }
+                ].map((n, i) => (
+                    <div className="col-md-4" key={i}>
+                        <div className="news-card h-100 shadow-sm">
+                            <div className="news-thumb">
+                                <img src={n.img} alt={n.title} />
+                            </div>
+                            <div className="card-body">
+                                <h6 className="fw-bold">{n.title}</h6>
+                            </div>
                         </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* ================= CHAT FLOATING ================= */}
+            {user && (
+                <>
+                    {/* Nút mở chat */}
+                    {!openChat && (
+                        <button
+                            onClick={() => setOpenChat(true)}
+                            className="chat-floating-btn"
+                            style={{
+                                position: "fixed", bottom: 20, right: 20, width: 60, height: 60,
+                                borderRadius: "50%", backgroundColor: "#0d6efd", color: "#fff",
+                                fontSize: 24, border: "none", zIndex: 9999,
+                                boxShadow: "0 4px 12px rgba(0,0,0,0.2)", cursor: "pointer"
+                            }}
+                        >
+                            💬
+                        </button>
                     )}
 
-                    <div className="text-center mt-4">
-                        {/* 3. Thay thẻ button thành Link để chuyển sang trang danh sách tin tức */}
-                        <Link to="/news" className="btn btn-outline-primary rounded-pill px-4 fw-bold">
-                            Xem tất cả tin tức <i className="bi bi-arrow-right ms-1"></i>
-                        </Link>
-                    </div>
-                </section>
-
+                    {/* Khung chat thay đổi tùy theo Role */}
+                    {openChat && (
+                        user.role === 'ADMIN' ? (
+                            <AdminFloatingChat onClose={() => setOpenChat(false)} />
+                        ) : (
+                            <ChatBox
+                                customer={{ customerAccountId: 1, customerUsername: "admin" }}
+                                onClose={() => setOpenChat(false)}
+                            />
+                        )
+                    )}
+                </>
+            )}
         </>
     );
 }

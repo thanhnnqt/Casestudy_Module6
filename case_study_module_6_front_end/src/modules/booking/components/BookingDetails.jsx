@@ -9,6 +9,78 @@ const PASSENGER_TYPES = {
     INFANT: { label: 'Em bé (<2T)', priceRate: 0.1 }
 };
 
+// --- [FIX LỖI] ĐƯA COMPONENT CON RA NGOÀI ---
+const PassengerList = ({ list, isOutbound, onPassengerChange, onToggleInfant, onInfantNameChange }) => (
+    <fieldset className="mb-4 p-3 border rounded bg-white">
+        <legend className={`fw-bold ${isOutbound ? 'text-info' : 'text-warning'}`}>
+            👥 Khách Chiều {isOutbound ? 'Đi' : 'Về'}
+        </legend>
+
+        {list.map((p, index) => (
+            <div key={index} className="mb-3 pb-3 border-bottom">
+                <div className="d-flex gap-2 align-items-center mb-2">
+                    {/* Chọn loại khách */}
+                    <div style={{width: '150px'}}>
+                        <select className="form-select fw-bold"
+                                value={p.type}
+                                onChange={(e) => onPassengerChange(isOutbound, index, 'type', e.target.value)}
+                                style={{
+                                    color: p.type === 'ADULT' ? '#0d6efd' : '#198754',
+                                    borderColor: p.type === 'ADULT' ? '#0d6efd' : '#198754'
+                                }}
+                        >
+                            <option value="ADULT">Người lớn</option>
+                            <option value="CHILD">Trẻ em (2-12T)</option>
+                        </select>
+                    </div>
+
+                    {/* Nhập tên khách */}
+                    <div style={{flex: 1}}>
+                        <input type="text" className="form-control"
+                               placeholder={`Họ tên khách ${index+1}`}
+                               value={p.fullName}
+                               onChange={(e) => onPassengerChange(isOutbound, index, 'fullName', e.target.value)}
+                               style={{textTransform:'uppercase'}}
+                        />
+                    </div>
+
+                    {/* Nút thêm em bé */}
+                    {p.type === 'ADULT' && (
+                        <button
+                            className={`btn ${p.infant ? 'btn-outline-danger' : 'btn-outline-primary'}`}
+                            onClick={() => onToggleInfant(isOutbound, index)}
+                            style={{whiteSpace: 'nowrap', minWidth: '130px'}}
+                        >
+                            {p.infant ? (
+                                <span><i className="fa-solid fa-xmark"></i> Hủy bé</span>
+                            ) : (
+                                <span><i className="fa-solid fa-baby"></i> + Kèm bé</span>
+                            )}
+                        </button>
+                    )}
+                </div>
+
+                {/* Form nhập thông tin em bé */}
+                {p.infant && (
+                    <div className="ms-5 mt-2 p-2 bg-light rounded border d-flex gap-2 align-items-center" style={{borderLeft: '4px solid #6c757d'}}>
+                        <span className="fw-bold text-secondary"><i className="fa-solid fa-baby-carriage"></i> Em bé:</span>
+                        <input
+                            type="text"
+                            className="form-control form-control-sm"
+                            placeholder="Nhập tên em bé (Dưới 2 tuổi)"
+                            value={p.infant.fullName}
+                            onChange={(e) => onInfantNameChange(isOutbound, index, e.target.value)}
+                            style={{textTransform:'uppercase', maxWidth: '300px'}}
+                        />
+                        <span className="badge bg-secondary">Chung ghế</span>
+                        <span className="text-danger small fw-bold">+10% giá vé</span>
+                    </div>
+                )}
+            </div>
+        ))}
+    </fieldset>
+);
+
 const BookingDetails = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -19,9 +91,7 @@ const BookingDetails = () => {
     const [flightOut, setFlightOut] = useState(stateFlightOut || editingBooking?.flight);
     const [flightIn, setFlightIn]   = useState(stateFlightIn || editingBooking?.returnFlight);
 
-    // Mặc định chọn VNPAY để test cho sướng
     const [contactInfo, setContactInfo] = useState({ fullName: '', email: '', phone: '', paymentMethod: 'VNPAY' });
-
     const [classOut, setClassOut] = useState('ECONOMY');
     const [classIn, setClassIn] = useState('ECONOMY');
 
@@ -45,15 +115,16 @@ const BookingDetails = () => {
         }
     }, [isEditMode, editingBooking, stateFlightOut, stateFlightIn, navigate]);
 
-    // ... (Giữ nguyên các hàm tính tiền calculateTotalPrice, totalAmount, handleQtyChange, handlePassengerChange...)
-    // Tôi ẩn đi để code ngắn gọn, ông cứ giữ nguyên logic cũ nhé.
+    // --- LOGIC TÍNH TỔNG TIỀN ---
     const calculateTotalPrice = (seatDetail, passengerList) => {
         if (!seatDetail) return 0;
         let total = 0;
         passengerList.forEach(p => {
             const rate = PASSENGER_TYPES[p.type].priceRate;
             total += seatDetail.price * rate;
-            if (p.infant) total += seatDetail.price * PASSENGER_TYPES.INFANT.priceRate;
+            if (p.infant) {
+                total += seatDetail.price * PASSENGER_TYPES.INFANT.priceRate;
+            }
         });
         return total;
     };
@@ -61,55 +132,85 @@ const BookingDetails = () => {
     const totalAmount = (() => {
         const seatOutDetail = flightOut?.seatDetails?.find(s => s.seatClass === classOut);
         const seatInDetail = flightIn?.seatDetails?.find(s => s.seatClass === classIn);
+
         let total = calculateTotalPrice(seatOutDetail, passengersOut);
-        if (flightIn) total += calculateTotalPrice(seatInDetail, passengersIn);
+        if (flightIn) {
+            total += calculateTotalPrice(seatInDetail, passengersIn);
+        }
         return total;
     })();
 
-    const currentSeatOut = flightOut?.seatDetails?.find(s => s.seatClass === classOut);
-    const maxOut = currentSeatOut ? currentSeatOut.availableSeats : 0;
-    const currentSeatIn = flightIn?.seatDetails?.find(s => s.seatClass === classIn);
-    const maxIn = currentSeatIn ? currentSeatIn.availableSeats : 0;
-
-    const handleQtyChange = (e, isOutbound) => { /* Giữ nguyên code cũ */
+    // --- HANDLERS ---
+    const handleQtyChange = (e, isOutbound) => {
         if(isEditMode) return;
         const qty = parseInt(e.target.value);
-        const max = isOutbound ? maxOut : maxIn;
         if (isNaN(qty) || qty < 1) return;
+
+        const seatDetail = isOutbound
+            ? flightOut?.seatDetails?.find(s => s.seatClass === classOut)
+            : flightIn?.seatDetails?.find(s => s.seatClass === classIn);
+
+        const max = seatDetail ? seatDetail.availableSeats : 0;
+
         if (qty > max) return alert(`Hạng ghế này chỉ còn ${max} chỗ!`);
+
         const currentList = isOutbound ? passengersOut : passengersIn;
         const newList = [...currentList];
+
         while (newList.length < qty) newList.push({ fullName: '', type: 'ADULT', infant: null });
         while (newList.length > qty) newList.pop();
-        if (isOutbound) setPassengersOut(newList); else setPassengersIn(newList);
+
+        if (isOutbound) setPassengersOut(newList);
+        else setPassengersIn(newList);
     };
 
-    const handlePassengerChange = (isOutbound, index, field, value) => { /* Giữ nguyên code cũ */
+    const handlePassengerChange = (isOutbound, index, field, value) => {
         const currentList = isOutbound ? passengersOut : passengersIn;
-        const newList = [...currentList];
+        const newList = [...currentList]; // Tạo bản sao mảng
+        const newItem = { ...newList[index] }; // Tạo bản sao object (quan trọng để React biết có thay đổi)
+
         if (field === 'type') {
-            newList[index].type = value;
-            if (value === 'CHILD') newList[index].infant = null;
-        } else { newList[index][field] = value.toUpperCase(); }
-        if (isOutbound) setPassengersOut(newList); else setPassengersIn(newList);
+            newItem.type = value;
+            if (value === 'CHILD') newItem.infant = null;
+        } else {
+            newItem[field] = value.toUpperCase();
+        }
+
+        newList[index] = newItem; // Gán lại
+
+        if (isOutbound) setPassengersOut(newList);
+        else setPassengersIn(newList);
     };
 
-    const toggleInfant = (isOutbound, index) => { /* Giữ nguyên code cũ */
+    const toggleInfant = (isOutbound, index) => {
         const currentList = isOutbound ? passengersOut : passengersIn;
         const newList = [...currentList];
-        if (newList[index].infant) newList[index].infant = null;
-        else newList[index].infant = { fullName: '' };
-        if (isOutbound) setPassengersOut(newList); else setPassengersIn(newList);
+        const newItem = { ...newList[index] };
+
+        if (newItem.infant) newItem.infant = null;
+        else newItem.infant = { fullName: '' };
+
+        newList[index] = newItem;
+
+        if (isOutbound) setPassengersOut(newList);
+        else setPassengersIn(newList);
     };
 
-    const handleInfantNameChange = (isOutbound, parentIndex, value) => { /* Giữ nguyên code cũ */
+    const handleInfantNameChange = (isOutbound, parentIndex, value) => {
         const currentList = isOutbound ? passengersOut : passengersIn;
         const newList = [...currentList];
-        if (newList[parentIndex].infant) newList[parentIndex].infant.fullName = value.toUpperCase();
-        if (isOutbound) setPassengersOut(newList); else setPassengersIn(newList);
+        const newItem = { ...newList[parentIndex] };
+
+        if (newItem.infant) {
+            newItem.infant = { ...newItem.infant, fullName: value.toUpperCase() };
+        }
+
+        newList[parentIndex] = newItem;
+
+        if (isOutbound) setPassengersOut(newList);
+        else setPassengersIn(newList);
     };
 
-    // --- [QUAN TRỌNG] HÀM SUBMIT MỚI CÓ VNPAY ---
     const handleSubmit = async () => {
         if (!contactInfo.fullName || !contactInfo.phone) return setErrorMessage("Thiếu thông tin liên hệ");
 
@@ -123,7 +224,7 @@ const BookingDetails = () => {
             contactName: contactInfo.fullName,
             contactPhone: contactInfo.phone,
             contactEmail: contactInfo.email,
-            paymentMethod: contactInfo.paymentMethod, // VNPAY, CASH, BANK_TRANSFER
+            paymentMethod: contactInfo.paymentMethod,
 
             passengersOut: passengersOut.map(p => ({
                 fullName: p.fullName,
@@ -141,22 +242,16 @@ const BookingDetails = () => {
         };
 
         try {
-            // Bước 1: Tạo Booking trước (Trạng thái PENDING/UNPAID)
             const res = isEditMode
                 ? await FlightService.updateBookingInfo(payload)
                 : await FlightService.createBooking(payload);
 
-            const savedBooking = res.data; // Lấy thông tin booking đã lưu
+            const savedBooking = res.data;
 
-            // Bước 2: Kiểm tra phương thức thanh toán
             if (contactInfo.paymentMethod === 'VNPAY') {
-                // Gọi API lấy link thanh toán
                 const paymentRes = await FlightService.createPaymentUrl(savedBooking.totalAmount, savedBooking.bookingCode);
-
-                // Chuyển hướng sang VNPAY
                 window.location.href = paymentRes.data;
             } else {
-                // Nếu là Tiền mặt/CK thì chuyển về trang quản lý
                 navigate('/management', { state: { updated: isEditMode, newBooking: !isEditMode } });
             }
 
@@ -168,43 +263,6 @@ const BookingDetails = () => {
 
     if (!flightOut) return null;
 
-    // Component render danh sách hành khách (Giữ nguyên)
-    const PassengerList = ({ list, isOutbound }) => (
-        <fieldset className="mb-4 p-3 border rounded bg-white">
-            <legend className={`fw-bold ${isOutbound ? 'text-info' : 'text-warning'}`}>
-                👥 Khách Chiều {isOutbound ? 'Đi' : 'Về'}
-            </legend>
-            {list.map((p, index) => (
-                <div key={index} className="mb-3 pb-3 border-bottom">
-                    <div className="d-flex gap-2 align-items-center mb-2">
-                        <div style={{width: '150px'}}>
-                            <select className="form-select fw-bold" value={p.type} onChange={(e) => handlePassengerChange(isOutbound, index, 'type', e.target.value)}
-                                    style={{color: p.type === 'ADULT' ? '#0d6efd' : '#198754', borderColor: p.type === 'ADULT' ? '#0d6efd' : '#198754'}}>
-                                <option value="ADULT">Người lớn</option>
-                                <option value="CHILD">Trẻ em (2-12T)</option>
-                            </select>
-                        </div>
-                        <div style={{flex: 1}}>
-                            <input type="text" className="form-control" placeholder={`Họ tên khách ${index+1}`} value={p.fullName} onChange={(e) => handlePassengerChange(isOutbound, index, 'fullName', e.target.value)} style={{textTransform:'uppercase'}} />
-                        </div>
-                        {p.type === 'ADULT' && (
-                            <button className={`btn ${p.infant ? 'btn-outline-danger' : 'btn-outline-primary'}`} onClick={() => toggleInfant(isOutbound, index)} style={{whiteSpace: 'nowrap', minWidth: '130px'}}>
-                                {p.infant ? <span><i className="fa-solid fa-xmark"></i> Hủy bé</span> : <span><i className="fa-solid fa-baby"></i> + Kèm bé</span>}
-                            </button>
-                        )}
-                    </div>
-                    {p.infant && (
-                        <div className="ms-5 mt-2 p-2 bg-light rounded border d-flex gap-2 align-items-center" style={{borderLeft: '4px solid #6c757d'}}>
-                            <span className="fw-bold text-secondary"><i className="fa-solid fa-baby-carriage"></i> Em bé:</span>
-                            <input type="text" className="form-control form-control-sm" placeholder="Nhập tên em bé (Dưới 2 tuổi)" value={p.infant.fullName} onChange={(e) => handleInfantNameChange(isOutbound, index, e.target.value)} style={{textTransform:'uppercase', maxWidth: '300px'}} />
-                            <span className="badge bg-secondary">Chung ghế</span><span className="text-danger small fw-bold">+10% giá vé</span>
-                        </div>
-                    )}
-                </div>
-            ))}
-        </fieldset>
-    );
-
     return (
         <div className="booking-wrapper" style={{fontFamily: 'Arial, sans-serif', padding: '20px', maxWidth: '1200px', margin: '0 auto'}}>
             <h2 style={{color: '#0056b3', borderBottom: '2px solid #eee', paddingBottom: '10px'}}>
@@ -212,10 +270,11 @@ const BookingDetails = () => {
             </h2>
 
             <div style={{display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '30px'}}>
-                {/* CỘT TRÁI (Giữ nguyên) */}
+                {/* CỘT TRÁI */}
                 <div className="left-col">
                     <fieldset style={{border: '1px solid #ddd', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)'}}>
                         <legend style={{fontWeight: 'bold', color: '#555', fontSize:'1.1em'}}>✈ Tùy chọn Vé</legend>
+
                         {/* Chiều đi */}
                         <div className="mb-4 p-3 bg-white border rounded">
                             <h5 className="text-primary fw-bold">🛫 CHIỀU ĐI: {flightOut.flightNumber}</h5>
@@ -235,6 +294,7 @@ const BookingDetails = () => {
                                 <input type="number" className="form-control" value={passengersOut.length} onChange={(e) => handleQtyChange(e, true)} disabled={isEditMode} />
                             </div>
                         </div>
+
                         {/* Chiều về */}
                         {flightIn && (
                             <div className="mb-4 p-3 bg-white border rounded">
@@ -256,6 +316,7 @@ const BookingDetails = () => {
                                 </div>
                             </div>
                         )}
+
                         <div className="bg-light p-3 border rounded d-flex justify-content-between align-items-center">
                             <span className="fw-bold">TỔNG CỘNG:</span>
                             <span className="text-danger fw-bold fs-4">{totalAmount.toLocaleString()} VND</span>
@@ -272,15 +333,30 @@ const BookingDetails = () => {
                         <input type="text" className="form-control" value={contactInfo.email} onChange={e => setContactInfo({...contactInfo, email: e.target.value})} placeholder="Email" />
                     </fieldset>
 
-                    <PassengerList list={passengersOut} isOutbound={true} />
-                    {flightIn && <PassengerList list={passengersIn} isOutbound={false} />}
+                    {/* SỬ DỤNG COMPONENT CON Ở ĐÂY, TRUYỀN HÀM XỬ LÝ XUỐNG */}
+                    <PassengerList
+                        list={passengersOut}
+                        isOutbound={true}
+                        onPassengerChange={handlePassengerChange}
+                        onToggleInfant={toggleInfant}
+                        onInfantNameChange={handleInfantNameChange}
+                    />
+
+                    {flightIn && (
+                        <PassengerList
+                            list={passengersIn}
+                            isOutbound={false}
+                            onPassengerChange={handlePassengerChange}
+                            onToggleInfant={toggleInfant}
+                            onInfantNameChange={handleInfantNameChange}
+                        />
+                    )}
 
                     <fieldset className="mb-4 p-3 border rounded bg-white">
                         <legend className="fw-bold">💳 Thanh toán</legend>
                         <select className="form-control" value={contactInfo.paymentMethod} onChange={e => setContactInfo({...contactInfo, paymentMethod: e.target.value})}>
                             <option value="VNPAY">💳 Cổng thanh toán VNPAY</option>
                             <option value="CASH">💵 Tiền mặt tại quầy</option>
-                            <option value="BANK_TRANSFER">🏦 Chuyển khoản ngân hàng</option>
                         </select>
                     </fieldset>
 

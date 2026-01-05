@@ -1,3 +1,5 @@
+window.global = window;
+
 import { StrictMode } from 'react'
 import {createRoot} from 'react-dom/client'
 import './index.css'
@@ -8,6 +10,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import {AuthProvider} from "./context/AuthContext.jsx";
 import {GoogleOAuthProvider} from "@react-oauth/google";
 import './App.css'
+import './styles/chat.css'
 createRoot(document.getElementById('root')).render(
     <StrictMode>
         <BrowserRouter>

@@ -36,9 +36,14 @@ export const FlightService = {
         return axios.post(`${API_URL}/bookings`, bookingPayload);
     },
 
-    // 4. Lấy danh sách Booking
+    // 4. Lấy toàn bộ danh sách (Cho Admin/Sales)
     getAllBookings: () => {
         return axios.get(`${API_URL}/bookings`);
+    },
+
+    // 4b. Lấy lịch sử của tôi (Cho Customer)
+    getMyBookings: () => {
+        return axios.get(`${API_URL}/bookings/my-history`);
     },
 
     // 5. Lấy danh sách sân bay
@@ -79,4 +84,10 @@ export const FlightService = {
             params: { amount: amount, orderInfo: bookingCode }
         });
     }
+};
+// 11. ĐẶT VÉ ONLINE + THANH TOÁN VNPAY
+export const createOnlineBooking = (bookingPayload) => {
+    return axios
+        .post(`${API_URL}/bookings/online`, bookingPayload)
+        .then(res => res.data);
 };

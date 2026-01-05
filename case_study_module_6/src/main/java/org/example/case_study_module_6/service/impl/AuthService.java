@@ -33,19 +33,11 @@ public class AuthService implements IAuthService {
     @Override
     public void forgotPassword(String email) {
 
-        // 1️⃣ Tìm CUSTOMER theo email
         Customer customer = customerService.findByEmail(email);
-        if (customer == null) {
-            throw new RuntimeException("Email không tồn tại");
+        if (customer == null || customer.getAccount() == null) {
+            return; // ❗ KHÔNG throw
         }
 
-        // 2️⃣ Kiểm tra đã có account chưa
-        Account account = customer.getAccount();
-        if (account == null) {
-            throw new RuntimeException("Email chưa có tài khoản đăng nhập");
-        }
-
-        // 3️⃣ Tạo token reset
         String token = UUID.randomUUID().toString();
 
         PasswordResetToken resetToken = new PasswordResetToken();
@@ -56,7 +48,6 @@ public class AuthService implements IAuthService {
 
         resetTokenRepository.save(resetToken);
 
-        // 4️⃣ Gửi email
         String resetLink =
                 "http://localhost:5173/reset-password?token=" + token;
 

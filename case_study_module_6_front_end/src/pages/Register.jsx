@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { register as registerApi } from "../modules/login/service/authService.js";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 function Register() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const prefillEmail = searchParams.get("email") || "";
+    const isUpgrade = !!searchParams.get("email"); // Nếu có email tức là đi từ Profile qua
 
     const [form, setForm] = useState({
         username: "",
-        email: "",
+        email: prefillEmail,
         password: "",
         confirmPassword: "",
         fullName: "",
@@ -103,7 +106,7 @@ function Register() {
         if (!validate()) return;
 
         try {
-            await registerApi({
+            const response = await registerApi({
                 username: form.username,
                 email: form.email,
                 password: form.password,
@@ -115,7 +118,9 @@ function Register() {
                 address: form.address || null
             });
 
-            toast.success("🎉 Vui lòng kiểm tra email để xác nhận tài khoản");
+            // Nếu Backend trả về string message trực tiếp (trong response.data)
+            const msg = typeof response === 'string' ? response : (response?.data || "🎉 Đăng ký thành công");
+            toast.success(msg);
             setTimeout(() => navigate("/login"), 1500);
 
         } catch (err) {
@@ -140,8 +145,15 @@ function Register() {
                         <div className="card-body p-3">
 
                             <h5 className="fw-bold text-center mb-3">
-                                Đăng ký tài khoản
+                                {isUpgrade ? "Thiết lập tài khoản hệ thống" : "Đăng ký tài khoản"}
                             </h5>
+
+                            {isUpgrade && (
+                                <div className="alert alert-info py-2 small">
+                                    Chào bạn! Hãy đặt Tên đăng nhập và Mật khẩu để có thể đăng nhập trực tiếp mà không cần qua Google nhé.
+                                    (Email <b>{prefillEmail}</b> đã được xác thực từ Google)
+                                </div>
+                            )}
 
                             <form onSubmit={handleSubmit} noValidate>
                                 <div className="row">
