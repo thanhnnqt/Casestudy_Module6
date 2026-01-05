@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, Link } from "react-router-dom";
+import React, {useEffect, useState} from "react";
+import {useLocation, Link} from "react-router-dom";
 import * as XLSX from "xlsx";
 
 import {
@@ -9,7 +9,7 @@ import {
     XAxis, YAxis, Tooltip, Legend, CartesianGrid,
     ResponsiveContainer
 } from "recharts";
-import { getCompareReport } from "../service/employeeService";
+import {getCompareReport} from "../service/employeeService";
 
 const COLORS = ["#005eff", "#ff4d4f", "#00c49f", "#ff7300", "#aa00ff"];
 
@@ -64,7 +64,7 @@ const RevenueChart = () => {
                 [`Đơn vị: ${unitLabel}`],
                 []
             ],
-            { origin: "A1" }
+            {origin: "A1"}
         );
 
         const workbook = XLSX.utils.book_new();
@@ -126,7 +126,7 @@ const RevenueChart = () => {
         const data = labels.map((l, i) => ({
             label: l,
             main: mainData[i],
-            ...(hasCompare && { compare: compareData[i] })
+            ...(hasCompare && {compare: compareData[i]})
         }));
 
         if (chartType.includes("tròn")) {
@@ -141,14 +141,14 @@ const RevenueChart = () => {
                 <ResponsiveContainer width="100%" height={350}>
                     <PieChart>
                         <Pie data={pieData} dataKey="value" nameKey="name"
-                             label={({ name, value, percent }) =>
+                             label={({name, value, percent}) =>
                                  `${name}: ${value} (${percent}%)`
                              }>
                             {pieData.map((_, i) =>
-                                <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                                <Cell key={i} fill={COLORS[i % COLORS.length]}/>)}
                         </Pie>
-                        <Tooltip />
-                        <Legend />
+                        <Tooltip/>
+                        <Legend/>
                     </PieChart>
                 </ResponsiveContainer>
             );
@@ -158,14 +158,14 @@ const RevenueChart = () => {
             return (
                 <ResponsiveContainer width="100%" height={350}>
                     <LineChart data={data}>
-                        <CartesianGrid strokeDasharray="4 4" />
-                        <XAxis dataKey="label" />
-                        <YAxis />
-                        <Tooltip formatter={formatValue} />
-                        <Legend />
-                        <Line dataKey="main" name="Kỳ chính" stroke="#005eff" strokeWidth={3} />
+                        <CartesianGrid strokeDasharray="4 4"/>
+                        <XAxis dataKey="label"/>
+                        <YAxis/>
+                        <Tooltip formatter={formatValue}/>
+                        <Legend/>
+                        <Line dataKey="main" name="Kỳ chính" stroke="#005eff" strokeWidth={3}/>
                         {hasCompare &&
-                            <Line dataKey="compare" name="Kỳ so sánh" stroke="#ff4d4f" strokeWidth={3} />}
+                            <Line dataKey="compare" name="Kỳ so sánh" stroke="#ff4d4f" strokeWidth={3}/>}
                     </LineChart>
                 </ResponsiveContainer>
             );
@@ -175,10 +175,10 @@ const RevenueChart = () => {
             <ResponsiveContainer width="100%" height={350}>
                 <BarChart
                     data={data}
-                    margin={{ top: 20, right: 40, left: 20, bottom: 20 }}
+                    margin={{top: 20, right: 40, left: 20, bottom: 20}}
                 >
-                    <CartesianGrid strokeDasharray="4 4" />
-                    <XAxis dataKey="label" />
+                    <CartesianGrid strokeDasharray="4 4"/>
+                    <XAxis dataKey="label"/>
                     <YAxis
                         width={yAxisWidth}
                         allowDecimals={false}
@@ -188,11 +188,11 @@ const RevenueChart = () => {
                                 : v.toLocaleString()
                         }
                     />
-                    <Tooltip formatter={formatValue} />
-                    <Legend />
-                    <Bar dataKey="main" name="Kỳ chính" fill="#005eff" />
+                    <Tooltip formatter={formatValue}/>
+                    <Legend/>
+                    <Bar dataKey="main" name="Kỳ chính" fill="#005eff"/>
                     {hasCompare &&
-                        <Bar dataKey="compare" name="Kỳ so sánh" fill="#ff4d4f" />}
+                        <Bar dataKey="compare" name="Kỳ so sánh" fill="#ff4d4f"/>}
                 </BarChart>
             </ResponsiveContainer>
 
@@ -203,18 +203,6 @@ const RevenueChart = () => {
         <div className="container py-3">
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className="fw-bold text-primary">{reportType}</h5>
-                <div className="d-flex gap-2">
-                    <button
-                        className="btn btn-success btn-sm"
-                        onClick={handleExportExcel}
-                        disabled={!labels.length}
-                    >
-                        Xuất Excel
-                    </button>
-                    <Link to="/report" className="btn btn-secondary btn-sm">
-                        Quay lại
-                    </Link>
-                </div>
             </div>
 
 
@@ -222,6 +210,24 @@ const RevenueChart = () => {
             {hasCompare && <p className="small">So sánh: {compareStart} → {compareEnd}</p>}
 
             {loading ? "Đang tải..." : message ? message : renderChart()}
+
+            {/* Actions dưới biểu đồ */}
+            {!loading && !message && (
+                <div className="d-flex justify-content-center gap-3 chart-actions" style={{marginTop: "50px"}}>
+                    <button
+                        className="btn btn-success btn-sm px-4"
+                        onClick={handleExportExcel}
+                        disabled={!labels.length}
+                    >
+                        Xuất Excel
+                    </button>
+
+                    <Link to="/report" className="btn btn-secondary btn-sm px-4">
+                        Quay lại
+                    </Link>
+                </div>
+            )}
+
         </div>
     );
 };

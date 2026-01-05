@@ -11,7 +11,6 @@ import {
 import {useNavigate} from "react-router-dom";
 import {useState, useCallback} from "react";
 import * as Yup from "yup";
-import {Button} from "react-bootstrap";
 import CryptoJS from "crypto-js";
 import {toast} from "react-toastify";
 
@@ -67,26 +66,6 @@ const AddEmployee = () => {
         };
     };
 
-    const validateRealtime = useCallback(
-        debounce(async (field, value) => {
-            if (!value) return;
-            const map = {
-                identificationId: checkIdentificationExists,
-                email: checkEmailExists,
-                phoneNumber: checkPhoneExists,
-                username: checkUsernameExists,
-            };
-            if (!map[field]) return;
-
-            const exists = await map[field](value);
-            setErrorsServer((prev) => ({
-                ...prev,
-                [field]: exists ? "Đã tồn tại trong hệ thống" : "",
-            }));
-        }),
-        []
-    );
-
     const createImageHash = async (file) => {
         const buffer = await file.arrayBuffer();
         return CryptoJS.SHA256(CryptoJS.lib.WordArray.create(buffer)).toString();
@@ -105,38 +84,58 @@ const AddEmployee = () => {
         return res.json();
     };
 
-    const handleSubmit = async (values) => {
-        const role = values.targetRole;
-
-        if (role === "EMPLOYEE") {
-            if (!selectedFile) return toast.error("Vui lòng chọn ảnh nhân viên");
-
-            const hash = await createImageHash(selectedFile);
-            if (await checkImageHashExists(hash))
-                return toast.error("Ảnh đã bị trùng");
-
-            values.imgHash = hash;
-            values.DOB = values.dob;
-        }
-
-        const saved = await addEmployee(values);
-        if (!saved) return toast.error("Thêm thất bại!");
-
-        if (role === "ADMIN") {
-            toast.success("Thêm quản trị viên thành công!");
-            return navigate("/employees");
-        }
-
-        setUploading(true);
+    const handleSubmit = async (values, {setErrors}) => {
         try {
+            const role = values.targetRole;
+
+            if (role === "EMPLOYEE") {
+                if (!selectedFile)
+                    return toast.error("Vui lòng chọn ảnh nhân viên");
+
+                const hash = await createImageHash(selectedFile);
+                if (await checkImageHashExists(hash))
+                    return toast.error("Ảnh đã bị trùng");
+
+                values.imgHash = hash;
+                values.DOB = values.dob;
+            }
+
+            const saved = await addEmployee(values);
+
+            if (role === "ADMIN") {
+                toast.success("Thêm quản trị viên thành công!");
+                return navigate("/employees");
+            }
+
+            setUploading(true);
             const cloud = await uploadToCloudinary();
             await updateEmployeeImage(saved.id, cloud.secure_url, values.imgHash);
+
             toast.success("Thêm nhân viên thành công!");
             navigate("/employees");
+
+        } catch (err) {
+            if (typeof err === "string") {
+                setErrors({username: err});
+                return;
+            }
+
+            if (err?.message) {
+                setErrors({username: err.message});
+                return;
+            }
+
+            if (typeof err === "object") {
+                setErrors(err);
+                return;
+            }
+
+            toast.error("Thêm nhân viên thất bại");
         } finally {
             setUploading(false);
         }
     };
+
 
     return (
         <div className="bg-light mt-2">
@@ -195,8 +194,7 @@ const AddEmployee = () => {
                                             {/* SĐT */}
                                             <div className="col-md-6">
                                                 <label>SĐT <Required/></label>
-                                                <Field name="phoneNumber" className="form-control form-control-sm"
-                                                       onBlur={(e) => validateRealtime("phoneNumber", e.target.value)}/>
+                                                <Field name="phoneNumber" className="form-control form-control-sm"/>
                                                 <div className="text-danger small">{errorsServer.phoneNumber}</div>
                                                 <ErrorMessage name="phoneNumber" component="div"
                                                               className="text-danger small"/>
@@ -205,8 +203,7 @@ const AddEmployee = () => {
                                             {/* Email hiển thị cho cả Admin */}
                                             <div className="col-md-6">
                                                 <label>Email <Required/></label>
-                                                <Field name="email" className="form-control form-control-sm"
-                                                       onBlur={(e) => validateRealtime("email", e.target.value)}/>
+                                                <Field name="email" className="form-control form-control-sm"/>
                                                 <div className="text-danger small">{errorsServer.email}</div>
                                                 <ErrorMessage name="email" component="div"
                                                               className="text-danger small"/>
@@ -217,8 +214,7 @@ const AddEmployee = () => {
                                                     <div className="col-md-6">
                                                         <label>CCCD <Required/></label>
                                                         <Field name="identificationId"
-                                                               className="form-control form-control-sm"
-                                                               onBlur={(e) => validateRealtime("username", e.target.value)}/>
+                                                               className="form-control form-control-sm"/>
                                                         <ErrorMessage name="identificationId"
                                                                       className="text-danger small" component="div"/>
                                                     </div>
@@ -252,8 +248,7 @@ const AddEmployee = () => {
 
                                             <div className="col-md-4">
                                                 <label>Tài khoản <Required/></label>
-                                                <Field name="username" className="form-control form-control-sm"
-                                                       onKeyUp={(e) => validateRealtime("username", e.target.value)}/>
+                                                <Field name="username" className="form-control form-control-sm"/>
                                                 <div className="text-danger small">{errorsServer.username}</div>
                                                 <ErrorMessage name="username" className="text-danger small"
                                                               component="div"/>

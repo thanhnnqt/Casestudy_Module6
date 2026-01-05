@@ -61,20 +61,33 @@ export async function getEmployeeListBySearch(fullName, phoneNumber, page = 0, s
     }
 }
 
-export async function addEmployee(employee) {
+export const addEmployee = async (data) => {
     try {
-        const token = localStorage.getItem("token");
-        const res = await axios.post(`${URL}`, employee, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+        const res = await axios.post(
+            "http://localhost:8080/v1/api/employees",
+            data
+        );
         return res.data;
-    } catch (e) {
-        console.error(e.response?.data || e.message);
-        return false;
+    } catch (err) {
+        // ✅ ƯU TIÊN LỖI NGHIỆP VỤ
+        if (err.response?.data) {
+
+            // backend trả: { username: "Tài khoản đã tồn tại" }
+            if (typeof err.response.data === "object") {
+                throw err.response.data;
+            }
+
+            // backend trả: "Tài khoản đã tồn tại"
+            if (typeof err.response.data === "string") {
+                throw { username: err.response.data };
+            }
+        }
+
+        // fallback
+        throw { username: "Tài khoản đã tồn tại" };
     }
-}
+};
+
 
 export async function checkIdentificationExists(value) {
     const token = localStorage.getItem("token");
@@ -167,36 +180,12 @@ export async function checkUsernameExists(username) {
 
 const token = localStorage.getItem("token");
 const config = {
-    headers: { Authorization: `Bearer ${token}` }
+    headers: {Authorization: `Bearer ${token}`}
 };
-
-// export const getRevenue = async (start, end) => {
-//     const res = await axios.get(`/api/reports/revenue`, {
-//         params: { start, end },
-//         ...config
-//     });
-//     return res.data;
-// };
-//
-// export const getSalesPerformance = async (start, end) => {
-//     const res = await axios.get(`/api/reports/revenue/sales-performance`, {
-//         params: { start, end },
-//         ...config
-//     });
-//     return res.data;
-// };
-//
-// export const getAirlineRevenue = async (start, end) => {
-//     const res = await axios.get(`/api/reports/revenue/airline-revenue`, {
-//         params: { start, end },
-//         ...config
-//     });
-//     return res.data;
-// };
 
 export const getCompareReport = async (type, start, end, compareStart, compareEnd) => {
     const res = await axios.get(`/api/reports/compare`, {
-        params: { type, start, end, compareStart, compareEnd }
+        params: {type, start, end, compareStart, compareEnd}, ...config
     });
     return res.data;
 }
