@@ -9,26 +9,26 @@ import { useAuth } from "../context/AuthContext";
 
 const CHAT_ADMIN_TARGET = { customerAccountId: 1, customerUsername: "admin" };
 
-function Home() {
-    /* ================= CITY LIST ================= */
-    const cities = [
-        "Hà Nội (HAN)",
-        "TP. Hồ Chí Minh (SGN)",
-        "Đà Nẵng (DAD)",
-        "Nha Trang (CXR)",
-        "Phú Quốc (PQC)",
-        "Cần Thơ (VCA)"
-    ];
+/* ================= CONSTANTS ================= */
+const CITIES = [
+    "Hà Nội (HAN)",
+    "TP. Hồ Chí Minh (SGN)",
+    "Đà Nẵng (DAD)",
+    "Nha Trang (CXR)",
+    "Phú Quốc (PQC)",
+    "Cần Thơ (VCA)"
+];
 
-    /* MAP CITY → WEATHER API NAME (CHỈ PHỤC VỤ THỜI TIẾT) */
-    const cityWeatherMap = {
-        "Hà Nội (HAN)": "Hanoi",
-        "TP. Hồ Chí Minh (SGN)": "Ho Chi Minh City",
-        "Đà Nẵng (DAD)": "Da Nang",
-        "Nha Trang (CXR)": "Nha Trang",
-        "Phú Quốc (PQC)": "Phu Quoc",
-        "Cần Thơ (VCA)": "Can Tho"
-    };
+const CITY_WEATHER_MAP = {
+    "Hà Nội (HAN)": "Hanoi",
+    "TP. Hồ Chí Minh (SGN)": "Ho Chi Minh City",
+    "Đà Nẵng (DAD)": "Da Nang",
+    "Nha Trang (CXR)": "Nha Trang",
+    "Phú Quốc (PQC)": "Phu Quoc",
+    "Cần Thơ (VCA)": "Can Tho"
+};
+
+function Home() {
 
     /* ================= STATE ================= */
     const [tripType, setTripType] = useState("ONE_WAY");
@@ -155,37 +155,42 @@ function Home() {
     const fetchWeather = async (city, date) => {
         try {
             const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
+            if (!apiKey) {
+                console.error("VITE_WEATHER_API_KEY is missing");
+                return null;
+            }
 
             const res = await fetch(
                 `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&lang=vi&appid=${apiKey}`
             );
 
-            const data = await res.json();
-
-            // ❗ BẮT BUỘC CHECK
-            if (!data.list || !Array.isArray(data.list)) {
-                console.error("Weather API response invalid:", data);
+            if (!res.ok) {
+                console.error(`Weather API error for ${city}: ${res.status}`);
                 return null;
             }
 
-            return (
-                data.list.find(item =>
-                    item.dt_txt.startsWith(date)
-                ) || data.list[0]
-            );
+            const data = await res.json();
+
+            if (!data.list || !Array.isArray(data.list) || data.list.length === 0) {
+                console.error("Weather API response invalid or empty:", data);
+                return null;
+            }
+
+            // Tìm forecast cho ngày đã chọn, nếu không thấy lấy cái gần nhất (đầu tiên)
+            const forecast = data.list.find(item => item.dt_txt.startsWith(date)) || data.list[0];
+            return forecast;
 
         } catch (err) {
             console.error("Weather error:", err);
             return null;
         }
     };
-    /* LOAD WEATHER WHEN CHANGE FORM */
     useEffect(() => {
         if (!form.departureDate) return;
 
         const loadWeather = async () => {
-            const fromCity = cityWeatherMap[form.from];
-            const toCity = cityWeatherMap[form.to];
+            const fromCity = CITY_WEATHER_MAP[form.from];
+            const toCity = CITY_WEATHER_MAP[form.to];
 
             if (!fromCity || !toCity) return;
 
@@ -197,12 +202,39 @@ function Home() {
         };
 
         loadWeather();
-    }, [form.from, form.to, form.departureDate, cityWeatherMap]);
+    }, [form.from, form.to, form.departureDate]);
 
     const handleCopy = async (code) => {
+        // Phương pháp 1: Sử dụng Clipboard API (Yêu cầu HTTPS hoặc localhost)
+        if (navigator.clipboard && window.isSecureContext) {
+            try {
+                await navigator.clipboard.writeText(code);
+                toast.success(`🎉 Đã copy mã ưu đãi: ${code}`);
+                return;
+            } catch (err) {
+                console.warn("Clipboard API failed, falling back...", err);
+            }
+        }
+
+        // Phương pháp 2: Sử dụng textarea tạm thời (Hoạt động được trên HTTP/IP)
         try {
-            await navigator.clipboard.writeText(code);
-            toast.success(`🎉 Đã copy mã ưu đãi: ${code}`);
+            const textArea = document.createElement("textarea");
+            textArea.value = code;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            textArea.style.top = "0";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            if (successful) {
+                toast.success(`🎉 Đã copy mã ưu đãi: ${code}`);
+            } else {
+                toast.error("❌ Trình duyệt không hỗ trợ copy tự động");
+            }
         } catch (err) {
             toast.error("❌ Không thể copy mã, vui lòng thử lại");
         }
@@ -248,7 +280,7 @@ function Home() {
                             <div className="field">
                                 <label>Từ</label>
                                 <select name="from" value={form.from} onChange={handleChange}>
-                                    {cities.map(c => (
+                                    {CITIES.map(c => (
                                         <option key={c}>{c}</option>
                                     ))}
                                 </select>
@@ -257,7 +289,7 @@ function Home() {
                             <div className="field">
                                 <label>Đến</label>
                                 <select name="to" value={form.to} onChange={handleChange}>
-                                    {cities.map(c => (
+                                    {CITIES.map(c => (
                                         <option key={c}>{c}</option>
                                     ))}
                                 </select>
