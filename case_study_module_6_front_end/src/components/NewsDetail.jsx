@@ -55,7 +55,6 @@ const NewsDetail = () => {
                         <h1 className="fw-bold mb-3 display-5">{news.title}</h1>
                         <div className="d-flex align-items-center text-muted mb-4 gap-3 border-bottom pb-3">
                             <span><i className="bi bi-calendar3 me-2"></i>{new Date(news.publishedAt).toLocaleDateString('vi-VN')}</span>
-                            <span><i className="bi bi-person-circle me-2"></i>Admin</span>
                             <span className="badge bg-light text-dark border">{news.category}</span>
                         </div>
 
@@ -84,7 +83,26 @@ const NewsDetail = () => {
                             <Link to="/news" className="btn btn-outline-secondary rounded-pill px-4">
                                 <i className="bi bi-arrow-left me-2"></i>Quay lại danh sách
                             </Link>
-                            <Link to="/" className="btn btn-primary rounded-pill px-4">
+
+                            <Link
+                                to="/"
+                                className="btn btn-primary rounded-pill px-4"
+                                onClick={() => {
+                                    // Cách 1: Cuộn trình duyệt (Mặc định)
+                                    window.scrollTo(0, 0);
+
+                                    // Cách 2: Cuộn các container chính trong Layout của bạn
+                                    // (Thanh cuộn thường nằm ở class .main hoặc .flight-list-container)
+                                    const scrollableClasses = ['.main', '.flight-list-container', '.container-fluid', '#root'];
+
+                                    scrollableClasses.forEach(selector => {
+                                        const element = document.querySelector(selector);
+                                        if (element) {
+                                            element.scrollTop = 0; // Đưa thanh cuộn về 0
+                                        }
+                                    });
+                                }}
+                            >
                                 Đặt vé ngay <i className="bi bi-airplane-fill ms-2"></i>
                             </Link>
                         </div>

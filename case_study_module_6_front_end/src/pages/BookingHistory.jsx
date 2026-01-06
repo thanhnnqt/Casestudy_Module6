@@ -68,14 +68,24 @@ const BookingHistory = () => {
     const handlePayment = async (booking) => {
         setPaymentLoading(booking.id);
         try {
+            console.log(">>> Initiating payment for booking:", booking.bookingCode, "Amount:", booking.totalAmount);
             const response = await FlightService.createPaymentUrl(booking.totalAmount, booking.bookingCode);
-            if (response && response.url) {
-                window.location.href = response.url;
+            console.log(">>> Payment API Response:", response);
+
+            // API trả về { data: { url: "..." } }
+            const paymentUrl = response.data?.url || response.url;
+
+            if (paymentUrl) {
+                console.log(">>> Redirecting to:", paymentUrl);
+                window.location.href = paymentUrl;
             } else {
+                console.error(">>> No URL in response:", response);
                 toast.error("Không thể tạo liên kết thanh toán.");
             }
         } catch (error) {
-            toast.error("Lỗi hệ thống khi thanh toán.");
+            console.error(">>> Payment error:", error);
+            console.error(">>> Error response:", error.response?.data);
+            toast.error(error.response?.data?.message || "Lỗi hệ thống khi thanh toán.");
         } finally {
             setPaymentLoading(null);
         }

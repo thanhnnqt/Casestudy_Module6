@@ -76,11 +76,13 @@ function Header() {
                         {/*    </NavLink>*/}
                         {/*</li>*/}
 
-                        <li className="nav-item">
-                            <NavLink className="nav-link fw-semibold" to="/flights">
-                                Chuyến bay
-                            </NavLink>
-                        </li>
+                        {(user?.role === "ADMIN" || user?.role === "EMPLOYEE") && (
+                            <li className="nav-item">
+                                <NavLink className="nav-link fw-semibold" to="/flights">
+                                    Chuyến bay
+                                </NavLink>
+                            </li>
+                        )}
 
                         {/* AUTH */}
                         {!user ? (
@@ -135,6 +137,17 @@ function Header() {
                                                 Tài khoản
                                             </NavLink>
                                         </li>
+                                        {(user.role === "ADMIN" || user.role === "EMPLOYEE") && (
+                                            <li>
+                                                <NavLink
+                                                    className="dropdown-item"
+                                                    to="/customers"
+                                                    onClick={() => setOpen(false)}
+                                                >
+                                                    Quản lý khách hàng
+                                                </NavLink>
+                                            </li>
+                                        )}
                                         <li>
                                             <button
                                                 className="dropdown-item text-danger"

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAdminInbox } from "../../services/adminChatService";
+import { getAdminInbox, markMessagesAsRead } from "../../services/adminChatService";
 import { connectChat, disconnectChat } from "../../services/chatSocket.js";
 import { useAuth } from "../../context/AuthContext.jsx";
 import ChatBox from "./ChatBox.jsx";
@@ -31,6 +31,22 @@ export default function AdminInbox() {
         connectChat(token, handleGlobalMsg);
         return () => disconnectChat(handleGlobalMsg);
     }, [token]);
+
+    const handleSelectCustomer = async (customer) => {
+        setActiveCustomer(customer);
+
+        // Đánh dấu tin nhắn đã đọc
+        if (customer.unreadCount > 0) {
+            try {
+                await markMessagesAsRead(customer.customerAccountId);
+                // Refresh inbox để cập nhật badge
+                refreshInbox();
+            } catch (error) {
+                console.error("Error marking messages as read:", error);
+            }
+        }
+    };
+
     return (
         <div className="admin-chat-layout">
             <div className="sidebar">
@@ -38,8 +54,11 @@ export default function AdminInbox() {
                 {customers.map(c => (
                     <div key={c.customerAccountId}
                         className={`user-item ${activeCustomer?.customerAccountId === c.customerAccountId ? "active" : ""}`}
-                        onClick={() => setActiveCustomer(c)}>
+                        onClick={() => handleSelectCustomer(c)}>
                         {c.customerUsername}
+                        {c.unreadCount > 0 && (
+                            <span className="badge bg-danger ms-2">{c.unreadCount}</span>
+                        )}
                     </div>
                 ))}
             </div>
