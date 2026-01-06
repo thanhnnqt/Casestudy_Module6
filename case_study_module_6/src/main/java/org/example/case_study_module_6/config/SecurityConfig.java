@@ -74,7 +74,7 @@ public class SecurityConfig {
                         .hasAnyRole("CUSTOMER", "EMPLOYEE", "ADMIN")
 
                         .requestMatchers("/api/bookings/**").hasAnyRole("EMPLOYEE", "ADMIN")
-                        .requestMatchers("/api/flights/**").hasAnyRole("EMPLOYEE", "ADMIN")
+                        .requestMatchers("/api/flights/**").hasAnyRole( "ADMIN")
                         .requestMatchers("/api/customers/**").hasAnyRole("EMPLOYEE", "ADMIN")
                         .requestMatchers("/api/master/**").hasAnyRole("EMPLOYEE", "ADMIN", "CUSTOMER")
 //                        .requestMatchers("/v1/api/employees/**").hasRole("ADMIN")
