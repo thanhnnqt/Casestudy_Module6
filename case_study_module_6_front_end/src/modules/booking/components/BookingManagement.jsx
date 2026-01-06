@@ -274,8 +274,6 @@ const BookingManagement = () => {
                         return (
                             <tr key={i}>
                                 <td><strong>{t.passengerName}</strong>
-                                    <div className="text-muted small"
-                                         style={{fontSize: '0.8em'}}>DOB: {t.passengerDob ? new Date(t.passengerDob).toLocaleDateString('vi-VN') : 'N/A'}</div>
                                 </td>
                                 <td>{isChild ? <span className="badge bg-success">TRẺ EM (-50%)</span> :
                                     <span className="badge bg-secondary">NGƯỜI LỚN</span>}</td>
