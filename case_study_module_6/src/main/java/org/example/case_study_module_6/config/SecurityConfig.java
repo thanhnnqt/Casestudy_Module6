@@ -50,7 +50,7 @@ public class SecurityConfig {
                         .hasAnyRole("CUSTOMER", "EMPLOYEE", "ADMIN")
 
                         // 4. CUSTOMER
-                        .requestMatchers("/v1/api/customers/me")
+                        .requestMatchers("/api/customers/me")
                         .hasAnyRole("CUSTOMER", "EMPLOYEE", "ADMIN")
 
                         // 5. PUBLIC APIs
