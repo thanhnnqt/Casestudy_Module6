@@ -1,177 +1,192 @@
-/* ===================== BƯỚC 1: TẠO TÀI KHOẢN (ACCOUNTS) ===================== */
--- Lưu ý: Password ở đây là "123456" (đã mã hóa)
-
+/* ===================== INSERT ACCOUNTS (30) ===================== */
 INSERT INTO accounts (username, password, provider, enabled)
 VALUES
--- 1. ADMIN ACCOUNT
-('admin_demo', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+-- USER 1
+('demo1',
+ '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
+ 'LOCAL',
+ TRUE),
 
--- 2. EMPLOYEE ACCOUNTS (5 Tài khoản nhân viên)
-('demo1', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-('demo2', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-('demo3', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-('demo4', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-('demo5', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE);
+-- USER 2
+('demo2',
+ '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
+ 'LOCAL',
+ TRUE),
+
+-- USER 3
+('demo3',
+ '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
+ 'LOCAL',
+ TRUE),
+
+-- USER 4
+('demo4',
+ '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
+ 'LOCAL',
+ TRUE),
+
+-- USER 5
+('demo5',
+ '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
+ 'LOCAL',
+ TRUE),
+-- ADMIN
+('admin_demo',
+ '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
+ 'LOCAL',
+ TRUE),
+
+-- EMPLOYEE
+('employee_demo1',
+ '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
+ 'LOCAL',
+ TRUE),
+
+('employee_demo2',
+ '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
+ 'LOCAL',
+ TRUE),
+('customer_demo1', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+('customer_demo2', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+('customer_demo3', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+('customer_demo4', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+('customer_demo5', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+('customer_demo6', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+('customer_demo7', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+('customer_demo8', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+('customer_demo9', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+('customer_demo10', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+('customer_demo11',
+ '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
+ 'LOCAL',
+ TRUE),
+('customer_demo12',
+ '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
+ 'LOCAL',
+ TRUE);
 
 
-/* ===================== BƯỚC 2: LIÊN KẾT ADMIN ===================== */
-INSERT INTO admins (admin_code, full_name, email, phone_number, account_id)
-VALUES ('AD_01',
+/* ===================== ADMINS (1) ===================== */
+INSERT INTO admins (admin_code,
+                    full_name,
+                    email,
+                    phone_number,
+                    account_id)
+VALUES ('AD_DEMO',
         'Demo System Admin',
-        'admin@system.com',
+        'admin_demo@system.com',
         '0909000000',
-        (SELECT id FROM accounts WHERE username = 'admin_demo')); -- Tự động lấy ID của admin_demo
+        (SELECT id FROM accounts WHERE username = 'admin_demo'));
 
+/* ===================== EMPLOYEES (5) ===================== */
+/* ===================== EMPLOYEES (5) UPDATED WITH CORRECT SHA-256 ===================== */
+INSERT INTO employees (full_name,
+                       address,
+                       phone_number,
+                       identification_id,
+                       email,
+                       dob,
+                       gender,
+                       img_url,
+                       img_hash,
+                       account_id)
+VALUES ('Nguyen Van Huy', 'Ha Noi', '0901000001', '012345001', 'nv1@company.com', '1995-01-01', 'Nam',
+        'https://res.cloudinary.com/dfduj6hiv/image/upload/v1767062658/g3tnflpe4umkdcejpprx.webp',
+        '32fb526959373d9b54a651a97c3ed216cb39c3bdfa546db0d3acc3b4a404cc9a', 2),
 
-/* ===================== BƯỚC 3: LIÊN KẾT 5 NHÂN VIÊN ===================== */
-INSERT INTO employees (full_name, address, phone_number, identification_id, email, dob, gender, img_url, img_hash, account_id)
-VALUES
--- Nhân viên 1 -> Gắn vào demo1
-('Nguyen Van Huy', 'Ha Noi', '0901000001', '012345001', 'nv1@company.com', '1995-01-01', 'Nam',
- 'https://res.cloudinary.com/dfduj6hiv/image/upload/v1767062658/g3tnflpe4umkdcejpprx.webp',
- '32fb526959373d9b54a651a97c3ed216cb39c3bdfa546db0d3acc3b4a404cc9a',
- (SELECT id FROM accounts WHERE username = 'demo1')),
+       ('Tran Thi Mai', 'Ha Noi', '0901000002', '012345002', 'nv2@company.com', '1996-02-02', 'Nữ',
+        'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766978920/l7rivvz2cshrpb3ra5on.webp',
+        '5c0193f8bf8c2f1b354efde78a512f194407a527041a3a91f05e54bf62f3bc48', 3),
 
--- Nhân viên 2 -> Gắn vào demo2
-('Tran Thi Mai', 'Ha Noi', '0901000002', '012345002', 'nv2@company.com', '1996-02-02', 'Nữ',
- 'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766978920/l7rivvz2cshrpb3ra5on.webp',
- '5c0193f8bf8c2f1b354efde78a512f194407a527041a3a91f05e54bf62f3bc48',
- (SELECT id FROM accounts WHERE username = 'demo2')),
+       ('Le Minh Duc', 'Da Nang', '0901000003', '012345003', 'nv3@company.com', '1994-03-03', 'Nam',
+        'https://res.cloudinary.com/dfduj6hiv/image/upload/v1767062643/g3xye2yoji9hhmlvsv3z.webp',
+        'b27dcd4d20be284d8580c73576f40760d47576a89d7a2f33dc1b159c828c5645', 4),
 
--- Nhân viên 3 -> Gắn vào demo3
-('Le Minh Duc', 'Da Nang', '0901000003', '012345003', 'nv3@company.com', '1994-03-03', 'Nam',
- 'https://res.cloudinary.com/dfduj6hiv/image/upload/v1767062643/g3xye2yoji9hhmlvsv3z.webp',
- 'b27dcd4d20be284d8580c73576f40760d47576a89d7a2f33dc1b159c828c5645',
- (SELECT id FROM accounts WHERE username = 'demo3')),
+       ('Pham Quang Hieu', 'Da Nang', '0901000004', '012345004', 'nv4@company.com', '1993-04-04', 'Nam',
+        'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766998277/c1qhxssyiheavo02izwi.jpg',
+        '781550e149fd178a77efc4857adb0ff378e24f7b3e3d78c6c33d26c1a01ee326', 5),
 
--- Nhân viên 4 -> Gắn vào demo4
-('Pham Quang Hieu', 'Da Nang', '0901000004', '012345004', 'nv4@company.com', '1993-04-04', 'Nam',
- 'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766998277/c1qhxssyiheavo02izwi.jpg',
- '781550e149fd178a77efc4857adb0ff378e24f7b3e3d78c6c33d26c1a01ee326',
- (SELECT id FROM accounts WHERE username = 'demo4')),
-
--- Nhân viên 5 -> Gắn vào demo5
-('Hoang Thanh Tung', 'Ho Chi Minh', '0901000005', '012345005', 'nv5@company.com', '1992-05-05', 'Nam',
- 'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766977350/xkfrcvws16poasyijcxh.webp',
- '7d49041c6049c40b7b8391ce5d83498d3f0af0f8c02f041e178e4ed856247a43',
- (SELECT id FROM accounts WHERE username = 'demo5'));
-
+       ('Hoang Thanh Tung', 'Ho Chi Minh', '0901000005', '012345005', 'nv5@company.com', '1992-05-05', 'Nam',
+        'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766977350/xkfrcvws16poasyijcxh.webp',
+        '7d49041c6049c40b7b8391ce5d83498d3f0af0f8c02f041e178e4ed856247a43', 6);
 
 
 
+/* ===================== CUSTOMERS (20) ===================== */
+-- demo1 → account_id = MAX(id) - 4
+INSERT INTO customers (customer_code, full_name, date_of_birth, gender,
+                       phone_number, email, identity_card,
+                       address, total_spending, account_id)
+VALUES ('KH1',
+        'Nguyen Van Demo 1',
+        '1995-01-01',
+        'NAM',
+        '0911111111',
+        'demo1@mail.com',
+        '100000000001',
+        'Ha Noi',
+        0,
+        (SELECT id FROM accounts WHERE username = 'demo1'));
 
-/* ===================== BƯỚC 1: TẠO 20 TÀI KHOẢN KHÁCH HÀNG (ACCOUNTS) ===================== */
--- Username: customer1 -> customer20
--- Password: 123456 (Mặc định)
+-- demo2
+INSERT INTO customers (customer_code, full_name, date_of_birth, gender,
+                       phone_number, email, identity_card,
+                       address, total_spending, account_id)
+VALUES ('KH2',
+        'Nguyen Van Demo 2',
+        '1996-02-02',
+        'NU',
+        '0911111112',
+        'demo2@mail.com',
+        '100000000002',
+        'Hai Phong',
+        0,
+        (SELECT id FROM accounts WHERE username = 'demo2'));
 
-INSERT INTO accounts (username, password, provider, enabled)
-VALUES
-    ('customer1', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-    ('customer2', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-    ('customer3', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-    ('customer4', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-    ('customer5', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-    ('customer6', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-    ('customer7', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-    ('customer8', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-    ('customer9', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-    ('customer10', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-    ('customer11', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-    ('customer12', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-    ('customer13', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-    ('customer14', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-    ('customer15', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-    ('customer16', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-    ('customer17', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-    ('customer18', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-    ('customer19', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-    ('customer20', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE);
+-- demo3
+INSERT INTO customers (customer_code, full_name, date_of_birth, gender,
+                       phone_number, email, identity_card,
+                       address, total_spending, account_id)
+VALUES ('KH3',
+        'Nguyen Van Demo 3',
+        '1997-03-03',
+        'NAM',
+        '0911111113',
+        'demo3@mail.com',
+        '100000000003',
+        'Da Nang',
+        0,
+        (SELECT id FROM accounts WHERE username = 'demo3'));
 
+-- demo4
+INSERT INTO customers (customer_code, full_name, date_of_birth, gender,
+                       phone_number, email, identity_card,
+                       address, total_spending, account_id)
+VALUES ('KH4',
+        'Nguyen Van Demo 4',
+        '1998-04-04',
+        'NU',
+        '0911111114',
+        'demo4@mail.com',
+        '100000000004',
+        'Ho Chi Minh',
+        0,
+        (SELECT id FROM accounts WHERE username = 'demo4'));
 
-/* ===================== BƯỚC 2: LIÊN KẾT 20 KHÁCH HÀNG (CUSTOMERS) ===================== */
-
-INSERT INTO customers (customer_code, full_name, date_of_birth, gender, phone_number, email, identity_card, address, total_spending, account_id)
-VALUES
--- KH1 -> customer1
-('KH1', 'Nguyen Van A', '1995-01-01', 'NAM', '0911111101', 'kh1@mail.com', '001095000001', 'Ha Noi', 0,
- (SELECT id FROM accounts WHERE username = 'customer1')),
-
--- KH2 -> customer2
-('KH2', 'Tran Thi B', '1996-02-02', 'NU', '0911111102', 'kh2@mail.com', '001096000002', 'Ho Chi Minh', 5000000,
- (SELECT id FROM accounts WHERE username = 'customer2')),
-
--- KH3 -> customer3
-('KH3', 'Le Van C', '1997-03-03', 'NAM', '0911111103', 'kh3@mail.com', '001097000003', 'Da Nang', 1200000,
- (SELECT id FROM accounts WHERE username = 'customer3')),
-
--- KH4 -> customer4
-('KH4', 'Pham Thi D', '1998-04-04', 'NU', '0911111104', 'kh4@mail.com', '001098000004', 'Hai Phong', 0,
- (SELECT id FROM accounts WHERE username = 'customer4')),
-
--- KH5 -> customer5
-('KH5', 'Hoang Van E', '1999-05-05', 'NAM', '0911111105', 'kh5@mail.com', '001099000005', 'Can Tho', 0,
- (SELECT id FROM accounts WHERE username = 'customer5')),
-
--- KH6 -> customer6
-('KH6', 'Do Thi F', '1993-06-06', 'NU', '0911111106', 'kh6@mail.com', '001093000006', 'Hue', 0,
- (SELECT id FROM accounts WHERE username = 'customer6')),
-
--- KH7 -> customer7
-('KH7', 'Vu Van G', '1988-07-07', 'NAM', '0911111107', 'kh7@mail.com', '001088000007', 'Nghe An', 0,
- (SELECT id FROM accounts WHERE username = 'customer7')),
-
--- KH8 -> customer8
-('KH8', 'Dang Thi H', '2000-08-08', 'NU', '0911111108', 'kh8@mail.com', '001200000008', 'Quang Ninh', 0,
- (SELECT id FROM accounts WHERE username = 'customer8')),
-
--- KH9 -> customer9
-('KH9', 'Bui Van I', '1991-09-09', 'NAM', '0911111109', 'kh9@mail.com', '001091000009', 'Bac Ninh', 0,
- (SELECT id FROM accounts WHERE username = 'customer9')),
-
--- KH10 -> customer10
-('KH10', 'Ngo Thi K', '1997-10-10', 'NU', '0911111110', 'kh10@mail.com', '001097000010', 'Da Lat', 0,
- (SELECT id FROM accounts WHERE username = 'customer10')),
-
--- KH11 -> customer11
-('KH11', 'Ly Van L', '1985-11-11', 'NAM', '0911111111', 'kh11@mail.com', '001085000011', 'Hai Duong', 0,
- (SELECT id FROM accounts WHERE username = 'customer11')),
-
--- KH12 -> customer12
-('KH12', 'Duong Thi M', '2001-12-12', 'NU', '0911111112', 'kh12@mail.com', '001201000012', 'Nam Dinh', 0,
- (SELECT id FROM accounts WHERE username = 'customer12')),
-
--- KH13 -> customer13
-('KH13', 'Cao Van N', '1994-01-13', 'NAM', '0911111113', 'kh13@mail.com', '001094000013', 'Thanh Hoa', 0,
- (SELECT id FROM accounts WHERE username = 'customer13')),
-
--- KH14 -> customer14
-('KH14', 'Phan Thi O', '1996-02-14', 'NU', '0911111114', 'kh14@mail.com', '001096000014', 'Khanh Hoa', 0,
- (SELECT id FROM accounts WHERE username = 'customer14')),
-
--- KH15 -> customer15
-('KH15', 'Truong Van P', '1990-03-15', 'NAM', '0911111115', 'kh15@mail.com', '001090000015', 'Dong Nai', 0,
- (SELECT id FROM accounts WHERE username = 'customer15')),
-
--- KH16 -> customer16
-('KH16', 'Dinh Thi Q', '1989-04-16', 'NU', '0911111116', 'kh16@mail.com', '001089000016', 'Binh Duong', 0,
- (SELECT id FROM accounts WHERE username = 'customer16')),
-
--- KH17 -> customer17
-('KH17', 'Lam Van R', '1993-05-17', 'NAM', '0911111117', 'kh17@mail.com', '001093000017', 'Long An', 0,
- (SELECT id FROM accounts WHERE username = 'customer17')),
-
--- KH18 -> customer18
-('KH18', 'Mai Thi S', '2002-06-18', 'NU', '0911111118', 'kh18@mail.com', '001202000018', 'Tien Giang', 0,
- (SELECT id FROM accounts WHERE username = 'customer18')),
-
--- KH19 -> customer19
-('KH19', 'Trinh Van T', '1995-07-19', 'NAM', '0911111119', 'kh19@mail.com', '001095000019', 'Kien Giang', 0,
- (SELECT id FROM accounts WHERE username = 'customer19')),
-
--- KH20 -> customer20
-('KH20', 'Vo Thi U', '1998-08-20', 'NU', '0911111120', 'kh20@mail.com', '001098000020', 'Ca Mau', 0,
- (SELECT id FROM accounts WHERE username = 'customer20'));
-
+-- demo5
+INSERT INTO customers (customer_code, full_name, date_of_birth, gender,
+                       phone_number, email, identity_card,
+                       address, total_spending, account_id)
+VALUES ('KH5',
+        'Nguyen Van Demo 5',
+        '1999-05-05',
+        'KHAC',
+        '0911111115',
+        'demo5@mail.com',
+        '100000000005',
+        'Can Tho',
+        0,
+        (SELECT id FROM accounts WHERE username = 'demo5'));
 
 
 /* ===================== AIRPORTS (5) ===================== */
@@ -244,74 +259,218 @@ INSERT INTO bookings
  contact_email, contact_phone, payment_method, payment_status,
  transaction_code, paid_at, customer_account_id, created_by_sales_id)
 VALUES
+-- ===== JAN 2025 =====
+('BK0101', '2025-01-05 09:15', 1500000, 'PAID', 'OFFLINE', 'ONE_WAY', 'jan1@mail.com', '0902000101', 'CASH', 'PAID',
+ 'TRX0101', '2025-01-05 09:18', 1, 1),
+('BK0102', '2025-01-18 16:40', 1700000, 'PAID', 'OFFLINE', 'ONE_WAY', 'jan2@mail.com', '0902000102', 'CASH', 'PAID',
+ 'TRX0102', '2025-01-18 16:45', 2, 2),
+
+-- ===== FEB 2025 =====
+('BK0117', '2025-02-05 09:10', 1800000, 'PAID', 'OFFLINE', 'ONE_WAY', 'feb1@mail.com', '0902000201', 'CASH', 'PAID',
+ 'TRX0117', '2025-02-05 09:15', 1, 1),
+('BK0118', '2025-02-18 16:20', 2000000, 'PAID', 'OFFLINE', 'ONE_WAY', 'feb2@mail.com', '0902000202', 'CASH', 'PAID',
+ 'TRX0118', '2025-02-18 16:25', 2, 2),
+('BK0132', '2025-02-25 20:10', 2200000, 'PAID', 'OFFLINE', 'ONE_WAY', 'feb3@mail.com', '0902000203', 'CASH', 'PAID',
+ 'TRX0132', '2025-02-25 20:15', 3, 3),
+
+-- ===== MAR 2025 =====
+('BK0103', '2025-03-03 08:30', 1900000, 'PAID', 'OFFLINE', 'ONE_WAY', 'mar1@mail.com', '0902000301', 'CASH', 'PAID',
+ 'TRX0103', '2025-03-03 08:35', 3, 1),
+('BK0104', '2025-03-21 20:10', 2100000, 'PAID', 'OFFLINE', 'ONE_WAY', 'mar2@mail.com', '0902000302', 'CASH', 'PAID',
+ 'TRX0104', '2025-03-21 20:15', 4, 3),
+('BK0133', '2025-03-27 18:40', 2300000, 'PAID', 'OFFLINE', 'ONE_WAY', 'mar3@mail.com', '0902000303', 'CASH', 'PAID',
+ 'TRX0133', '2025-03-27 18:45', 5, 2),
+
+-- ===== APR 2025 =====
+('BK0119', '2025-04-06 10:00', 2200000, 'PAID', 'OFFLINE', 'ONE_WAY', 'apr1@mail.com', '0902000401', 'CASH', 'PAID',
+ 'TRX0119', '2025-04-06 10:05', 3, 3),
+('BK0120', '2025-04-19 15:40', 2400000, 'PAID', 'OFFLINE', 'ONE_WAY', 'apr2@mail.com', '0902000402', 'CASH', 'PAID',
+ 'TRX0120', '2025-04-19 15:45', 4, 4),
+('BK0134', '2025-04-28 20:20', 2600000, 'PAID', 'OFFLINE', 'ONE_WAY', 'apr3@mail.com', '0902000403', 'CASH', 'PAID',
+ 'TRX0134', '2025-04-28 20:25', 5, 5),
+
+-- ===== MAY 2025 =====
+('BK0105', '2025-05-06 10:00', 2300000, 'PAID', 'OFFLINE', 'ONE_WAY', 'may1@mail.com', '0902000501', 'CASH', 'PAID',
+ 'TRX0105', '2025-05-06 10:05', 5, 1),
+('BK0106', '2025-05-19 15:30', 2600000, 'PAID', 'OFFLINE', 'ONE_WAY', 'may2@mail.com', '0902000502', 'CASH', 'PAID',
+ 'TRX0106', '2025-05-19 15:35', 4, 2),
+('BK0135', '2025-05-29 19:50', 2800000, 'PAID', 'OFFLINE', 'ONE_WAY', 'may3@mail.com', '0902000503', 'CASH', 'PAID',
+ 'TRX0135', '2025-05-29 19:55', 2, 3),
+
+-- ===== JUN 2025 =====
+('BK0121', '2025-06-03 08:30', 2600000, 'PAID', 'OFFLINE', 'ONE_WAY', 'jun1@mail.com', '0902000601', 'CASH', 'PAID',
+ 'TRX0121', '2025-06-03 08:35', 5, 5),
+('BK0122', '2025-06-21 20:10', 2800000, 'PAID', 'OFFLINE', 'ONE_WAY', 'jun2@mail.com', '0902000602', 'CASH', 'PAID',
+ 'TRX0122', '2025-06-21 20:15', 3, 1),
+('BK0136', '2025-06-28 21:00', 3000000, 'PAID', 'OFFLINE', 'ONE_WAY', 'jun3@mail.com', '0902000603', 'CASH', 'PAID',
+ 'TRX0136', '2025-06-28 21:05', 1, 2),
+
+-- ===== JUL 2025 =====
+('BK0108', '2025-07-04 09:20', 2700000, 'PAID', 'OFFLINE', 'ONE_WAY', 'jul1@mail.com', '0902000701', 'CASH', 'PAID',
+ 'TRX0108', '2025-07-04 09:25', 2, 1),
+('BK0109', '2025-07-17 14:40', 3000000, 'PAID', 'OFFLINE', 'ONE_WAY', 'jul2@mail.com', '0902000702', 'CASH', 'PAID',
+ 'TRX0109', '2025-07-17 14:45', 3, 2),
+('BK0110', '2025-07-29 20:50', 3200000, 'PAID', 'OFFLINE', 'ONE_WAY', 'jul3@mail.com', '0902000703', 'CASH', 'PAID',
+ 'TRX0110', '2025-07-29 20:55', 1, 5),
+
+-- ===== AUG 2025 =====
+('BK0123', '2025-08-07 09:20', 3000000, 'PAID', 'OFFLINE', 'ONE_WAY', 'aug1@mail.com', '0902000801', 'CASH', 'PAID',
+ 'TRX0123', '2025-08-07 09:25', 4, 2),
+('BK0124', '2025-08-26 19:45', 3200000, 'PAID', 'OFFLINE', 'ONE_WAY', 'aug2@mail.com', '0902000802', 'CASH', 'PAID',
+ 'TRX0124', '2025-08-26 19:50', 3, 3),
+('BK0137', '2025-08-29 21:10', 3400000, 'PAID', 'OFFLINE', 'ONE_WAY', 'aug3@mail.com', '0902000803', 'CASH', 'PAID',
+ 'TRX0137', '2025-08-29 21:15', 9, 4),
+
+-- ===== SEP 2025 =====
+('BK0111', '2025-09-05 08:45', 3100000, 'PAID', 'OFFLINE', 'ONE_WAY', 'sep1@mail.com', '0902000901', 'CASH', 'PAID',
+ 'TRX0111', '2025-09-05 08:50', 4, 1),
+('BK0112', '2025-09-16 16:10', 3400000, 'PAID', 'OFFLINE', 'ONE_WAY', 'sep2@mail.com', '0902000902', 'CASH', 'PAID',
+ 'TRX0112', '2025-09-16 16:15', 5, 3),
+('BK0113', '2025-09-27 21:00', 3600000, 'PAID', 'OFFLINE', 'ONE_WAY', 'sep3@mail.com', '0902000903', 'CASH', 'PAID',
+ 'TRX0113', '2025-09-27 21:05', 1, 2),
+
+-- ===== OCT 2025 =====
+('BK0125', '2025-10-05 08:45', 3400000, 'PAID', 'OFFLINE', 'ONE_WAY', 'oct1@mail.com', '0902001001', 'CASH', 'PAID',
+ 'TRX0125', '2025-10-05 08:50', 4, 4),
+('BK0126', '2025-10-23 16:30', 3600000, 'PAID', 'OFFLINE', 'ONE_WAY', 'oct2@mail.com', '0902001002', 'CASH', 'PAID',
+ 'TRX0126', '2025-10-23 16:35', 1, 5),
+('BK0138', '2025-10-28 20:40', 3800000, 'PAID', 'OFFLINE', 'ONE_WAY', 'oct3@mail.com', '0902001003', 'CASH', 'PAID',
+ 'TRX0138', '2025-10-28 20:45', 4, 1),
+
+-- ===== NOV 2025 =====
+('BK0114', '2025-11-06 09:10', 3300000, 'PAID', 'OFFLINE', 'ONE_WAY', 'nov1@mail.com', '0902001101', 'CASH', 'PAID',
+ 'TRX0114', '2025-11-06 09:15', 4, 1),
+('BK0115', '2025-11-18 15:20', 3700000, 'PAID', 'OFFLINE', 'ONE_WAY', 'nov2@mail.com', '0902001102', 'CASH', 'PAID',
+ 'TRX0115', '2025-11-18 15:25', 2, 2),
+('BK0116', '2025-11-29 20:40', 3900000, 'PAID', 'OFFLINE', 'ONE_WAY', 'nov3@mail.com', '0902001103', 'CASH', 'PAID',
+ 'TRX0116', '2025-11-29 20:45', 3, 4),
+-- ===== JAN 2025 =====
+('BK0139', '2025-01-22 19:10', 2100000, 'PAID', 'OFFLINE', 'ONE_WAY', 'jan3@mail.com', '0902000103', 'CASH', 'PAID',
+ 'TRX0139', '2025-01-22 19:15', 3, 3),
+('BK0140', '2025-01-27 20:30', 2400000, 'PAID', 'OFFLINE', 'ONE_WAY', 'jan4@mail.com', '0902000104', 'CASH', 'PAID',
+ 'TRX0140', '2025-01-27 20:35', 4, 1),
+
+-- ===== FEB 2025 =====
+('BK0141', '2025-02-09 10:00', 2300000, 'PAID', 'OFFLINE', 'ONE_WAY', 'feb4@mail.com', '0902000204', 'CASH', 'PAID',
+ 'TRX0141', '2025-02-09 10:05', 5, 4),
+('BK0142', '2025-02-26 21:10', 2600000, 'PAID', 'OFFLINE', 'ONE_WAY', 'feb5@mail.com', '0902000205', 'CASH', 'PAID',
+ 'TRX0142', '2025-02-26 21:15', 2, 2),
+
+-- ===== MAR 2025 =====
+('BK0143', '2025-03-10 14:20', 2500000, 'PAID', 'OFFLINE', 'ONE_WAY', 'mar4@mail.com', '0902000304', 'CASH', 'PAID',
+ 'TRX0143', '2025-03-10 14:25', 3, 2),
+('BK0144', '2025-03-29 19:40', 2800000, 'PAID', 'OFFLINE', 'ONE_WAY', 'mar5@mail.com', '0902000305', 'CASH', 'PAID',
+ 'TRX0144', '2025-03-29 19:45', 5, 4),
+
+-- ===== APR 2025 =====
+('BK0145', '2025-04-08 09:30', 2700000, 'PAID', 'OFFLINE', 'ONE_WAY', 'apr4@mail.com', '0902000404', 'CASH', 'PAID',
+ 'TRX0145', '2025-04-08 09:35', 2, 2),
+('BK0146', '2025-04-30 20:10', 3000000, 'PAID', 'OFFLINE', 'ONE_WAY', 'apr5@mail.com', '0902000405', 'CASH', 'PAID',
+ 'TRX0146', '2025-04-30 20:15', 3, 4),
+
+-- ===== MAY 2025 =====
+('BK0147', '2025-05-11 10:20', 2900000, 'PAID', 'OFFLINE', 'ONE_WAY', 'may4@mail.com', '0902000504', 'CASH', 'PAID',
+ 'TRX0147', '2025-05-11 10:25', 5, 3),
+('BK0148', '2025-05-31 21:40', 3200000, 'PAID', 'OFFLINE', 'ONE_WAY', 'may5@mail.com', '0902000505', 'CASH', 'PAID',
+ 'TRX0148', '2025-05-31 21:45', 2, 2),
+
+-- ===== JUN 2025 =====
+('BK0149', '2025-06-09 14:10', 3100000, 'PAID', 'OFFLINE', 'ONE_WAY', 'jun4@mail.com', '0902000604', 'CASH', 'PAID',
+ 'TRX0149', '2025-06-09 14:15', 3, 1),
+('BK0150', '2025-06-30 20:50', 3400000, 'PAID', 'OFFLINE', 'ONE_WAY', 'jun5@mail.com', '0902000605', 'CASH', 'PAID',
+ 'TRX0150', '2025-06-30 20:55', 4, 2),
+
+-- ===== JUL 2025 =====
+('BK0151', '2025-07-08 09:40', 3300000, 'PAID', 'OFFLINE', 'ONE_WAY', 'jul4@mail.com', '0902000704', 'CASH', 'PAID',
+ 'TRX0151', '2025-07-08 09:45', 5, 3),
+('BK0152', '2025-07-31 21:10', 3600000, 'PAID', 'OFFLINE', 'ONE_WAY', 'jul5@mail.com', '0902000705', 'CASH', 'PAID',
+ 'TRX0152', '2025-07-31 21:15', 1, 4),
+
+-- ===== AUG 2025 =====
+('BK0153', '2025-08-09 10:30', 3500000, 'PAID', 'OFFLINE', 'ONE_WAY', 'aug4@mail.com', '0902000804', 'CASH', 'PAID',
+ 'TRX0153', '2025-08-09 10:35', 1, 5),
+('BK0154', '2025-08-31 20:20', 3800000, 'PAID', 'OFFLINE', 'ONE_WAY', 'aug5@mail.com', '0902000805', 'CASH', 'PAID',
+ 'TRX0154', '2025-08-31 20:25', 1, 3),
+
+-- ===== SEP 2025 =====
+('BK0155', '2025-09-07 09:50', 3700000, 'PAID', 'OFFLINE', 'ONE_WAY', 'sep4@mail.com', '0902000904', 'CASH', 'PAID',
+ 'TRX0155', '2025-09-07 09:55', 1, 5),
+('BK0156', '2025-09-30 21:00', 4000000, 'PAID', 'OFFLINE', 'ONE_WAY', 'sep5@mail.com', '0902000905', 'CASH', 'PAID',
+ 'TRX0156', '2025-09-30 21:05', 2, 4),
+
+-- ===== OCT 2025 =====
+('BK0157', '2025-10-08 10:10', 3900000, 'PAID', 'OFFLINE', 'ONE_WAY', 'oct4@mail.com', '0902001004', 'CASH', 'PAID',
+ 'TRX0157', '2025-10-08 10:15', 2, 2),
+('BK0158', '2025-10-31 20:40', 4200000, 'PAID', 'OFFLINE', 'ONE_WAY', 'oct5@mail.com', '0902001005', 'CASH', 'PAID',
+ 'TRX0158', '2025-10-31 20:45', 2, 3),
+
+-- ===== NOV 2025 =====
+('BK0159', '2025-11-09 09:20', 4100000, 'PAID', 'OFFLINE', 'ONE_WAY', 'nov4@mail.com', '0902001104', 'CASH', 'PAID',
+ 'TRX0159', '2025-11-09 09:25', 3, 1),
+('BK0160', '2025-11-30 21:10', 4400000, 'PAID', 'OFFLINE', 'ONE_WAY', 'nov5@mail.com', '0902001105', 'CASH', 'PAID',
+ 'TRX0160', '2025-11-30 21:15', 4, 2),
+
 -- ===== DEC 2025 =====
-('BK0001', '2025-12-20 10:00', 1800000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo1@mail.com', '0911111111', 'CASH', 'PAID', 'TRX0001', '2025-12-20 10:05', 10, 1),
-('BK0002', '2025-12-21 11:00', 2000000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo2@mail.com', '0911111112', 'CASH', 'PAID', 'TRX0002', '2025-12-21 11:03', 11, 1),
-('BK0003', '2025-12-22 09:30', 2200000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo3@mail.com', '0911111113', 'CASH', 'PAID', 'TRX0003', '2025-12-22 09:35', 12, 2),
-('BK0004', '2025-12-25 08:40', 2400000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo4@mail.com', '0911111114', 'CASH', 'PAID', 'TRX0004', '2025-12-25 08:45', 13, 2),
-('BK0005', '2025-12-27 19:00', 2600000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo5@mail.com', '0911111115', 'CASH', 'PAID', 'TRX0005', '2025-12-27 19:05', 14, 3),
-('BK0006', '2025-12-29 14:10', 2800000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo6@mail.com', '0911111116', 'CASH', 'PAID', 'TRX0006', '2025-12-29 14:12', 15, 4),
-('BK0007', '2025-12-30 20:20', 3000000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo7@mail.com', '0911111117', 'CASH', 'PAID', 'TRX0007', '2025-12-30 20:22', 16, 5),
-('BK0008', '2025-12-31 16:30', 3200000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo8@mail.com', '0911111118', 'CASH', 'PAID', 'TRX0008', '2025-12-31 16:32', 17, 5),
+('BK0161', '2025-12-10 10:30', 4300000, 'PAID', 'OFFLINE', 'ONE_WAY', 'dec4@mail.com', '0902001204', 'CASH', 'PAID',
+ 'TRX0161', '2025-12-10 10:35', 5, 3),
+('BK0162', '2025-12-31 21:50', 4600000, 'PAID', 'OFFLINE', 'ONE_WAY', 'dec5@mail.com', '0902001205', 'CASH', 'PAID',
+ 'TRX0162', '2025-12-31 21:55', 2, 4),
+('BK0163', '2026-01-01 09:10', 4700000, 'PAID', 'OFFLINE', 'ONE_WAY', 'jan26_1@mail.com', '0902001301', 'CASH', 'PAID',
+ 'TRX0163', '2026-01-01 09:15', 2, 2),
+('BK0164', '2026-01-02 14:20', 4800000, 'PAID', 'OFFLINE', 'ONE_WAY', 'jan26_2@mail.com', '0902001302', 'CASH', 'PAID',
+ 'TRX0164', '2026-01-02 14:25', 2, 3),
+('BK0165', '2026-01-03 19:30', 4900000, 'PAID', 'OFFLINE', 'ONE_WAY', 'jan26_3@mail.com', '0902001303', 'CASH', 'PAID',
+ 'TRX0165', '2026-01-03 19:35', 2, 4),
+('BK0166', '2026-01-04 10:40', 5000000, 'PAID', 'OFFLINE', 'ONE_WAY', 'jan26_4@mail.com', '0902001304', 'CASH', 'PAID',
+ 'TRX0166', '2026-01-04 10:45', 3, 5),
+('BK0167', '2026-01-05 15:50', 5200000, 'PAID', 'OFFLINE', 'ONE_WAY', 'jan26_5@mail.com', '0902001305', 'CASH', 'PAID',
+ 'TRX0167', '2026-01-05 15:55', 1, 1),
+('BK0168', '2026-01-06 20:00', 5400000, 'PAID', 'OFFLINE', 'ONE_WAY', 'jan26_6@mail.com', '0902001306', 'CASH', 'PAID',
+ 'TRX0168', '2026-01-06 20:05', 2, 2),
+('BK0169', '2026-01-01 10:10', 4800000, 'PAID', 'OFFLINE', 'ONE_WAY', 'demo3@mail.com', '0902001401', 'CASH', 'PAID',
+ 'TRX0169', '2026-01-01 10:15', 3, 1),
+('BK0170', '2026-01-01 18:40', 5000000, 'PAID', 'OFFLINE', 'ONE_WAY', 'demo4@mail.com', '0902001402', 'CASH', 'PAID',
+ 'TRX0170', '2026-01-01 18:45', 4, 2),
 
--- ===== WEEK 01/2026 (1–4 JAN) =====
-('BK0009', '2026-01-01 09:00', 2100000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo9@mail.com', '0911111119', 'CASH', 'PAID', 'TRX0009', '2026-01-01 09:05', 18, 2),
-('BK0010', '2026-01-01 15:10', 2300000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo10@mail.com', '0911111120', 'CASH', 'PAID', 'TRX0010', '2026-01-01 15:12', 19, 3),
-('BK0011', '2026-01-01 18:20', 2500000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo1@mail.com', '0911111111', 'CASH', 'PAID', 'TRX0011', '2026-01-01 18:23', 10, 5),
-('BK0012', '2026-01-01 21:30', 2600000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo2@mail.com', '0911111112', 'CASH', 'PAID', 'TRX0012', '2026-01-01 21:33', 11, 1),
+('BK0171', '2026-01-02 09:30', 4700000, 'PAID', 'OFFLINE', 'ONE_WAY', 'demo5@mail.com', '0902001403', 'CASH', 'PAID',
+ 'TRX0171', '2026-01-02 09:35', 5, 3),
+('BK0172', '2026-01-02 20:10', 5100000, 'PAID', 'OFFLINE', 'ONE_WAY', 'demo1@mail.com', '0902001404', 'CASH', 'PAID',
+ 'TRX0172', '2026-01-02 20:15', 1, 4),
 
-('BK0013', '2026-01-02 09:30', 2700000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo3@mail.com', '0911111113', 'CASH', 'PAID', 'TRX0013', '2026-01-02 09:32', 12, 2),
-('BK0014', '2026-01-02 12:00', 2800000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo4@mail.com', '0911111114', 'CASH', 'PAID', 'TRX0014', '2026-01-02 12:03', 13, 4),
-('BK0015', '2026-01-02 14:10', 2900000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo5@mail.com', '0911111115', 'CASH', 'PAID', 'TRX0015', '2026-01-02 14:12', 14, 2),
-('BK0016', '2026-01-02 19:40', 3000000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo6@mail.com', '0911111116', 'CASH', 'PAID', 'TRX0016', '2026-01-02 19:42', 15, 2),
+('BK0173', '2026-01-03 11:00', 4900000, 'PAID', 'OFFLINE', 'ONE_WAY', 'demo2@mail.com', '0902001405', 'CASH', 'PAID',
+ 'TRX0173', '2026-01-03 11:05', 2, 5),
+('BK0174', '2026-01-03 21:30', 5200000, 'PAID', 'OFFLINE', 'ONE_WAY', 'demo3@mail.com', '0902001406', 'CASH', 'PAID',
+ 'TRX0174', '2026-01-03 21:35', 3, 3),
 
-('BK0017', '2026-01-03 08:10', 3200000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo7@mail.com', '0911111117', 'CASH', 'PAID', 'TRX0017', '2026-01-03 08:12', 16, 4),
-('BK0018', '2026-01-03 10:00', 3100000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo8@mail.com', '0911111118', 'CASH', 'PAID', 'TRX0018', '2026-01-03 10:03', 17, 2),
-('BK0019', '2026-01-03 15:20', 3300000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo9@mail.com', '0911111119', 'CASH', 'PAID', 'TRX0019', '2026-01-03 15:21', 18, 5),
-('BK0020', '2026-01-03 17:20', 3400000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo10@mail.com', '0911111120', 'CASH', 'PAID', 'TRX0020', '2026-01-03 17:22', 19, 4),
-('BK0021', '2026-01-03 20:20', 3500000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo1@mail.com', '0911111111', 'CASH', 'PAID', 'TRX0021', '2026-01-03 20:22', 10, 1),
-('BK0022', '2026-01-03 22:20', 3600000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo2@mail.com', '0911111112', 'CASH', 'PAID', 'TRX0022', '2026-01-03 22:22', 11, 2),
+('BK0175', '2026-01-04 10:20', 5000000, 'PAID', 'OFFLINE', 'ONE_WAY', 'demo4@mail.com', '0902001407', 'CASH', 'PAID',
+ 'TRX0175', '2026-01-04 10:25', 4, 2),
+('BK0176', '2026-01-04 19:50', 5400000, 'PAID', 'OFFLINE', 'ONE_WAY', 'demo5@mail.com', '0902001408', 'CASH', 'PAID',
+ 'TRX0176', '2026-01-04 19:55', 5, 1),
 
-('BK0023', '2026-01-04 09:15', 3700000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo3@mail.com', '0911111113', 'CASH', 'PAID', 'TRX0023', '2026-01-04 09:17', 12, 4),
-('BK0024', '2026-01-04 11:20', 3800000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo4@mail.com', '0911111114', 'CASH', 'PAID', 'TRX0024', '2026-01-04 11:23', 13, 2),
-('BK0025', '2026-01-04 14:50', 3900000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo5@mail.com', '0911111115', 'CASH', 'PAID', 'TRX0025', '2026-01-04 14:52', 14, 3),
-('BK0026', '2026-01-04 17:10', 4000000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo6@mail.com', '0911111116', 'CASH', 'PAID', 'TRX0026', '2026-01-04 17:12', 15, 1),
-('BK0027', '2026-01-04 18:30', 4100000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo7@mail.com', '0911111117', 'CASH', 'PAID', 'TRX0027', '2026-01-04 18:32', 16, 2),
-('BK0028', '2026-01-04 21:00', 4200000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo8@mail.com', '0911111118', 'CASH', 'PAID', 'TRX0028', '2026-01-04 21:03', 17, 1),
+('BK0177', '2026-01-05 09:40', 5100000, 'PAID', 'OFFLINE', 'ONE_WAY', 'demo1@mail.com', '0902001409', 'CASH', 'PAID',
+ 'TRX0177', '2026-01-05 09:45', 1, 3),
+('BK0178', '2026-01-05 20:30', 5500000, 'PAID', 'OFFLINE', 'ONE_WAY', 'demo2@mail.com', '0902001410', 'CASH', 'PAID',
+ 'TRX0178', '2026-01-05 20:35', 2, 2),
 
--- ===== DEMO DAY — 05/01/2026 =====
-('BK0029', '2026-01-05 09:10', 4500000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo1@mail.com', '0911111111', 'CASH', 'PAID', 'TRX0029', '2026-01-05 09:13', 10, 1),
-('BK0030', '2026-01-05 10:00', 4600000, 'PAID', 'OFFLINE', 'ONE_WAY',
- 'demo2@mail.com', '0911111112', 'CASH', 'PAID', 'TRX0030', '2026-01-05 10:02', 11, 2);
+('BK0179', '2026-01-06 11:10', 5300000, 'PAID', 'OFFLINE', 'ONE_WAY', 'demo3@mail.com', '0902001411', 'CASH', 'PAID',
+ 'TRX0179', '2026-01-06 11:15', 3, 3),
+('BK0180', '2026-01-06 21:40', 5600000, 'PAID', 'OFFLINE', 'ONE_WAY', 'demo4@mail.com', '0902001412', 'CASH', 'PAID',
+ 'TRX0180', '2026-01-06 21:45', 4, 4),
+('BK0201', '2025-03-12 10:20', 2100000, 'PAID', 'OFFLINE', 'ONE_WAY',
+ 'm3_1@mail.com', '0903000201', 'CASH', 'PAID',
+ 'TRX0201', '2025-03-12 10:25', 2, 4),
+
+('BK0202', '2025-03-15 15:40', 2300000, 'PAID', 'OFFLINE', 'ONE_WAY',
+ 'm3_2@mail.com', '0903000202', 'CASH', 'PAID',
+ 'TRX0202', '2025-03-15 15:45', 4, 3),
+
+('BK0203', '2025-03-18 19:10', 2500000, 'PAID', 'OFFLINE', 'ONE_WAY',
+ 'm3_3@mail.com', '0903000203', 'CASH', 'PAID',
+ 'TRX0203', '2025-03-18 19:15', 2, 2),
+
+('BK0204', '2025-03-22 20:30', 2700000, 'PAID', 'OFFLINE', 'ONE_WAY',
+ 'm3_4@mail.com', '0903000204', 'CASH', 'PAID',
+ 'TRX0204', '2025-03-22 20:35', 3, 1);
 
 INSERT INTO tickets
 (seat_number, ticket_number, passenger_name, passenger_dob,
@@ -531,6 +690,9 @@ VALUES
             <li><strong>Chặng bay áp dụng:</strong> Tất cả các đường bay nội địa.</li>
         </ul>
         <p class="fst-italic text-muted">*Lưu ý: Giá vé chưa bao gồm thuế, phí sân bay và các khoản phụ thu khác.</p>
+        <div class="text-center mt-3">
+            <button class="btn btn-danger">SĂN VÉ NGAY</button>
+        </div>
         ',
         'https://images.unsplash.com/photo-1436491865332-7a61a109cc05',
         'PROMOTION', 1, NOW(), 1

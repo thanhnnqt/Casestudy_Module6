@@ -79,12 +79,12 @@ export const addEmployee = async (data) => {
 
             // backend trả: "Tài khoản đã tồn tại"
             if (typeof err.response.data === "string") {
-                throw { username: err.response.data };
+                throw {username: err.response.data};
             }
         }
 
         // fallback
-        throw { username: "Tài khoản đã tồn tại" };
+        throw {username: "Tài khoản đã tồn tại"};
     }
 };
 
@@ -150,7 +150,6 @@ export async function checkImageHashExistsExceptSelf(hash, id) {
     return res.data;
 }
 
-
 export const updateEmployeeImage = async (id, imgURL, imgHash) => {
     const token = localStorage.getItem("token");
     return await axios.patch(`${URL}/${id}/update-image`, null, {
@@ -183,12 +182,48 @@ const config = {
     headers: {Authorization: `Bearer ${token}`}
 };
 
-export const getCompareReport = async (type, start, end, compareStart, compareEnd) => {
+export const getCompareReport = async (type, view, start, end, compareStart, compareEnd) => {
     const res = await axios.get(`/api/reports/compare`, {
-        params: {type, start, end, compareStart, compareEnd}, ...config
+        params: {type, view, start, end, compareStart, compareEnd}, ...config
     });
     return res.data;
 }
+
+export const getEmployeePerformance = async (
+    view,          // MONTH | QUARTER | YEAR
+    start,
+    end,
+    year
+) => {
+    const res = await axios.get("/api/reports/employee-performance", {
+        params: {
+            view,
+            start,
+            end,
+            year
+        },
+        ...config
+    });
+    return res.data;
+};
+
+export const getAirlineRevenue = async (
+    view,     // MONTH | QUARTER | YEAR
+    start,
+    end,
+    year
+) => {
+    const res = await axios.get("/api/reports/airline-performance", {
+        params: {
+            view,
+            start,
+            end,
+            year
+        },
+        ...config
+    });
+    return res.data;
+};
 
 
 

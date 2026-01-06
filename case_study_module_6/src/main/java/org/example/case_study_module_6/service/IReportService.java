@@ -7,13 +7,31 @@ import java.util.List;
 import java.util.Map;
 
 public interface IReportService {
-    Map<String, Object> compareReport(String type,
-                                      LocalDate start,
-                                      LocalDate end,
-                                      LocalDate compareStart,
-                                      LocalDate compareEnd);
-    CompareResponseDTO compareEmployeePerformance(LocalDate start, LocalDate end,
-                                                  LocalDate compareStart, LocalDate compareEnd);
-    TopChartDTO getTopEmployees(LocalDate start, LocalDate end);
-    TopChartDTO getTopAirlines(LocalDate start, LocalDate end);
+    RevenueDTO compareReport(
+            String type,
+            String view,
+            LocalDate start,
+            LocalDate end,
+            LocalDate compareStart,
+            LocalDate compareEnd
+    );
+
+    EmployeePieChartDTO employeePerformanceByMonth(
+            LocalDate start,
+            LocalDate end
+    );
+
+    EmployeePieChartDTO employeePerformanceByYear(
+            int year
+    );
+
+    List<EmployeePieChartDTO> employeePerformanceByQuarter(
+            int year
+    );
+
+    AirlinePieChartDTO airlineRevenueByMonth(LocalDate start, LocalDate end);
+
+    AirlinePieChartDTO airlineRevenueByYear(int year);
+
+    List<AirlinePieChartDTO> airlineRevenueByQuarter(int year);
 }

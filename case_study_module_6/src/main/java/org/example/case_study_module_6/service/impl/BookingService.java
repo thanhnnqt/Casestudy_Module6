@@ -22,15 +22,21 @@ import java.util.stream.Collectors;
 @Service
 public class BookingService {
 
-    @Autowired private IFlightSeatDetailRepository flightSeatDetailRepository;
-    @Autowired private IBookingRepository bookingRepository;
-    @Autowired private ITicketRepository ticketRepository;
-    @Autowired private IFlightRepository flightRepository;
-    @Autowired private IPassengerRepository passengerRepository;
+    @Autowired
+    private IFlightSeatDetailRepository flightSeatDetailRepository;
+    @Autowired
+    private IBookingRepository bookingRepository;
+    @Autowired
+    private ITicketRepository ticketRepository;
+    @Autowired
+    private IFlightRepository flightRepository;
+    @Autowired
+    private IPassengerRepository passengerRepository;
 
     // Helper: Tính tuổi
     private int calculateAge(LocalDate dob) {
-        if (dob == null) return 99; // Mặc định người lớn
+        if (dob == null)
+            return 99; // Mặc định người lớn
         return Period.between(dob, LocalDate.now()).getYears();
     }
 
@@ -80,7 +86,9 @@ public class BookingService {
         BigDecimal totalAmount = BigDecimal.ZERO;
         List<Ticket> tickets = new ArrayList<>();
         SeatClass classOut = SeatClass.valueOf(request.getSeatClassOut());
-        SeatClass classIn = (inboundFlight != null && request.getSeatClassIn() != null) ? SeatClass.valueOf(request.getSeatClassIn()) : null;
+        SeatClass classIn = (inboundFlight != null && request.getSeatClassIn() != null)
+                ? SeatClass.valueOf(request.getSeatClassIn())
+                : null;
 
         // Chiều đi
         if (request.getPassengersOut() != null) {
@@ -91,9 +99,11 @@ public class BookingService {
             for (int i = 0; i < request.getPassengersOut().size(); i++) {
                 PassengerDTO p = request.getPassengersOut().get(i);
                 BigDecimal price = basePrice;
-                if (calculateAge(p.getDob()) < 5) price = basePrice.multiply(new BigDecimal("0.5"));
+                if (calculateAge(p.getDob()) < 5)
+                    price = basePrice.multiply(new BigDecimal("0.5"));
 
-                Ticket t = createSingleTicket(booking, outboundFlight, p.getFullName(), classOut, prefix + (sold + i + 1));
+                Ticket t = createSingleTicket(booking, outboundFlight, p.getFullName(), classOut,
+                        prefix + (sold + i + 1));
                 t.setPrice(price);
                 t.setPassengerDob(p.getDob());
                 t.setStatus(TicketStatus.BOOKED);
@@ -113,9 +123,11 @@ public class BookingService {
             for (int i = 0; i < request.getPassengersIn().size(); i++) {
                 PassengerDTO p = request.getPassengersIn().get(i);
                 BigDecimal price = basePrice;
-                if (calculateAge(p.getDob()) < 5) price = basePrice.multiply(new BigDecimal("0.5"));
+                if (calculateAge(p.getDob()) < 5)
+                    price = basePrice.multiply(new BigDecimal("0.5"));
 
-                Ticket t = createSingleTicket(booking, inboundFlight, p.getFullName(), classIn, prefix + (sold + i + 1));
+                Ticket t = createSingleTicket(booking, inboundFlight, p.getFullName(), classIn,
+                        prefix + (sold + i + 1));
                 t.setPrice(price);
                 t.setPassengerDob(p.getDob());
                 t.setStatus(TicketStatus.BOOKED);
@@ -132,7 +144,8 @@ public class BookingService {
         saved.setBookingCode(String.format("POS%04d", saved.getId()));
         saved = bookingRepository.save(saved);
 
-        for(Ticket t : tickets) t.setBooking(saved);
+        for (Ticket t : tickets)
+            t.setBooking(saved);
         ticketRepository.saveAll(tickets);
 
         return saved;
@@ -170,7 +183,9 @@ public class BookingService {
         BigDecimal totalAmount = BigDecimal.ZERO;
         List<Ticket> tickets = new ArrayList<>();
         SeatClass classOut = SeatClass.valueOf(request.getSeatClassOut());
-        SeatClass classIn = (inboundFlight != null && request.getSeatClassIn() != null) ? SeatClass.valueOf(request.getSeatClassIn()) : null;
+        SeatClass classIn = (inboundFlight != null && request.getSeatClassIn() != null)
+                ? SeatClass.valueOf(request.getSeatClassIn())
+                : null;
 
         // Chiều đi
         if (request.getPassengersOut() != null) {
@@ -181,9 +196,11 @@ public class BookingService {
             for (int i = 0; i < request.getPassengersOut().size(); i++) {
                 PassengerDTO p = request.getPassengersOut().get(i);
                 BigDecimal price = basePrice;
-                if (calculateAge(p.getDob()) < 5) price = basePrice.multiply(new BigDecimal("0.5"));
+                if (calculateAge(p.getDob()) < 5)
+                    price = basePrice.multiply(new BigDecimal("0.5"));
 
-                Ticket t = createSingleTicket(booking, outboundFlight, p.getFullName(), classOut, prefix + (sold + i + 1));
+                Ticket t = createSingleTicket(booking, outboundFlight, p.getFullName(), classOut,
+                        prefix + (sold + i + 1));
                 t.setPrice(price);
                 t.setPassengerDob(p.getDob());
                 tickets.add(t);
@@ -201,9 +218,11 @@ public class BookingService {
             for (int i = 0; i < request.getPassengersIn().size(); i++) {
                 PassengerDTO p = request.getPassengersIn().get(i);
                 BigDecimal price = basePrice;
-                if (calculateAge(p.getDob()) < 5) price = basePrice.multiply(new BigDecimal("0.5"));
+                if (calculateAge(p.getDob()) < 5)
+                    price = basePrice.multiply(new BigDecimal("0.5"));
 
-                Ticket t = createSingleTicket(booking, inboundFlight, p.getFullName(), classIn, prefix + (sold + i + 1));
+                Ticket t = createSingleTicket(booking, inboundFlight, p.getFullName(), classIn,
+                        prefix + (sold + i + 1));
                 t.setPrice(price);
                 t.setPassengerDob(p.getDob());
                 tickets.add(t);
@@ -218,7 +237,8 @@ public class BookingService {
         saved.setBookingCode(String.format("BK%04d", saved.getId()));
         saved = bookingRepository.save(saved);
 
-        for (Ticket t : tickets) t.setBooking(saved);
+        for (Ticket t : tickets)
+            t.setBooking(saved);
         ticketRepository.saveAll(tickets);
 
         return saved;
@@ -255,7 +275,8 @@ public class BookingService {
 
                 // Tính lại giá
                 BigDecimal basePrice = getPriceFromFlight(t.getFlight(), t.getSeatClass());
-                if (calculateAge(p.getDob()) < 5) basePrice = basePrice.multiply(new BigDecimal("0.5"));
+                if (calculateAge(p.getDob()) < 5)
+                    basePrice = basePrice.multiply(new BigDecimal("0.5"));
                 t.setPrice(basePrice);
             }
         }
@@ -274,14 +295,16 @@ public class BookingService {
                     t.setPassengerDob(p.getDob());
 
                     BigDecimal basePrice = getPriceFromFlight(t.getFlight(), t.getSeatClass());
-                    if (calculateAge(p.getDob()) < 5) basePrice = basePrice.multiply(new BigDecimal("0.5"));
+                    if (calculateAge(p.getDob()) < 5)
+                        basePrice = basePrice.multiply(new BigDecimal("0.5"));
                     t.setPrice(basePrice);
                 }
             }
         }
 
         // Cộng lại tổng tiền
-        for (Ticket t : tickets) newTotalAmount = newTotalAmount.add(t.getPrice());
+        for (Ticket t : tickets)
+            newTotalAmount = newTotalAmount.add(t.getPrice());
         booking.setTotalAmount(newTotalAmount);
 
         ticketRepository.saveAll(tickets);
@@ -298,7 +321,8 @@ public class BookingService {
             // Nếu hủy -> trả lại ghế
             if (status == BookingStatus.CANCELLED && booking.getStatus() != BookingStatus.CANCELLED) {
                 for (Ticket t : booking.getTickets()) {
-                    Optional<FlightSeatDetail> sOpt = flightSeatDetailRepository.findByFlightIdAndSeatClass(t.getFlight().getId(), t.getSeatClass());
+                    Optional<FlightSeatDetail> sOpt = flightSeatDetailRepository
+                            .findByFlightIdAndSeatClass(t.getFlight().getId(), t.getSeatClass());
                     sOpt.ifPresent(s -> {
                         s.setAvailableSeats(s.getAvailableSeats() + 1);
                         flightSeatDetailRepository.save(s);
@@ -306,7 +330,8 @@ public class BookingService {
                 }
             }
             booking.setStatus(status);
-            if (status == BookingStatus.PAID) booking.setPaymentStatus(PaymentStatus.PAID);
+            if (status == BookingStatus.PAID)
+                booking.setPaymentStatus(PaymentStatus.PAID);
             return bookingRepository.save(booking);
         } catch (Exception e) {
             throw new RuntimeException("Lỗi update status: " + e.getMessage());
@@ -325,7 +350,8 @@ public class BookingService {
         Booking booking = bookingRepository.findById(id).orElseThrow(() -> new RuntimeException("Booking not found"));
         // Trả ghế trước khi xóa
         for (Ticket t : booking.getTickets()) {
-            Optional<FlightSeatDetail> sOpt = flightSeatDetailRepository.findByFlightIdAndSeatClass(t.getFlight().getId(), t.getSeatClass());
+            Optional<FlightSeatDetail> sOpt = flightSeatDetailRepository
+                    .findByFlightIdAndSeatClass(t.getFlight().getId(), t.getSeatClass());
             sOpt.ifPresent(s -> {
                 s.setAvailableSeats(s.getAvailableSeats() + 1);
                 flightSeatDetailRepository.save(s);
@@ -365,50 +391,59 @@ public class BookingService {
     }
 
     // =========================================================================
-    // 6. HÀM ĐẶT VÉ ONLINE (FULL VALIDATION) - Giữ nguyên
+    // 6. HÀM ĐẶT VÉ ONLINE (ĐÃ SỬA LOGIC GIẢM GIÁ)
     // =========================================================================
     @Transactional(rollbackFor = Exception.class)
     public Booking createOnlineBooking(OnlineBookingRequest request, Account account) {
-        // (Copy lại nội dung hàm này từ file ông gửi trước đó)
+        // 1. Validate Chuyến đi
         Flight outboundFlight = flightRepository.findById(request.getFlightId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy chuyến bay đi!"));
+
         // 2. Validate Chuyến về (Nếu có)
         Flight inboundFlight = null;
         if (request.getReturnFlightId() != null) {
             inboundFlight = flightRepository.findById(request.getReturnFlightId())
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy chuyến bay về!"));
-            if (request.getTripType() == TripType.ONE_WAY) throw new RuntimeException("Vé một chiều không được có chuyến bay về!");
+            if (request.getTripType() == TripType.ONE_WAY)
+                throw new RuntimeException("Vé một chiều không được có chuyến bay về!");
         } else {
             request.setTripType(TripType.ONE_WAY);
         }
+
         // 3. Validate Hạng ghế
         SeatClass classOut = SeatClass.valueOf(request.getSeatClassOut());
         SeatClass classIn = (inboundFlight != null && request.getSeatClassIn() != null)
                 ? SeatClass.valueOf(request.getSeatClassIn())
                 : null;
+
         // 4. Khởi tạo Booking
         Booking booking = new Booking();
-        booking.setCustomerAccount(account); // <--- GÁN TÀI KHOẢN ĐANG LOGIN
+        booking.setCustomerAccount(account); // Gán tài khoản
 
-        booking.setBookingCode("TEMP" + System.currentTimeMillis()); // Sẽ cập nhật sau khi lưu
+        booking.setBookingCode("TEMP" + System.currentTimeMillis());
         booking.setBookingDate(LocalDateTime.now());
-        booking.setStatus(BookingStatus.PENDING);       // Chờ thanh toán
+        booking.setStatus(BookingStatus.PENDING);
         booking.setPaymentStatus(PaymentStatus.UNPAID);
         booking.setChannel(Channel.ONLINE);
         booking.setPaymentMethod(PaymentMethod.valueOf(request.getPaymentMethod()));
-        // Thông tin người liên hệ
+
         booking.setContactName(request.getContactName());
         booking.setContactEmail(request.getContactEmail());
         booking.setContactPhone(request.getContactPhone());
         booking.setFlight(outboundFlight);
         booking.setReturnFlight(inboundFlight);
         booking.setTripType(request.getTripType());
+
         // 5. Xử lý Hành khách & Vé
         BigDecimal totalAmount = BigDecimal.ZERO;
         List<Ticket> tickets = new ArrayList<>();
         List<Passenger> savedPassengers = new ArrayList<>();
+
         long soldOut = ticketRepository.countByFlightIdAndSeatClass(outboundFlight.getId(), classOut);
-        long soldIn = (inboundFlight != null) ? ticketRepository.countByFlightIdAndSeatClass(inboundFlight.getId(), classIn) : 0;
+        long soldIn = (inboundFlight != null)
+                ? ticketRepository.countByFlightIdAndSeatClass(inboundFlight.getId(), classIn)
+                : 0;
+
         String prefixOut = getSeatPrefix(classOut);
         String prefixIn = (classIn != null) ? getSeatPrefix(classIn) : "";
         int index = 0;
@@ -416,7 +451,7 @@ public class BookingService {
         for (OnlinePassengerDTO pDto : request.getPassengers()) {
             index++;
 
-            // --- VALIDATE DỮ LIỆU HÀNH KHÁCH (Backend Validation) ---
+            // Validation
             if (pDto.getFullName() == null || pDto.getFullName().length() < 2 || pDto.getFullName().length() > 50) {
                 throw new RuntimeException("Tên hành khách thứ " + index + " phải từ 2-50 ký tự.");
             }
@@ -428,7 +463,8 @@ public class BookingService {
                     throw new RuntimeException("CMND/Passport là bắt buộc với người lớn (Hành khách " + index + ")");
                 }
             }
-            // A. Lưu Passenger
+
+            // A. Lưu Passenger (Entity)
             Passenger passenger = new Passenger();
             passenger.setBooking(booking);
             passenger.setFullName(pDto.getFullName());
@@ -438,39 +474,65 @@ public class BookingService {
             passenger.setIdentityCard(pDto.getIdentityCard());
             passenger.setPassengerType(pDto.isChild() ? "CHILD" : "ADULT");
             passenger.setHasInfant(pDto.isHasInfant());
+            // Lưu ngày sinh nếu cần thiết (optional)
+            // passenger.setDateOfBirth( ... );
             savedPassengers.add(passenger);
-            // B. Tạo vé chiều đi
+
+            // B. Tạo vé chiều đi (Ticket)
             BigDecimal priceOut = getPriceFromFlight(outboundFlight, classOut);
-            Ticket tOut = createSingleTicket(booking, outboundFlight, pDto.getFullName(), classOut, prefixOut + (soldOut + index));
-            tOut.setPrice(priceOut);
+
+            // --- [FIX] LOGIC GIẢM GIÁ CHIỀU ĐI ---
+            if (pDto.isChild()) {
+                priceOut = priceOut.multiply(new BigDecimal("0.5"));
+            }
+            // -------------------------------------
+
+            Ticket tOut = createSingleTicket(booking, outboundFlight, pDto.getFullName(), classOut,
+                    prefixOut + (soldOut + index));
+            tOut.setPrice(priceOut); // Giá đã giảm
             tickets.add(tOut);
             totalAmount = totalAmount.add(priceOut);
             decreaseSeatQuantity(outboundFlight.getId(), classOut, 1);
-            // C. Tạo vé chiều về
+
+            // C. Tạo vé chiều về (Ticket) - Nếu có
             if (inboundFlight != null) {
                 BigDecimal priceIn = getPriceFromFlight(inboundFlight, classIn);
-                Ticket tIn = createSingleTicket(booking, inboundFlight, pDto.getFullName(), classIn, prefixIn + (soldIn + index));
-                tIn.setPrice(priceIn);
+
+                // --- [FIX] LOGIC GIẢM GIÁ CHIỀU VỀ ---
+                if (pDto.isChild()) {
+                    priceIn = priceIn.multiply(new BigDecimal("0.5"));
+                }
+                // -------------------------------------
+
+                Ticket tIn = createSingleTicket(booking, inboundFlight, pDto.getFullName(), classIn,
+                        prefixIn + (soldIn + index));
+                tIn.setPrice(priceIn); // Giá đã giảm
                 tickets.add(tIn);
                 totalAmount = totalAmount.add(priceIn);
                 decreaseSeatQuantity(inboundFlight.getId(), classIn, 1);
             }
         }
+
         booking.setTotalAmount(totalAmount);
+
         // 6. Lưu xuống DB
         Booking finalBooking = bookingRepository.save(booking);
-        for (Passenger p : savedPassengers) p.setBooking(finalBooking);
-        for (Ticket t : tickets) t.setBooking(finalBooking);
+        for (Passenger p : savedPassengers)
+            p.setBooking(finalBooking);
+        for (Ticket t : tickets)
+            t.setBooking(finalBooking);
+
         passengerRepository.saveAll(savedPassengers);
         ticketRepository.saveAll(tickets);
 
-        // Cập nhật mã booking theo ID (ví dụ: BK0029)
+        // Cập nhật mã booking
         finalBooking.setBookingCode(String.format("BK%04d", finalBooking.getId()));
         return bookingRepository.save(finalBooking);
     }
 
     // HELPER FUNCTIONS (Giữ nguyên)
-    private Ticket createSingleTicket(Booking booking, Flight flight, String passengerName, SeatClass seatClass, String seatNumber) {
+    private Ticket createSingleTicket(Booking booking, Flight flight, String passengerName, SeatClass seatClass,
+            String seatNumber) {
         Ticket ticket = new Ticket();
         ticket.setBooking(booking);
         ticket.setFlight(flight);
@@ -482,10 +544,16 @@ public class BookingService {
         ticket.setSeatNumber(seatNumber);
         return ticket;
     }
-    private String getSeatPrefix(SeatClass seatClass) { return seatClass == SeatClass.BUSINESS ? "B" : "A"; }
-    private BigDecimal getPriceFromFlight(Flight flight, SeatClass seatClass) {
-        return flight.getSeatDetails().stream().filter(s -> s.getSeatClass() == seatClass).findFirst().map(FlightSeatDetail::getPrice).orElse(BigDecimal.ZERO);
+
+    private String getSeatPrefix(SeatClass seatClass) {
+        return seatClass == SeatClass.BUSINESS ? "B" : "A";
     }
+
+    private BigDecimal getPriceFromFlight(Flight flight, SeatClass seatClass) {
+        return flight.getSeatDetails().stream().filter(s -> s.getSeatClass() == seatClass).findFirst()
+                .map(FlightSeatDetail::getPrice).orElse(BigDecimal.ZERO);
+    }
+
     private void decreaseSeatQuantity(Long flightId, SeatClass seatClass, int quantity) {
         Optional<FlightSeatDetail> sOpt = flightSeatDetailRepository.findByFlightIdAndSeatClass(flightId, seatClass);
         if (sOpt.isPresent()) {
@@ -493,7 +561,8 @@ public class BookingService {
             if (s.getAvailableSeats() >= quantity) {
                 s.setAvailableSeats(s.getAvailableSeats() - quantity);
                 flightSeatDetailRepository.save(s);
-            } else throw new RuntimeException("Hết ghế");
+            } else
+                throw new RuntimeException("Hết ghế");
         }
     }
 }

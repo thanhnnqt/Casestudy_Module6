@@ -273,12 +273,176 @@
     font-weight: 600;
 }
 
-/* Responsive */
+/* =========================================
+   RESPONSIVE MOBILE FIX
+   ========================================= */
 @media (max-width: 768px) {
-    .sidebar { width: var(--sidebar-width-collapsed); padding: 20px 10px; }
-    .sidebar h4 span, .sidebar .nav-link span { display: none; }
-    .sidebar .nav-link { justify-content: center; padding: 14px 0; }
-    .main { margin-left: calc(var(--sidebar-width-collapsed) + 20px); padding: 20px 20px 20px 0; }
-    .flight-card .col-md-4, .flight-card .col-md-5, .flight-card .col-md-3 { padding: 10px 0; border: none !important; text-align: center; }
-    .d-flex.align-items-center.gap-3 { flex-direction: column; text-align: center; gap: 5px !important; }
+    /* 1. Layout Chính: Ẩn Sidebar, Main full màn hình */
+    .sidebar {
+        display: none; /* Tạm ẩn sidebar trên mobile để thoáng */
+    }
+    .main {
+        margin-left: 0 !important;
+        padding: 15px;
+        width: 100%;
+    }
+
+    /* 2. Header & Nút thêm mới */
+    .sticky-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        top: 0;
+    }
+    .sticky-header .d-flex {
+        width: 100%;
+    }
+    .sticky-header .btn-gradient {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+
+    /* 3. Thẻ Thống kê (Stats): Xếp lưới 2 cột thay vì 1 cột dọc */
+    .row.mb-4 {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* 2 cột bằng nhau */
+        gap: 10px;
+        margin-right: 0;
+        margin-left: 0;
+    }
+    .row.mb-4 > .col-md-3 {
+        width: 100%;
+        padding: 0;
+    }
+    .stat-card {
+        padding: 15px 5px;
+        margin-bottom: 0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .stat-icon { font-size: 1.5rem; margin-bottom: 5px; }
+    .stat-value { font-size: 1.4rem; }
+    .stat-label { font-size: 0.7rem; }
+
+    /* 4. Bộ lọc (Filters): Xếp dọc 100% chiều rộng */
+    .glass-card .row {
+        margin-right: 0;
+        margin-left: 0;
+    }
+    .col-md-4, .col-md-3 {
+        width: 100% !important;
+        margin-bottom: 10px;
+    }
+    .date-range-picker-container .custom-input {
+        width: 100%;
+    }
+    /* Chỉnh lịch hiển thị giữa màn hình */
+    .date-picker-dropdown-calendar {
+        left: 50%;
+        transform: translateX(-50%);
+        width: 300px; /* Cố định chiều rộng lịch */
+        overflow-x: auto;
+    }
+
+    /* 5. THẺ CHUYẾN BAY (FLIGHT CARD) - QUAN TRỌNG NHẤT */
+    .flight-card {
+        padding: 15px;
+    }
+    .flight-card .row {
+        display: flex;
+        flex-direction: column; /* Xếp dọc các thành phần */
+    }
+
+    /* Cột 1: Hãng bay */
+    .flight-card .col-md-4 {
+        width: 100%;
+        border-right: none !important;
+        border-bottom: 1px dashed #eee; /* Kẻ ngang thay vì kẻ dọc */
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+        padding-right: 0 !important;
+    }
+    .d-flex.align-items-center.gap-3 {
+        flex-direction: row !important; /* Giữ logo và tên nằm ngang */
+        text-align: left !important;
+        gap: 15px !important;
+    }
+
+    /* Cột 2: Thời gian & Hành trình */
+    .flight-card .col-md-5 {
+        width: 100%;
+        border-right: none !important;
+        border-bottom: 1px dashed #eee;
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    /* Ẩn đường kẻ Timeline (----✈----) trên mobile vì gây vỡ layout */
+    .fc-timeline {
+        display: none;
+    }
+
+    /* Căn chỉnh giờ đi - giờ đến sang 2 bên */
+    .col-md-5 .d-flex.align-items-center.justify-content-between {
+        justify-content: space-between !important;
+        width: 100%;
+    }
+
+    /* Thêm mũi tên ở giữa để thay thế Timeline */
+    .col-md-5 .d-flex.align-items-center.justify-content-between::after {
+        content: "➝";
+        font-size: 1.5rem;
+        color: #ddd;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    /* Cột 3: Giá & Nút */
+    .flight-card .col-md-3 {
+        width: 100%;
+        padding-left: 0 !important;
+        text-align: center;
+    }
+    .flight-card .col-md-3 .d-flex {
+        align-items: center !important; /* Căn giữa nội dung */
+    }
+    .seat-details-box {
+        width: 100%;
+    }
+    .btn-edit-card {
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+        background-color: #f0f8ff;
+    }
+
+    /* 6. Thanh công cụ (Sort Toolbar) */
+    .sort-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .sort-toolbar .d-flex {
+        width: 100%;
+        overflow-x: auto; /* Cho phép cuộn ngang nếu nhiều nút */
+        padding-bottom: 5px;
+    }
+    .btn-sort {
+        white-space: nowrap; /* Không xuống dòng chữ trong nút */
+    }
+
+    /* 7. Dạng bảng (Table View) */
+    .flight-table {
+        min-width: 800px; /* Bảng sẽ cuộn ngang */
+    }
+    .table-responsive {
+        overflow-x: auto;
+    }
 }
