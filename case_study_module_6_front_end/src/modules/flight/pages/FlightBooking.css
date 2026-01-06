@@ -1,5 +1,5 @@
 /* =========================================
-   1. CORE & BASE STYLES (Giống FlightList.css)
+   1. CORE & BASE STYLES
    ========================================= */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css');
@@ -9,8 +9,6 @@
     --glass-bg: rgba(255, 255, 255, 0.9);
     --glass-border: rgba(255, 255, 255, 0.6);
     --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-    --sidebar-width: 280px;
-    --sidebar-width-collapsed: 80px;
     --text-dark: #333333;
 }
 
@@ -24,51 +22,101 @@
     overflow-x: hidden;
 }
 
-/* --- ANIMATION MÂY (FIX) --- */
-.sky-container { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-
-.cloud { position: absolute; color: rgba(255, 255, 255, 0.4); filter: blur(3px); animation: moveCloud linear infinite; }
-.c1 { top: 10%; left: -10%; font-size: 100px; animation-duration: 45s; }
-.c2 { top: 30%; left: -20%; font-size: 80px; animation-duration: 60s; animation-delay: -10s; }
-.c3 { top: 60%; left: -15%; font-size: 140px; animation-duration: 40s; animation-delay: -5s; }
-
-@keyframes moveCloud {
-    from { transform: translateX(-200px); }
-    to { transform: translateX(110vw); }
+/* --- ANIMATION MÂY (GIỮ NGUYÊN) --- */
+.sky-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
 }
 
-/* --- ANIMATION MÁY BAY (SỬA LẠI: BAY DỌC LÊN GIỐNG ADMIN) --- */
+.cloud {
+    position: absolute;
+    color: rgba(255, 255, 255, 0.4);
+    filter: blur(3px);
+    animation: moveCloud linear infinite;
+}
+
+.c1 {
+    top: 10%;
+    left: -10%;
+    font-size: 100px;
+    animation-duration: 45s;
+}
+
+.c2 {
+    top: 30%;
+    left: -20%;
+    font-size: 80px;
+    animation-duration: 60s;
+    animation-delay: -10s;
+}
+
+.c3 {
+    top: 60%;
+    left: -15%;
+    font-size: 140px;
+    animation-duration: 40s;
+    animation-delay: -5s;
+}
+
+@keyframes moveCloud {
+    from {
+        transform: translateX(-200px);
+    }
+
+    to {
+        transform: translateX(110vw);
+    }
+}
+
+/* --- ANIMATION MÁY BAY --- */
 .plane-fly {
     position: absolute;
-    bottom: -100px; /* Bắt đầu từ dưới màn hình */
+    bottom: -100px;
     left: 10%;
     color: rgba(255, 255, 255, 0.5);
     font-size: 40px;
-    animation: flyUp 15s linear infinite; /* Bay dọc lên */
-    filter: drop-shadow(0 0 5px rgba(255,255,255,0.8));
+    animation: flyUp 15s linear infinite;
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8));
 }
 
-/* Keyframes bay dọc lên */
 @keyframes flyUp {
-    0% { transform: translateY(0) scale(0.5); opacity: 0; left: 10%; }
-    10% { opacity: 0.8; }
-    90% { opacity: 0.8; }
-    100% { transform: translateY(-120vh) scale(1.2); opacity: 0; left: 40%; } /* Bay chéo lên */
+    0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0;
+        left: 10%;
+    }
+
+    10% {
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translateY(-120vh) scale(1.2);
+        opacity: 0;
+        left: 40%;
+    }
 }
 
-/* Card Chuyến Bay */
+/* =========================================
+   FLIGHT CARD STYLES (DESKTOP)
+   ========================================= */
 .flight-card-custom {
     background: #fff;
     border-radius: 12px;
     margin-bottom: 15px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     transition: transform 0.2s, box-shadow 0.2s;
     border: 1px solid transparent;
+    padding: 10px;
+    /* Thêm padding chung */
 }
 
 .flight-card-custom:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
 .flight-card-custom.selected {
@@ -77,13 +125,13 @@
 }
 
 .airline-logo-md {
-    width: 120px;
-    height: 50px;
+    width: 100px;
+    height: 40px;
     object-fit: contain;
     margin-bottom: 5px;
 }
 
-/* Đường bay */
+/* Đường bay & Icon */
 .flight-line {
     height: 2px;
     background: #dee2e6;
@@ -108,10 +156,16 @@
     background: rgba(255, 255, 255, 0.9);
     padding: 10px;
     border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    overflow-x: auto;
+    /* Cho phép cuộn ngang trên mobile */
+    white-space: nowrap;
+    /* Giữ các ngày trên 1 dòng */
 }
 
 .date-cell {
+    display: inline-block;
+    /* Để cuộn ngang được */
     padding: 8px 10px;
     background: #fff;
     border: 1px solid #dee2e6;
@@ -120,46 +174,327 @@
     cursor: pointer;
     min-width: 110px;
     transition: all 0.2s;
+    margin-right: 5px;
 }
 
-.date-cell:hover { background: #f8f9fa; border-color: #1ba0e2; }
-.date-cell.active { background: #1ba0e2; color: #fff; border-color: #1ba0e2; }
-.date-cell.active .text-muted { color: #e0e0e0 !important; }
+.date-cell:hover {
+    background: #f8f9fa;
+    border-color: #1ba0e2;
+}
 
-/* Scrollbar */
-.flight-list-scroll { max-height: 70vh; overflow-y: auto; padding-right: 5px; }
-.flight-list-scroll::-webkit-scrollbar { width: 6px; }
-.flight-list-scroll::-webkit-scrollbar-track { background: transparent; }
-.flight-list-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.4); border-radius: 10px; }
+.date-cell.active {
+    background: #1ba0e2;
+    color: #fff;
+    border-color: #1ba0e2;
+}
 
-.empty-state { text-align: center; padding: 40px; background: rgba(255,255,255,0.8); border-radius: 10px; color: #555; }
-.active-sort { background: #1ba0e2 !important; color: white !important; }
+.date-cell.active .text-muted {
+    color: #e0e0e0 !important;
+}
 
-/* Responsive */
+/* Scrollbar & Misc */
+.flight-list-scroll {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    color: #555;
+}
+
+.active-sort {
+    background: #1ba0e2 !important;
+    color: white !important;
+}
+
+/* =========================================
+   RESPONSIVE MOBILE (FIX LỖI ĐÈ GIAO DIỆN)
+   ========================================= */
 @media (max-width: 768px) {
-    .sidebar { width: var(--sidebar-width-collapsed); padding: 20px 10px; }
-    .main { margin-left: calc(var(--sidebar-width-collapsed) + 20px); padding: 20px 10px; }
-    .flight-item-card { flex-direction: column; text-align: center; gap: 10px; }
-    .flight-item-card .d-flex { flex-direction: column; }
-    .airline-logo-sm { margin-bottom: 5px; }
+
+    /* 1. Tổng thể */
+    .container-fluid {
+        padding: 12px !important;
+    }
+
+    /* 2. Đảo vị trí: Đưa Sidebar (Tìm kiếm) lên đầu */
+    .row {
+        display: flex;
+        flex-direction: column-reverse;
+    }
+
+    .col-md-9,
+    .col-md-3 {
+        width: 100% !important;
+        padding: 0 !important;
+    }
+
+    /* 3. Sidebar (Form tìm kiếm) */
+    .glass-card {
+        position: relative !important;
+        top: 0 !important;
+        margin-bottom: 20px;
+        z-index: 20 !important;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 4. Thẻ chuyến bay (Flight Card) - Mobile Premium Style */
+    .flight-card-custom {
+        display: block;
+        border-radius: 16px;
+        /* Bo tròn mềm mại hơn */
+        overflow: hidden;
+        margin-bottom: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        /* Bóng đổ nhẹ */
+        border: none;
+    }
+
+    .flight-card-custom .row {
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+    }
+
+    /* --- Cột Logo Hãng --- */
+    .flight-card-custom .col-3 {
+        width: 100%;
+        border-right: none !important;
+        border-bottom: 1px dashed #eee;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        background: #fff;
+    }
+
+    .airline-logo-md {
+        height: 30px;
+        /* Logo nhỏ gọn hơn chút */
+        width: auto;
+    }
+
+    .flight-card-custom .col-3 .badge {
+        font-size: 0.85rem;
+        padding: 6px 10px;
+        border-radius: 6px;
+    }
+
+    /* --- Cột Giờ bay --- */
+    .flight-card-custom .col-5 {
+        width: 100%;
+        border-right: none !important;
+        padding: 20px 16px;
+        background: #fff;
+    }
+
+    .flex-grow-1.mx-2.position-relative {
+        display: none;
+        /* Ẩn timeline PC */
+    }
+
+    /* Container chứa Giờ đi - Mũi tên - Giờ đến */
+    .col-5 .d-flex.justify-content-between {
+        justify-content: space-between !important;
+        width: 100%;
+        position: relative;
+        /* QUAN TRỌNG: Để mũi tên absolute căn theo đây */
+        align-items: center;
+    }
+
+    /* Giờ bay to rõ */
+    .col-5 .fs-4.fw-bold {
+        font-size: 1.6rem !important;
+        color: var(--primary-color);
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+
+    .col-5 .small.fw-bold.text-muted {
+        font-size: 0.9rem;
+    }
+
+    /* Mũi tên ở giữa - Thay text bằng Icon máy bay hoặc mũi tên */
+    .col-5 .d-flex.justify-content-between::after {
+        content: "\F135";
+        /* Bootstrap Icon: airplane-fill */
+        font-family: 'bootstrap-icons';
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) rotate(90deg);
+        color: #ddd;
+        font-size: 1.2rem;
+        z-index: 1;
+    }
+
+    /* --- Cột Giá & Nút --- */
+    .flight-card-custom .col-4 {
+        width: 100%;
+        padding: 16px;
+        background-color: #f7f9fc;
+        /* Nền xanh nhạt sang trọng */
+        border-top: 1px dashed #e0e0e0;
+    }
+
+    /* List ghế */
+    .flight-card-custom .col-4 .d-flex.flex-column {
+        margin-bottom: 12px !important;
+    }
+
+    .flight-card-custom .col-4 span.text-danger {
+        color: #d32f2f !important;
+        font-size: 1.1rem;
+    }
+
+    /* Nút chọn */
+    .flight-card-custom button {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 6px rgba(27, 160, 226, 0.2);
+    }
+
+    /* 5. Thanh ngày (DateBar) */
+    .date-bar-container {
+        padding: 10px 0;
+        background: transparent;
+        box-shadow: none;
+        margin-bottom: 20px !important;
+    }
+
+    .date-bar-container .d-flex {
+        justify-content: flex-start !important;
+        padding-left: 5px;
+    }
+
+    .date-cell {
+        min-width: 100px;
+        /* Tăng chiều rộng tối thiểu */
+        width: auto;
+        padding: 8px 6px;
+        margin-right: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        white-space: normal;
+        /* Cho phép xuống dòng */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .date-cell .small.fw-bold {
+        font-size: 0.8rem;
+        margin-bottom: 2px;
+    }
+
+    .date-cell .text-success.fw-bold.small.mt-1 {
+        font-size: 0.75rem;
+        /* Giảm font giá tiền chút */
+        line-height: 1.2;
+    }
+
+    /* 6. Sticky Bottom Bar */
+    .mobile-bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 12px 16px;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        animation: slideUp 0.3s ease-out;
+    }
+
+    .flight-list-container {
+        padding-bottom: 100px !important;
+        /* Chừa chỗ cho bar */
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(100%);
+        }
+
+        to {
+            transform: translateY(0);
+        }
+    }
 }
 
+/* =========================================
+   MODAL STYLES (Đã fix Responsive)
+   ========================================= */
 .modal-backdrop-custom {
-    position: fixed; /* Bắt buộc là fixed để nổi lên trên cùng */
+    position: fixed;
     top: 0;
     left: 0;
-    width: 100vw; /* Phủ kín chiều rộng */
-    height: 100vh; /* Phủ kín chiều cao */
-    background-color: rgba(0, 0, 0, 0.6); /* Màu nền tối */
-    z-index: 9999; /* Z-index cao nhất để đè lên mọi thứ */
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 9999;
     display: flex;
     justify-content: center;
     align-items: center;
     backdrop-filter: blur(5px);
     animation: fadeIn 0.3s;
+    padding: 10px;
+    /* Padding để không dính sát viền đt */
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* CSS cho nội dung Modal */
+.modal-content-custom {
+    width: 900px;
+    max-width: 100%;
+    max-height: 90vh;
+    /* Giới hạn chiều cao */
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 768px) {
+    .modal-content-custom {
+        width: 100%;
+        height: auto;
+    }
+
+    /* Table trong modal cuộn ngang */
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    /* Nút ở footer xếp dọc */
+    .modal-footer-custom {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .modal-footer-custom button {
+        width: 100%;
+    }
 }

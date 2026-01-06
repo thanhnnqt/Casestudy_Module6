@@ -517,6 +517,31 @@ const BookingPage = () => {
                     </div>
                 </div>
             </div>
+
+            {/* STICKY BOTTOM BAR (MOBILE ONLY) */}
+            <div className="mobile-bottom-bar d-md-none">
+                <div className="d-flex flex-column">
+                    <span className="small text-muted fw-bold">Chuyến bay đã chọn:</span>
+                    <div className="d-flex gap-2">
+                        <span className={`badge ${selectedOutbound ? 'bg-success' : 'bg-secondary'}`}>
+                            {selectedOutbound ? 'Đi' : 'Đi (--)'}
+                        </span>
+                        {isRoundTrip && (
+                            <span className={`badge ${selectedInbound ? 'bg-success' : 'bg-secondary'}`}>
+                                {selectedInbound ? 'Về' : 'Về (--)'}
+                            </span>
+                        )}
+                    </div>
+                </div>
+                <button
+                    className={`btn fw-bold shadow-sm ${canContinue ? 'btn-success' : 'btn-secondary'}`}
+                    disabled={!canContinue}
+                    onClick={() => canContinue && setStep(2)}
+                    style={{ minWidth: '140px' }}
+                >
+                    TIẾP TỤC <i className="bi bi-arrow-right"></i>
+                </button>
+            </div>
         </div>
     );
 };
