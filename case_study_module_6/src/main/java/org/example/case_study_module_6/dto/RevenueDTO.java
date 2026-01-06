@@ -5,11 +5,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class RevenueDTO {
-    private LocalDate date;
-    private Double revenue;
+    private List<String> labels;
+    private List<Long> main;
+    private List<Long> compare;
+    private String unit = "VND";
 }
