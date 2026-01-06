@@ -1,124 +1,104 @@
-/* ====== LAYOUT TỔNG ====== */
-.report-wrapper {
-    min-height: 100vh;
-    padding: 8px 0;
-    background: #f4f6f9; /* nền xám nhạt kiểu enterprise */
+/* Container bao ngoài để căn giữa toàn màn hình */
+.report-page-container {
+    min-height: 80vh;
+    padding: 20px;
 }
 
-/* ====== CARD CHÍNH ====== */
+/* Thẻ Card chính - Tăng chiều rộng tại đây */
 .report-card {
     background: #ffffff;
-    border-radius: 6px;                 /* bo nhẹ, không quá tròn */
-    border: 1px solid #e1e5ea;
-    padding: 14px !important;
+    width: 100%;
+    max-width: 850px; /* Giãn rộng theo chiều ngang */
+    border-radius: 12px !important;
+    transition: all 0.3s ease;
 }
 
-/* ====== TIÊU ĐỀ ====== */
+/* Tiêu đề */
 .report-card h5 {
-    margin-bottom: 10px !important;
-    font-size: 16px;
-    font-weight: 600;
-    color: #005eff; /* giữ xanh chủ đạo */
+    letter-spacing: 1px;
+    font-size: 1.25rem;
 }
 
-/* ====== LABEL ====== */
-.report-card label {
+/* Các nhãn (label) */
+.form-label, .small {
+    font-size: 0.9rem;
+}
+
+/* Select box */
+.form-select {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.95rem;
+}
+
+.form-select:focus {
+    border-color: #005eff;
+    box-shadow: 0 0 0 0.25rem rgba(0, 94, 255, 0.1);
+}
+
+/* Divider giữa 2 cột (chỉ hiển thị trên màn hình máy tính) */
+@media (min-width: 768px) {
+    .border-end {
+        border-right: 1px solid #dee2e6 !important;
+    }
+}
+
+/* Responsive cho mobile */
+@media (max-width: 767.98px) {
+    .border-end {
+        border-right: none !important;
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+    }
+}
+
+.btn-outline-primary:hover {
+    background-color: #005eff;
+    color: white;
+}
+.report-card {
+    max-width: 800px; /* Giãn rộng vừa phải để 2 cột bên trong cân xứng */
+    width: 100%;
+    background: #fff;
+}
+
+.btn-sm {
+    padding: 8px 5px;
+    font-size: 13px;
+}
+
+.report-card {
+    max-width: 850px;
+    width: 100%;
+}
+
+/* Lưới chọn tháng: 6 tháng mỗi hàng */
+.month-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+}
+
+.month-grid .btn {
     font-size: 12px;
     font-weight: 500;
-    color: #495057;
-    margin-bottom: 2px;
+    padding: 6px 0;
 }
 
-/* ====== INPUT / SELECT ====== */
-.report-card select,
-.report-card input[type="date"] {
-    padding: 4px 8px;
-    font-size: 12.5px;
-    border-radius: 4px;
-    border: 1px solid #ced4da;
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
 }
 
-.report-card select:focus,
-.report-card input[type="date"]:focus {
-    border-color: #005eff;
-    box-shadow: 0 0 0 1px rgba(0, 94, 255, 0.15);
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-/* ====== ROW SPACING ====== */
-.report-card .row.g-2 {
-    --bs-gutter-y: 6px;
-}
-
-/* ====== FIELDSET (KHỐI CHỨC NĂNG) ====== */
-.report-card fieldset {
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    padding: 8px 10px !important;
-    margin-bottom: 10px !important;
-    background: #fafbfc; /* nền nhẹ tách khối */
-}
-
-/* Legend như section header */
-.report-card legend {
-    font-size: 11px;
-    font-weight: 600;
-    color: #6c757d;
-    padding: 0 6px;
-    margin-bottom: 4px;
-}
-
-/* ====== RADIO / CHECKBOX ====== */
-.report-card .form-check {
-    margin-bottom: 4px;
-}
-
-.report-card .form-check label {
-    font-weight: 400;
-    color: #495057;
-}
-
-/* ====== SO SÁNH (DISABLED STATE) ====== */
-.report-card fieldset div[style*="opacity"] {
-    transition: opacity 0.2s ease;
-}
-
-/* ====== BUTTON ====== */
-.report-card button {
-    padding: 4px 18px;
-    font-size: 13px;
-    font-weight: 500;
-    border-radius: 4px;
-}
-
-/* Primary action */
-.report-card .btn-primary {
-    background-color: #005eff;
-    border-color: #005eff;
-}
-
-.report-card .btn-primary:hover {
-    background-color: #0047cc;
-    border-color: #0047cc;
-}
-
-/* Secondary action */
-.report-card .btn-secondary {
-    background-color: #6c757d;
-    border-color: #6c757d;
-}
-
-/* ====== FOOTER BUTTON ZONE ====== */
-.report-card .text-center {
-    margin-top: 10px;
-}
-
-/* ====== RESPONSIVE TINH CHỈNH ====== */
+/* Responsive cho điện thoại */
 @media (max-width: 576px) {
-    .report-card {
-        padding: 12px !important;
-    }
-
-    .report-card h5 {
-        font-size: 15px;
+    .month-grid {
+        grid-template-columns: repeat(4, 1fr);
     }
 }
