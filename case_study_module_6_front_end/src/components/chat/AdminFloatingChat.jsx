@@ -70,7 +70,7 @@ export default function AdminFloatingChat({ onClose }) {
                                 <span className="dot"></span>
                                 <div className="user-info">
                                     <div className="user-name">
-                                        {c.customerUsername}
+                                        {c.customerFullName || c.customerUsername}
                                         {c.unreadCount > 0 && (
                                             <span className="badge bg-danger ms-2">{c.unreadCount}</span>
                                         )}

@@ -15,7 +15,7 @@ export default function PaymentResult() {
                 const params = Object.fromEntries(searchParams.entries());
 
                 // Gọi tới API callback của Backend để verify và cập nhật DB
-                const response = await axios.get('http://localhost:8080/api/payment/callback', { params });
+                const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/payment/callback`, { params });
 
                 if (response.data.code === '00') {
                     setStatus('success');

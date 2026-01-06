@@ -1,12 +1,14 @@
 package org.example.case_study_module_6.controller;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import jakarta.validation.Valid;
 import org.example.case_study_module_6.dto.ChangePasswordRequest;
 import org.example.case_study_module_6.dto.GoogleLoginRequest;
 import org.example.case_study_module_6.dto.RegisterRequest;
 import org.example.case_study_module_6.entity.*;
-import org.example.case_study_module_6.service.impl.*;
+import org.example.case_study_module_6.service.*;
+import org.example.case_study_module_6.service.impl.GoogleTokenVerifierService;
+import org.example.case_study_module_6.service.impl.JwtService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -15,27 +17,27 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     private final JwtService jwtService;
-    private final AccountService accountService;
-    private final CustomerService customerService;
+    private final IAccountService accountService;
+    private final ICustomerService customerService;
     private final PasswordEncoder passwordEncoder;
     private final GoogleTokenVerifierService googleVerifier;
-    private final VerificationTokenService verificationTokenService;
-    private final EmailService emailService;
-    private final AuthService authService;
+    private final IVerificationTokenService verificationTokenService;
+    private final IEmailService emailService;
+    private final IAuthService authService;
 
     public AuthController(
             JwtService jwtService,
-            AccountService accountService,
-            CustomerService customerService,
+            IAccountService accountService,
+            ICustomerService customerService,
             PasswordEncoder passwordEncoder,
             GoogleTokenVerifierService googleVerifier,
-            VerificationTokenService verificationTokenService,
-            EmailService emailService,
-            AuthService authService
+            IVerificationTokenService verificationTokenService,
+            IEmailService emailService,
+            IAuthService authService
     ) {
         this.jwtService = jwtService;
         this.accountService = accountService;
@@ -153,7 +155,8 @@ public class AuthController {
         }
 
         VerificationToken token = verificationTokenService.createFromRegister(req);
-        String link = "http://localhost:5173/verify-email?token=" + token.getToken();
+        // Dùng IP của máy bạn để máy khác (điện thoại) có thể click được trong mail
+        String link = "http://192.168.1.30:5173/verify-email?token=" + token.getToken();
         emailService.sendVerificationEmail(req.getEmail(), link);
 
         return ResponseEntity.ok("Vui lòng kiểm tra email");
@@ -238,26 +241,17 @@ public class AuthController {
         );
     }
     @GetMapping("/verify-email")
-    @Transactional
     public ResponseEntity<?> verifyEmail(@RequestParam String token) {
-
-        VerificationToken vt = verificationTokenService.validate(token);
-        RegisterRequest req = vt.getRegisterRequest();
-
-        // LÚC NÀY MỚI TẠO ACCOUNT
-        Account account = new Account();
-        account.setUsername(req.getUsername());
-        account.setPassword(passwordEncoder.encode(req.getPassword()));
-        account.setProvider(Provider.LOCAL);
-        account.setEnabled(true);
-
-        account = accountService.save(account);
-
-        accountService.createCustomerProfile(account, req);
-
-        verificationTokenService.delete(vt);
-
-        return ResponseEntity.ok("Xác nhận email thành công");
+        System.out.println(">>> Request verify-email with token: " + token);
+        try {
+            authService.processEmailVerification(token);
+            System.out.println(">>> Account & Profile created successfully");
+            return ResponseEntity.ok("Xác nhận email thành công");
+        } catch (Exception e) {
+            System.err.println(">>> ERROR in verifyEmail: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
+        }
     }
 
     @PostMapping("/forgot-password")

@@ -18,7 +18,7 @@
 
     @RestController
     @RequestMapping("/api/flights")
-    @CrossOrigin(origins = "http://localhost:5173")
+    @CrossOrigin(origins = "*")
     public class FlightController {
 
         @Autowired private FlightService flightService;
@@ -90,3 +90,4 @@
             return ResponseEntity.ok(flightService.getFlightsBySpecificDate(date, origin, destination, status, pageable));
         }
     }
+

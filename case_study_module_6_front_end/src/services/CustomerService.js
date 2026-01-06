@@ -1,6 +1,6 @@
 import axios from "../modules/login/service/axiosConfig";
 
-const API_URL = "http://localhost:8080/api/customers";
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/customers`;
 
 // 1. Lấy danh sách (Hỗ trợ tìm kiếm nhiều trường)
 // params là object: { name: '...', phone: '...', identity: '...' }
@@ -56,3 +56,4 @@ export const deleteCustomer = async (id) => {
         throw error;
     }
 };
+

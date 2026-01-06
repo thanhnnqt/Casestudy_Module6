@@ -1,12 +1,11 @@
 package org.example.case_study_module_6.service.impl;
 
-import org.example.case_study_module_6.entity.Account;
-import org.example.case_study_module_6.entity.ChatMessage;
-import org.example.case_study_module_6.repository.IAccountRepository;
-import org.example.case_study_module_6.service.IAdminChatService;
 import lombok.RequiredArgsConstructor;
 import org.example.case_study_module_6.dto.CustomerChatSummaryDTO;
-import org.example.case_study_module_6.repository.IChatMessageRepository;
+import org.example.case_study_module_6.entity.*;
+import org.example.case_study_module_6.repository.*;
+import org.example.case_study_module_6.service.IAccountService;
+import org.example.case_study_module_6.service.IAdminChatService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -20,6 +19,10 @@ public class AdminChatService implements IAdminChatService {
 
     private final IChatMessageRepository chatRepo;
     private final IAccountRepository accountRepo;
+    private final ICustomerRepository customerRepo;
+    private final IEmployeeRepository employeeRepo;
+    private final IAdminRepository adminRepo;
+    private final IAccountService accountService;
 
     @Override
     public List<CustomerChatSummaryDTO> getCustomerInbox() {
@@ -31,6 +34,9 @@ public class AdminChatService implements IAdminChatService {
             CustomerChatSummaryDTO dto = new CustomerChatSummaryDTO();
             dto.setCustomerAccountId(acc.getId());
             dto.setCustomerUsername(acc.getUsername());
+            
+            // Lấy tên thật
+            dto.setCustomerFullName(accountService.getDisplayName(acc.getId()));
 
             // Đếm số tin nhắn chưa đọc từ customer này
             long unreadCount = chatRepo.countUnreadMessagesForAdmin(acc.getId());

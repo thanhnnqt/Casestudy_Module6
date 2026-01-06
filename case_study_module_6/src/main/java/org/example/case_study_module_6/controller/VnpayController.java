@@ -14,7 +14,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/payment")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "*")
 public class VnpayController {
     private final IVnpayService vnpayService;
     private final BookingService bookingService;
@@ -72,15 +72,22 @@ public class VnpayController {
         // 3. Cập nhật trạng thái Booking
         try {
             if ("00".equals(responseCode)) {
-                bookingService.updateStatusByCode(bookingCode, BookingStatus.PAID, transactionNo);
-                System.out.println(">>> Booking status updated to PAID for code: " + bookingCode);
-                return ResponseEntity.ok(Map.of("code", "00", "message", "Success", "bookingCode", bookingCode));
+                System.out.println(">>> Attempting to update booking status to PAID for: " + bookingCode);
+                boolean updated = bookingService.updateStatusByCode(bookingCode, BookingStatus.PAID, transactionNo);
+                if (updated) {
+                    System.out.println(">>> Successfully updated to PAID");
+                    return ResponseEntity.ok(Map.of("code", "00", "message", "Success", "bookingCode", bookingCode));
+                } else {
+                    System.out.println(">>> Update failed (Booking not found or already processed)");
+                    return ResponseEntity.ok(Map.of("code", "01", "message", "Booking not found or already processed"));
+                }
             } else {
                 bookingService.updateStatusByCode(bookingCode, BookingStatus.FAILED, null);
                 System.out.println(">>> Booking status updated to FAILED for code: " + bookingCode);
                 return ResponseEntity.ok(Map.of("code", responseCode, "message", "Transaction Failed"));
             }
         } catch (Exception e) {
+            e.printStackTrace();
             System.err.println(">>> Error updating booking status: " + e.getMessage());
             return ResponseEntity.internalServerError().body(Map.of("code", "99", "message", e.getMessage()));
         }
@@ -102,3 +109,4 @@ public class VnpayController {
         return ResponseEntity.ok(config);
     }
 }
+

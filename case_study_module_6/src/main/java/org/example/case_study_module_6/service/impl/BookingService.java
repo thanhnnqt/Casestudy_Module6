@@ -343,9 +343,17 @@ public class BookingService {
         return bookingRepository.findByCustomerAccountIdOrderByBookingDateDesc(accountId);
     }
 
-    public void updateStatusByCode(String bookingCode, BookingStatus status, String transactionNo) {
-        Booking booking = bookingRepository.findByBookingCode(bookingCode)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+    public boolean updateStatusByCode(String bookingCode, BookingStatus status, String transactionNo) {
+        Optional<Booking> bookingOpt = bookingRepository.findByBookingCode(bookingCode);
+        if (bookingOpt.isEmpty()) return false;
+        
+        Booking booking = bookingOpt.get();
+        
+        // Nếu đã thanh toán rồi thì không update lại nữa nhưng vẫn coi là thành công (idempotent)
+        if (booking.getStatus() == BookingStatus.PAID && status == BookingStatus.PAID) {
+            return true;
+        }
+
         booking.setStatus(status);
         if (status == BookingStatus.PAID) {
             booking.setPaymentStatus(PaymentStatus.PAID);
@@ -353,6 +361,7 @@ public class BookingService {
             booking.setPaidAt(LocalDateTime.now());
         }
         bookingRepository.save(booking);
+        return true;
     }
 
     // =========================================================================

@@ -1,7 +1,7 @@
 import axios from "axios";
 import qs from "qs";
 
-const API_URL = "http://localhost:8080/api";
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 
 // --- HÀM LẤY TOKEN CỰC KỲ CẨN THẬN ---
 const getAuthConfig = () => {
@@ -112,3 +112,4 @@ export const FlightService = {
 export const createOnlineBooking = (bookingPayload) => {
     return axios.post(`${API_URL}/bookings/online`, bookingPayload);
 };
+

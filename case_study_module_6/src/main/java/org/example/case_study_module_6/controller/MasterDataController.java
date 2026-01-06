@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/master") // API Prefix quan trọng
-@CrossOrigin(origins = "http://localhost:5173") // Fix lỗi CORS
+@CrossOrigin(origins = "*") // Fix lỗi CORS
 public class MasterDataController {
 
     @Autowired private IAirportRepository IAirportRepository;
@@ -29,3 +29,4 @@ public class MasterDataController {
         return IAircraftRepository.findByAirlineId(airlineId);
     }
 }
+

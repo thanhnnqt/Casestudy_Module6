@@ -92,7 +92,7 @@ export default function ChatBox({ customer, onClose, adminMode = false }) {
         <div className="chat-box-container">
             <div className="chat-box-header">
                 <span className="title">
-                    {adminMode ? `Chat với: ${customer.customerUsername}` : "Hỗ trợ trực tuyến"}
+                    {adminMode ? `Chat với: ${customer.customerFullName || customer.customerUsername}` : "Hỗ trợ trực tuyến"}
                 </span>
                 <button className="chat-close-btn" onClick={onClose}>×</button>
             </div>

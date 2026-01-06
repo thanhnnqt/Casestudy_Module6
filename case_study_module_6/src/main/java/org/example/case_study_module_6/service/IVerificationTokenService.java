@@ -7,4 +7,5 @@ public interface IVerificationTokenService {
     VerificationToken create(Account account);
     VerificationToken validate(String tokenStr);
     void delete(VerificationToken vt);
+    VerificationToken createFromRegister(org.example.case_study_module_6.dto.RegisterRequest req);
 }
