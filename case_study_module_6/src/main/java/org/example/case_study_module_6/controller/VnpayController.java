@@ -61,11 +61,13 @@ public class VnpayController {
         }
 
         // 2. Lấy thông tin
-        String bookingCode = params.get("vnp_TxnRef");
+        String txnRef = params.get("vnp_TxnRef");
+        // Tách bookingCode (loại bỏ timestamp nếu có)
+        String bookingCode = txnRef.contains("_") ? txnRef.substring(0, txnRef.lastIndexOf("_")) : txnRef;
         String responseCode = params.get("vnp_ResponseCode");
         String transactionNo = params.get("vnp_TransactionNo");
 
-        System.out.println(">>> BookingCode: " + bookingCode + " | ResponseCode: " + responseCode + " | TransNo: " + transactionNo);
+        System.out.println(">>> TxnRef: " + txnRef + " | BookingCode: " + bookingCode + " | ResponseCode: " + responseCode + " | TransNo: " + transactionNo);
 
         // 3. Cập nhật trạng thái Booking
         try {

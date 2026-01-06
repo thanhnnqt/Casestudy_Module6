@@ -1,6 +1,7 @@
 package org.example.case_study_module_6.service.impl;
 
 import org.example.case_study_module_6.entity.Account;
+import org.example.case_study_module_6.entity.ChatMessage;
 import org.example.case_study_module_6.repository.IAccountRepository;
 import org.example.case_study_module_6.service.IAdminChatService;
 import lombok.RequiredArgsConstructor;
@@ -31,13 +32,36 @@ public class AdminChatService implements IAdminChatService {
             dto.setCustomerAccountId(acc.getId());
             dto.setCustomerUsername(acc.getUsername());
 
-            // tạm thời
+            // Đếm số tin nhắn chưa đọc từ customer này
+            long unreadCount = chatRepo.countUnreadMessagesForAdmin(acc.getId());
+            dto.setUnreadCount(unreadCount);
+            dto.setHasUnread(unreadCount > 0);
+
+            // Tạm thời
             dto.setLastMessage("Nhấn để xem hội thoại");
-            dto.setHasUnread(false);
 
             result.add(dto);
         }
         return result;
+    }
+
+    public void markMessagesAsRead(Long customerId, Long adminId) {
+        // Sử dụng query khớp với logic đếm tin nhắn chưa đọc
+        // Đánh dấu TẤT CẢ tin nhắn từ customer gửi cho ADMIN (không phân biệt admin nào nhận)
+        List<ChatMessage> unreadMessages = chatRepo.findUnreadMessagesFromCustomerToAdmin(customerId);
+        
+        System.out.println("=== MARK AS READ DEBUG ===");
+        System.out.println("Customer ID: " + customerId);
+        System.out.println("Found unread messages: " + unreadMessages.size());
+        
+        unreadMessages.forEach(m -> {
+            System.out.println("Marking message ID " + m.getId() + " as read");
+            m.setReadStatus(true);
+        });
+        
+        chatRepo.saveAll(unreadMessages);
+        System.out.println("Saved " + unreadMessages.size() + " messages as read");
+        System.out.println("=========================");
     }
 
     private Long getCurrentAccountId() {

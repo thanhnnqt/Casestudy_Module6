@@ -29,7 +29,7 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
                 <MenuItem to="/customers" icon="bi-people-fill" label="Khách hàng" activeClass={isActive('/customers')} collapsed={isCollapsed} />
                 <MenuItem to="/management" icon="bi-receipt-cutoff" label="Quản lý vé" activeClass={isActive('/management')} collapsed={isCollapsed} />
                 <MenuItem to="/search-flight" icon="bi-ticket-perforated-fill" label="Đặt vé" activeClass={isActive('/search-flight')} collapsed={isCollapsed} />
-                <MenuItem to="/statistics" icon="bi-bar-chart-line-fill" label="Thống kê" activeClass={isActive('/statistics')} collapsed={isCollapsed} />
+                <MenuItem to="/report" icon="bi-bar-chart-line-fill" label="Thống kê" activeClass={isActive('/statistics')} collapsed={isCollapsed} />
             </div>
 
             {/* 3. FOOTER (Đăng xuất) */}

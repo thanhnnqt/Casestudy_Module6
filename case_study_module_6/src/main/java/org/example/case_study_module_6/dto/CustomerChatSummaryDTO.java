@@ -14,4 +14,5 @@ public class CustomerChatSummaryDTO {
 
     private String lastMessage;
     private boolean hasUnread;
+    private long unreadCount; // Số lượng tin nhắn chưa đọc
 }
