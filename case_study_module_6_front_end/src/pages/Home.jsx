@@ -418,6 +418,8 @@ function Home() {
 
                 </div>
             </section>
+            {/* ... Trong phần render của Home.jsx ... */}
+
             {/* ================= PROMOTION ================= */}
             <section className="container my-5">
                 <h4 className="fw-bold mb-4">🔥 Ưu đãi nổi bật</h4>
@@ -429,9 +431,15 @@ function Home() {
                             <div className="card-body">
                                 <h5 className="fw-bold">Vé 0Đ – Bay thả ga</h5>
                                 <p>Săn vé 0Đ cho các chặng nội địa</p>
-                                <button className="btn btn-light btn-sm">
+
+                                {/* --- SỬA Ở ĐÂY --- */}
+                                <button
+                                    className="btn btn-light btn-sm"
+                                    onClick={() => navigate('/coming-soon')}
+                                >
                                     Xem chi tiết
                                 </button>
+                                {/* ------------------ */}
                             </div>
                         </div>
                     </div>
@@ -444,9 +452,15 @@ function Home() {
                                     Giảm 30% vé khứ hồi
                                 </h5>
                                 <p>Ưu đãi đặc biệt cho chuyến bay quốc tế</p>
-                                <button className="btn btn-dark btn-sm">
+
+                                {/* --- SỬA Ở ĐÂY --- */}
+                                <button
+                                    className="btn btn-dark btn-sm"
+                                    onClick={() => navigate('/coming-soon')}
+                                >
                                     Xem chi tiết
                                 </button>
+                                {/* ------------------ */}
                             </div>
                         </div>
                     </div>
