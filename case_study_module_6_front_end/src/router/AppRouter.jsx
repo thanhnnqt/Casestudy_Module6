@@ -35,7 +35,7 @@ import RevenueChart from "../modules/employee/components/RevenueChart.jsx";
 import PaymentResult from "../pages/PaymentResult.jsx";
 import AdminInbox from "../components/chat/AdminInbox";
 import BookingHistory from "../pages/BookingHistory.jsx";
-
+import ComingSoon from "../components/ComingSoon";
 
 function AppRouter() {
     return (
@@ -75,7 +75,7 @@ function AppRouter() {
                 <Route path="/profile/edit" element={<PrivateRoute><EditProfile /></PrivateRoute>} />
                 <Route path="/payment-result" element={<PaymentResult />} />
                 <Route path="/bookings" element={<PrivateRoute><BookingHistory /></PrivateRoute>} />
-
+                <Route path="/coming-soon" element={<ComingSoon />} />
                 {/* Route quản lý chuyến bay */}
                 <Route path="/flights" element={<FlightList />} />
                 <Route path="/flights/create" element={<FlightForm />} />
@@ -90,6 +90,7 @@ function AppRouter() {
                 <Route path="/employees/add" element={<AddEmployee />} />
                 <Route path="/report" element={<Report />} />
                 <Route path="/revenue-chart" element={<RevenueChart />} />
+                <Route path="/employee-info" element={<EmployeeInfo />} />
 
                 <Route path="/profile" element={
                     <PrivateRoute>

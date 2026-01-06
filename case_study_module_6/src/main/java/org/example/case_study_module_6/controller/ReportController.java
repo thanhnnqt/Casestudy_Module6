@@ -25,6 +25,7 @@ public class ReportController {
     @GetMapping("/compare")
     public ResponseEntity<?> compareReport(
             @RequestParam String type,
+            @RequestParam String view, // 👈 BẮT BUỘC PHẢI CÓ
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
             @RequestParam(required = false)
@@ -33,25 +34,87 @@ public class ReportController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate compareEnd
     ) {
         return ResponseEntity.ok(
-                reportService.compareReport(type, start, end, compareStart, compareEnd)
+                reportService.compareReport(type, view, start, end, compareStart, compareEnd)
         );
     }
 
-    @GetMapping("/top-employees")
-    public ResponseEntity<TopChartDTO> getTopEmployees(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
+
+    @GetMapping("/employee-performance")
+    public ResponseEntity<?> employeePerformance(
+            @RequestParam String view,   // MONTH | QUARTER | YEAR
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate start,
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate end,
+
+            @RequestParam(required = false)
+            Integer year
     ) {
-        return ResponseEntity.ok(reportService.getTopEmployees(start, end));
+
+        switch (view.toUpperCase()) {
+            case "MONTH":
+                return ResponseEntity.ok(
+                        reportService.employeePerformanceByMonth(start, end)
+                );
+
+            case "YEAR":
+                return ResponseEntity.ok(
+                        reportService.employeePerformanceByYear(year)
+                );
+
+            case "QUARTER":
+                return ResponseEntity.ok(
+                        reportService.employeePerformanceByQuarter(year)
+                );
+
+            default:
+                return ResponseEntity.badRequest()
+                        .body("Invalid view type");
+        }
+    }
+
+    @GetMapping("/airline-performance")
+    public ResponseEntity<?> airlinePerformance(
+            @RequestParam String view,   // MONTH | QUARTER | YEAR
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate start,
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate end,
+
+            @RequestParam(required = false)
+            Integer year
+    ) {
+
+        switch (view.toUpperCase()) {
+            case "MONTH":
+                return ResponseEntity.ok(
+                        reportService.airlineRevenueByMonth(start, end)
+                );
+
+            case "YEAR":
+                return ResponseEntity.ok(
+                        reportService.airlineRevenueByYear(year)
+                );
+
+            case "QUARTER":
+                return ResponseEntity.ok(
+                        reportService.airlineRevenueByQuarter(year)
+                );
+
+            default:
+                return ResponseEntity.badRequest()
+                        .body("Invalid view type");
+        }
     }
 
 
-    @GetMapping("/top-airlines")
-    public ResponseEntity<TopChartDTO> getTopAirlines(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
-    ) {
-        return ResponseEntity.ok(reportService.getTopAirlines(start, end));
-    }
 
 }

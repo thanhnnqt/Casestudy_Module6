@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,136 +52,188 @@ public class ReportService implements IReportService {
         );
     }
 
-
     @Override
-    public Map<String, Object> compareReport(
+    public RevenueDTO compareReport(
             String type,
+            String view,
             LocalDate start,
             LocalDate end,
             LocalDate compareStart,
             LocalDate compareEnd
     ) {
-
-        // ✅ ĐẶT Ở ĐÂY
-        boolean noCompare = compareStart == null || compareEnd == null;
-
-        if (type.equalsIgnoreCase("revenue")) {
-
-            double main = bookingRepo.getTotalRevenue(
-                    start.atStartOfDay(),
-                    end.atTime(23, 59, 59)
-            );
-
-            if (noCompare) {
-                return Map.of(
-                        "labels", List.of("Doanh thu"),
-                        "main", List.of(main),
-                        "compare", List.of(),
-                        "unit", "VND"
-                );
-            }
-
-            double compare = bookingRepo.getTotalRevenue(
-                    compareStart.atStartOfDay(),
-                    compareEnd.atTime(23, 59, 59)
-            );
-
-            return Map.of(
-                    "labels", List.of("Doanh thu"),
-                    "main", List.of(main),
-                    "compare", List.of(compare),
-                    "unit", "VND"
-            );
+        if (!"revenue".equals(type)) {
+            throw new IllegalArgumentException("Unsupported report type");
         }
 
-        if (type.equalsIgnoreCase("employee")) {
+        List<String> labels = new ArrayList<>();
+        List<Long> main = new ArrayList<>();
+        List<Long> compare = new ArrayList<>();
 
-            List<Object[]> main =
-                    bookingRepo.getTopEmployees(startOf(start), endOf(end));
+        List<Object[]> mainRaw;
 
-            // ✅ KHÔNG SO SÁNH
-            if (noCompare) {
-                return singleTop(main, "tickets");
+        switch (view) {
+            case "MONTH" -> {
+                mainRaw = bookingRepo.revenueByDay(start, end);
+                mainRaw.forEach(r -> {
+                    labels.add("Ngày " + r[0]);
+                    main.add(((Number) r[1]).longValue());
+                });
             }
 
-            // ✅ SO SÁNH
-            List<Object[]> compare =
-                    bookingRepo.getTopEmployees(startOf(compareStart), endOf(compareEnd));
-
-            return compareTop(main, compare, "tickets");
-        }
-
-
-        if (type.equalsIgnoreCase("airline")) {
-
-            List<Object[]> main =
-                    bookingRepo.getTopAirlines(startOf(start), endOf(end));
-
-            // ✅ KHÔNG SO SÁNH
-            if (noCompare) {
-                return singleTop(main, "tickets");
+            case "YEAR" -> {
+                mainRaw = bookingRepo.revenueByMonth(start, end);
+                mainRaw.forEach(r -> {
+                    labels.add("Tháng " + r[0]);
+                    main.add(((Number) r[1]).longValue());
+                });
             }
 
-            // ✅ SO SÁNH
-            List<Object[]> compare =
-                    bookingRepo.getTopAirlines(startOf(compareStart), endOf(compareEnd));
+            case "QUARTER" -> {
+                mainRaw = bookingRepo.revenueByQuarter(start, end);
+                mainRaw.forEach(r -> {
+                    labels.add("Quý " + r[0]);
+                    main.add(((Number) r[1]).longValue());
+                });
+            }
 
-            return compareTop(main, compare, "tickets");
+            default -> throw new IllegalArgumentException("Invalid view: " + view);
         }
 
-
-        return Map.of("message", "Invalid report type");
+        return new RevenueDTO(labels, main, compare, "VND");
     }
 
 
-    @Override
-    public CompareResponseDTO compareEmployeePerformance(LocalDate start, LocalDate end, LocalDate compareStart, LocalDate compareEnd) {
-        return null;
+    private <T> List<T> buildTop3(
+            List<Object[]> raw,
+            BiFunction<String, Long, T> mapper
+    ) {
+        List<T> result = new ArrayList<>();
+        long other = 0;
+
+        for (int i = 0; i < raw.size(); i++) {
+            String name = (String) raw.get(i)[0];
+            long value = ((Number) raw.get(i)[1]).longValue();
+
+            if (i < 3) {
+                result.add(mapper.apply(name, value));
+            } else {
+                other += value;
+            }
+        }
+
+        if (other > 0) {
+            result.add(mapper.apply("Khác", other));
+        }
+
+        return result;
     }
 
     @Override
-    public TopChartDTO getTopEmployees(LocalDate start, LocalDate end) {
-        return null;
-    }
+    public EmployeePieChartDTO employeePerformanceByMonth(LocalDate start, LocalDate end) {
+        List<Object[]> raw = bookingRepo.countBookingByEmployee(
+                startOf(start),
+                endOf(end)
+        );
 
-    @Override
-    public TopChartDTO getTopAirlines(LocalDate start, LocalDate end) {
-        return null;
-    }
-
-    private Map<String, Object> compareTop(List<Object[]> main, List<Object[]> compare, String unit) {
-
-        Map<String, Double> mainMap = toMap(main);
-        Map<String, Double> compareMap = toMap(compare);
-
-        // Lấy toàn bộ top theo kỳ chính vẫn hiển thị đủ 3
-        List<String> labels = mainMap.keySet().stream().toList();
-
-        if (labels.isEmpty()) {
-            return Map.of("message", "Không có dữ liệu so sánh");
-        }
-
-        List<Double> mainValues = labels.stream()
-                .map(mainMap::get)
-                .toList();
-
-        List<Double> compareValues = labels.stream()
-                .map(label -> compareMap.getOrDefault(label, 0.0))
-                .toList();
-
-        return Map.of(
-                "labels", labels,
-                "main", mainValues,
-                "compare", compareValues,
-                "unit", unit
+        return new EmployeePieChartDTO(
+                "Tháng " + start.getMonthValue(),
+                buildTop3(raw, EmployeePieItemDTO::new)
         );
     }
 
-    private Map<String, Double> toMap(List<Object[]> rows) {
-        return rows.stream()
-                .collect(Collectors.toMap(
-                        r -> (String) r[0],
-                        r -> ((Number) r[1]).doubleValue()
-                ));
+    @Override
+    public EmployeePieChartDTO employeePerformanceByYear(int year) {
+        LocalDate start = LocalDate.of(year, 1, 1);
+        LocalDate end = LocalDate.of(year, 12, 31);
+
+        List<Object[]> raw = bookingRepo.countBookingByEmployee(
+                startOf(start),
+                endOf(end)
+        );
+
+        return new EmployeePieChartDTO(
+                "Năm " + year,
+                buildTop3(raw, EmployeePieItemDTO::new)
+        );
+    }
+
+    @Override
+    public List<EmployeePieChartDTO> employeePerformanceByQuarter(int year) {
+        List<EmployeePieChartDTO> result = new ArrayList<>();
+
+        for (int q = 1; q <= 4; q++) {
+            LocalDate start = LocalDate.of(year, (q - 1) * 3 + 1, 1);
+            LocalDate end = start.plusMonths(3).minusDays(1);
+
+            List<Object[]> raw = bookingRepo.countBookingByEmployee(
+                    startOf(start),
+                    endOf(end)
+            );
+
+            result.add(
+                    new EmployeePieChartDTO(
+                            "Quý " + q,
+                            buildTop3(raw, EmployeePieItemDTO::new)
+                    )
+            );
+        }
+        return result;
+    }
+
+    @Override
+    public AirlinePieChartDTO airlineRevenueByMonth(LocalDate start, LocalDate end) {
+
+        List<Object[]> raw = bookingRepo.revenueByAirline(
+                startOf(start),
+                endOf(end)
+        );
+
+        return new AirlinePieChartDTO(
+                "Tháng " + start.getMonthValue(),
+                buildTop3(raw, AirlinePieItemDTO::new)
+        );
+    }
+
+    @Override
+    public AirlinePieChartDTO airlineRevenueByYear(int year) {
+
+        LocalDate start = LocalDate.of(year, 1, 1);
+        LocalDate end = LocalDate.of(year, 12, 31);
+
+        List<Object[]> raw = bookingRepo.revenueByAirline(
+                startOf(start),
+                endOf(end)
+        );
+
+        return new AirlinePieChartDTO(
+                "Năm " + year,
+                buildTop3(raw, AirlinePieItemDTO::new)
+        );
+    }
+
+    @Override
+    public List<AirlinePieChartDTO> airlineRevenueByQuarter(int year) {
+
+        List<AirlinePieChartDTO> result = new ArrayList<>();
+
+        for (int q = 1; q <= 4; q++) {
+
+            LocalDate start = LocalDate.of(year, (q - 1) * 3 + 1, 1);
+            LocalDate end = start.plusMonths(3).minusDays(1);
+
+            List<Object[]> raw = bookingRepo.revenueByAirline(
+                    startOf(start),
+                    endOf(end)
+            );
+
+            result.add(
+                    new AirlinePieChartDTO(
+                            "Quý " + q,
+                            buildTop3(raw, AirlinePieItemDTO::new)
+                    )
+            );
+        }
+
+        return result;
     }
 }

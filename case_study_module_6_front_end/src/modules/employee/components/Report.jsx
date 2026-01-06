@@ -1,244 +1,165 @@
-import React, {useState} from "react";
-import {Link, useNavigate} from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./Report.css";
 
 const Report = () => {
-
-    const periodOptionsMain = ["Tuần này", "Tháng này", "Quý này", "Năm này"];
-    const periodOptionsCompare = ["Tuần trước", "Tháng trước", "Quý trước", "Năm trước"];
-
     const navigate = useNavigate();
 
-    const [mainMode, setMainMode] = useState("period");
-    const [compareMode, setCompareMode] = useState("period");
-
-    const [enableCompare, setEnableCompare] = useState(false); // ⭐ MẤU CHỐT
-
-    const [chartType, setChartType] = useState("Biểu đồ cột");
+    // ===== REPORT TYPE =====
     const [reportType, setReportType] = useState("Doanh thu");
 
-    const [mainStartDate, setMainStartDate] = useState("");
-    const [mainEndDate, setMainEndDate] = useState("");
+    // ===== TIME =====
+    const currentYear = new Date().getFullYear();
+    const [selectedYear, setSelectedYear] = useState(currentYear);
+    const [viewMode, setViewMode] = useState("Tháng");
+    const [selectedMonth, setSelectedMonth] = useState(
+        new Date().getMonth() + 1
+    );
 
-    const [compareStartDate, setCompareStartDate] = useState("");
-    const [compareEndDate, setCompareEndDate] = useState("");
+    const years = [currentYear, currentYear - 1];
+    const months = Array.from({ length: 12 }, (_, i) => i + 1);
 
-    const [selectedPeriod, setSelectedPeriod] = useState("Tuần này");
-    const [selectedComparePeriod, setSelectedComparePeriod] = useState("Tuần trước");
-
-    const toYMD = (d) => d.toISOString().split("T")[0];
-
-    const getMonday = (date) => {
-        const day = date.getDay();
-        const diff = (day === 0 ? -6 : 1 - day);
-        const monday = new Date(date);
-        monday.setDate(date.getDate() + diff);
-        monday.setHours(0, 0, 0, 0);
-        return monday;
-    };
-
-    const getDateRange = (period) => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        switch (period) {
-            case "Tuần này": {
-                const monday = getMonday(today);
-                return {start: toYMD(monday), end: toYMD(today)};
-            }
-            case "Tuần trước": {
-                const monday = getMonday(today);
-                const start = new Date(monday);
-                start.setDate(monday.getDate() - 7);
-                const end = new Date(start);
-                end.setDate(start.getDate() + 6);
-                return {start: toYMD(start), end: toYMD(end)};
-            }
-            case "Tháng này": {
-                const start = new Date(today.getFullYear(), today.getMonth(), 1);
-                return {start: toYMD(start), end: toYMD(today)};
-            }
-            case "Tháng trước": {
-                const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-                const end = new Date(today.getFullYear(), today.getMonth(), 0);
-                return {start: toYMD(start), end: toYMD(end)};
-            }
-            case "Quý này": {
-                const q = Math.floor(today.getMonth() / 3);
-                const start = new Date(today.getFullYear(), q * 3, 1);
-                return {start: toYMD(start), end: toYMD(today)};
-            }
-            case "Quý trước": {
-                const q = Math.floor(today.getMonth() / 3) - 1;
-                const start = new Date(today.getFullYear(), q * 3, 1);
-                const end = new Date(today.getFullYear(), q * 3 + 3, 0);
-                return {start: toYMD(start), end: toYMD(end)};
-            }
-            case "Năm này":
-                return {start: `${today.getFullYear()}-01-01`, end: toYMD(today)};
-            case "Năm trước":
-                return {
-                    start: `${today.getFullYear() - 1}-01-01`,
-                    end: `${today.getFullYear() - 1}-12-31`
-                };
-            default:
-                return {start: toYMD(today), end: toYMD(today)};
-        }
-    };
-
+    /* =========================
+       HANDLE VIEW REPORT
+       ========================= */
     const handleViewReport = () => {
+        let start, end;
 
-        const mainRange = mainMode === "period"
-            ? getDateRange(selectedPeriod)
-            : {start: mainStartDate, end: mainEndDate};
-
-        if (!enableCompare) {
-            navigate(
-                `/revenue-chart?chart=${chartType}&type=${reportType}` +
-                `&start=${mainRange.start}&end=${mainRange.end}`
-            );
-            return;
+        if (viewMode === "Tháng") {
+            start = `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-01`;
+            end = new Date(selectedYear, selectedMonth, 0)
+                .toISOString()
+                .split("T")[0];
+        } else {
+            start = `${selectedYear}-01-01`;
+            end = `${selectedYear}-12-31`;
         }
 
-        const compareRange = compareMode === "period"
-            ? getDateRange(selectedComparePeriod)
-            : {start: compareStartDate, end: compareEndDate};
+        // ===== NGẦM ĐỊNH BIỂU ĐỒ =====
+        const chart =
+            reportType === "Doanh thu"
+                ? "Biểu đồ cột"
+                : "Biểu đồ tròn";
 
         navigate(
-            `/revenue-chart?chart=${chartType}&type=${reportType}` +
-            `&start=${mainRange.start}&end=${mainRange.end}` +
-            `&compareStart=${compareRange.start}&compareEnd=${compareRange.end}`
+            `/revenue-chart?chart=${chart}` +
+            `&type=${reportType}` +
+            `&start=${start}&end=${end}&view=${viewMode}`
         );
     };
 
     return (
-        <div className="container report-wrapper d-flex justify-content-center align-items-center">
-            <div className="report-card p-3 border rounded shadow-sm w-100" style={{maxWidth: 520}}>
-
-                <h5 className="fw-bold text-center text-primary mb-3">
-                    Báo cáo thống kê
+        <div className="container report-page-container d-flex justify-content-center align-items-center">
+            <div className="report-card p-4 border rounded shadow-sm">
+                <h5 className="fw-bold text-center text-primary mb-4">
+                    BÁO CÁO THỐNG KÊ
                 </h5>
 
-                <div className="row g-2 mb-3">
-                    <div className="col-6">
-                        <label className="small mb-1">Loại biểu đồ</label>
-                        <select className="form-select form-select-sm"
-                                value={chartType}
-                                onChange={(e) => setChartType(e.target.value)}>
-                            <option>Biểu đồ cột</option>
-                            <option>Biểu đồ tròn</option>
-                            <option>Biểu đồ đường</option>
-                        </select>
+                <div className="row g-4">
+                    {/* ===== LEFT: REPORT TYPE ===== */}
+                    <div className="col-md-5 border-end">
+                        <label className="fw-bold small mb-3 text-secondary text-uppercase">
+                            1. Loại báo cáo
+                        </label>
+
+                        <div className="mb-3">
+                            <label className="small mb-1">Tiêu chí thống kê</label>
+                            <select
+                                className="form-select"
+                                value={reportType}
+                                onChange={(e) => setReportType(e.target.value)}
+                            >
+                                <option>Doanh thu</option>
+                                <option>Hiệu suất nhân viên</option>
+                                <option>Theo hãng</option>
+                            </select>
+                        </div>
+
+                        <div className="text-muted small mt-2">
+                            {reportType === "Doanh thu" && "• Biểu đồ cột theo thời gian"}
+                            {reportType === "Hiệu suất nhân viên" && "• Biểu đồ tròn theo tỷ lệ"}
+                            {reportType === "Theo hãng" && "• Biểu đồ tròn theo tỷ lệ"}
+                        </div>
                     </div>
 
-                    <div className="col-6">
-                        <label className="small mb-1">Tiêu chí thống kê</label>
-                        <select className="form-select form-select-sm"
-                                value={reportType}
-                                onChange={(e) => setReportType(e.target.value)}>
-                            <option>Doanh thu</option>
-                            <option>Hiệu suất nhân viên</option>
-                            <option>Theo hãng</option>
-                        </select>
+                    {/* ===== RIGHT: TIME CONFIG ===== */}
+                    <div className="col-md-7">
+                        <label className="fw-bold small mb-3 text-secondary text-uppercase">
+                            2. Thời gian báo cáo
+                        </label>
+
+                        <div className="p-3 bg-light rounded border">
+                            <div className="row g-2 mb-3">
+                                <div className="col-5">
+                                    <label className="small mb-1">Chọn năm</label>
+                                    <select
+                                        className="form-select"
+                                        value={selectedYear}
+                                        onChange={(e) => setSelectedYear(e.target.value)}
+                                    >
+                                        {years.map((y) => (
+                                            <option key={y} value={y}>
+                                                Năm {y}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="col-7">
+                                    <label className="small mb-1">Chế độ xem</label>
+                                    <div className="d-flex gap-1">
+                                        {["Tháng", "Quý", "Năm"].map((mode) => (
+                                            <button
+                                                key={mode}
+                                                type="button"
+                                                className={`btn btn-sm flex-fill ${
+                                                    viewMode === mode
+                                                        ? "btn-primary"
+                                                        : "btn-outline-primary"
+                                                }`}
+                                                onClick={() => setViewMode(mode)}
+                                            >
+                                                {mode}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {viewMode === "Tháng" && (
+                                <div className="mt-3 pt-3 border-top">
+                                    <div className="month-grid">
+                                        {months.map((m) => (
+                                            <button
+                                                key={m}
+                                                type="button"
+                                                className={`btn btn-sm ${
+                                                    selectedMonth === m
+                                                        ? "btn-primary"
+                                                        : "btn-light border"
+                                                }`}
+                                                onClick={() => setSelectedMonth(m)}
+                                            >
+                                                T{m}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
-                <fieldset className="border rounded p-3 mb-3">
-                    <legend className="small text-muted px-2">Thời gian chính</legend>
-
-                    <div className="form-check small mb-1">
-                        <input type="radio" className="form-check-input"
-                               checked={mainMode === "period"}
-                               onChange={() => setMainMode("period")}/>
-                        <label className="ms-1">Mốc thời gian</label>
-                    </div>
-
-                    {mainMode === "period" && (
-                        <select className="form-select form-select-sm"
-                                value={selectedPeriod}
-                                onChange={(e) => setSelectedPeriod(e.target.value)}>
-                            {periodOptionsMain.map((v, i) => <option key={i}>{v}</option>)}
-                        </select>
-                    )}
-
-                    <div className="form-check small mt-2 mb-1">
-                        <input type="radio" className="form-check-input"
-                               checked={mainMode === "range"}
-                               onChange={() => setMainMode("range")}/>
-                        <label className="ms-1">Chọn khoảng</label>
-                    </div>
-
-                    {mainMode === "range" && (
-                        <div className="d-flex gap-2">
-                            <input type="date" className="form-control form-control-sm"
-                                   value={mainStartDate}
-                                   onChange={(e) => setMainStartDate(e.target.value)}/>
-                            <input type="date" className="form-control form-control-sm"
-                                   value={mainEndDate}
-                                   onChange={(e) => setMainEndDate(e.target.value)}/>
-                        </div>
-                    )}
-                </fieldset>
-
-                <fieldset className="border rounded p-3 mb-3">
-                    <div className="form-check small mb-2">
-                        <input type="checkbox" className="form-check-input"
-                               checked={enableCompare}
-                               onChange={() => setEnableCompare(!enableCompare)}/>
-                        <label className="ms-1">So sánh</label>
-                    </div>
-
-                    <div style={{
-                        opacity: enableCompare ? 1 : 0.5,
-                        pointerEvents: enableCompare ? "auto" : "none"
-                    }}>
-                        <div className="form-check small mb-1">
-                            <input type="radio" className="form-check-input"
-                                   checked={compareMode === "period"}
-                                   onChange={() => setCompareMode("period")}/>
-                            <label className="ms-1">Mốc thời gian</label>
-                        </div>
-
-                        {compareMode === "period" && (
-                            <select className="form-select form-select-sm"
-                                    value={selectedComparePeriod}
-                                    onChange={(e) => setSelectedComparePeriod(e.target.value)}>
-                                {periodOptionsCompare.map((v, i) => <option key={i}>{v}</option>)}
-                            </select>
-                        )}
-
-                        <div className="form-check small mt-2 mb-1">
-                            <input type="radio" className="form-check-input"
-                                   checked={compareMode === "range"}
-                                   onChange={() => setCompareMode("range")}/>
-                            <label className="ms-1">Chọn khoảng</label>
-                        </div>
-
-                        {compareMode === "range" && (
-                            <div className="d-flex gap-2">
-                                <input type="date" className="form-control form-control-sm"
-                                       value={compareStartDate}
-                                       onChange={(e) => setCompareStartDate(e.target.value)}/>
-                                <input type="date" className="form-control form-control-sm"
-                                       value={compareEndDate}
-                                       onChange={(e) => setCompareEndDate(e.target.value)}/>
-                            </div>
-                        )}
-                    </div>
-                </fieldset>
+                <hr className="my-4" />
 
                 <div className="text-center">
                     <button
-                        className="btn btn-primary btn-sm px-4 me-2"
+                        className="btn btn-primary px-5 me-3"
                         onClick={handleViewReport}
                     >
                         Xem báo cáo
                     </button>
-
-                    <Link
-                        to="/flights"
-                        className="btn btn-secondary btn-sm px-4"
-                    >
+                    <Link to="/flights" className="btn btn-outline-secondary px-4">
                         Quay lại
                     </Link>
                 </div>
