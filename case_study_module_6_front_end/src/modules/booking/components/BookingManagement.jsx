@@ -217,7 +217,7 @@ const BookingManagement = () => {
 
     // --- TÍNH TỔNG TIỀN ---
     const calculateCorrectTotal = (booking) => {
-        if(!booking || !booking.tickets) return 0;
+        if (!booking || !booking.tickets) return 0;
         let total = 0;
         const flightIds = [...new Set(booking.tickets.map(t => t.flight?.id))];
         flightIds.forEach(fid => {
@@ -233,7 +233,7 @@ const BookingManagement = () => {
     const TicketSection = ({ flight, tickets, title, colorClass, icon }) => (
         <div className="mb-4" style={{ border: '1px dashed #ccc', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#fff' }}>
             <div className={`p-2 text-white d-flex align-items-center gap-2 ${colorClass}`}
-                 style={{ background: colorClass === 'blue' ? '#0056b3' : '#d9534f' }}>
+                style={{ background: colorClass === 'blue' ? '#0056b3' : '#d9534f' }}>
                 <span style={{ fontSize: '1.2em' }}>{icon}</span>
                 <h6 className="m-0 fw-bold text-uppercase">{title}</h6>
             </div>
@@ -260,45 +260,45 @@ const BookingManagement = () => {
                 </div>
                 <table className="table table-sm table-bordered mb-0" style={{ fontSize: '0.9em' }}>
                     <thead className="table-light">
-                    <tr>
-                        <th>Hành khách</th>
-                        <th>Loại vé</th>
-                        <th className="text-center">Số Ghế</th>
-                        <th className="text-end">Giá vé</th>
-                    </tr>
+                        <tr>
+                            <th>Hành khách</th>
+                            <th>Loại vé</th>
+                            <th className="text-center">Số Ghế</th>
+                            <th className="text-end">Giá vé</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    {tickets.map((t, i) => {
-                        const isInfant = t.isInfant || t.passengerType === 'INFANT' || t.passengerDob === '2025-09-01';
-                        const isChild = !isInfant && (t.isChild || t.passengerType === 'CHILD' || (t.passengerDob === '2022-01-01'));
+                        {tickets.map((t, i) => {
+                            const isInfant = t.isInfant || t.passengerType === 'INFANT' || t.passengerDob === '2025-09-01';
+                            const isChild = !isInfant && (t.isChild || t.passengerType === 'CHILD' || (t.passengerDob === '2022-01-01'));
 
-                        const displayPrice = calculateDisplayPrice(t, tickets);
+                            const displayPrice = calculateDisplayPrice(t, tickets);
 
-                        // Tìm ghế người lớn đi kèm
-                        const parentTicket = tickets.find(pt => !pt.isInfant && pt.passengerType !== 'INFANT' && pt.passengerDob !== '2025-09-01');
-                        const parentSeat = parentTicket ? parentTicket.seatNumber : '---';
+                            // Tìm ghế người lớn đi kèm
+                            const parentTicket = tickets.find(pt => !pt.isInfant && pt.passengerType !== 'INFANT' && pt.passengerDob !== '2025-09-01');
+                            const parentSeat = parentTicket ? parentTicket.seatNumber : '---';
 
-                        return (
-                            <tr key={i}>
-                                <td><strong>{t.passengerName}</strong></td>
-                                <td>
-                                    {isInfant ? <span className="badge bg-warning text-dark">EM BÉ (-90%)</span> :
-                                        isChild ? <span className="badge bg-success">TRẺ EM (-50%)</span> :
-                                            <span className="badge bg-secondary">NGƯỜI LỚN</span>}
-                                </td>
-                                <td className="text-center">
-                                    {isInfant ? (
-                                        <span className="badge bg-light text-dark border border-secondary" style={{fontWeight: 'normal'}}>
+                            return (
+                                <tr key={i}>
+                                    <td><strong>{t.passengerName}</strong></td>
+                                    <td>
+                                        {isInfant ? <span className="badge bg-warning text-dark">EM BÉ (-90%)</span> :
+                                            isChild ? <span className="badge bg-success">TRẺ EM (-50%)</span> :
+                                                <span className="badge bg-secondary">NGƯỜI LỚN</span>}
+                                    </td>
+                                    <td className="text-center">
+                                        {isInfant ? (
+                                            <span className="badge bg-light text-dark border border-secondary" style={{ fontWeight: 'normal' }}>
                                                 {parentSeat} (Đi kèm)
                                             </span>
-                                    ) : (
-                                        <span className="badge bg-info text-dark fs-6">{t.seatNumber || 'N/A'}</span>
-                                    )}
-                                </td>
-                                <td className="text-end fw-bold">{formatCurrency(displayPrice)}</td>
-                            </tr>
-                        );
-                    })}
+                                        ) : (
+                                            <span className="badge bg-info text-dark fs-6">{t.seatNumber || 'N/A'}</span>
+                                        )}
+                                    </td>
+                                    <td className="text-end fw-bold">{formatCurrency(displayPrice)}</td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>
@@ -349,70 +349,70 @@ const BookingManagement = () => {
                 <div className="table-responsive shadow-sm rounded">
                     <table className="table table-hover table-bordered mb-0 align-middle">
                         <thead className="table-light">
-                        <tr>
-                            <th className="text-center">#ID</th>
-                            <th>Mã Vé</th>
-                            <th>Loại Vé</th>
-                            <th>Khách Hàng</th>
-                            <th>Chuyến Bay</th>
-                            <th>Ngày Đặt</th>
-                            <th className="text-end">Tổng Tiền</th>
-                            <th className="text-center">Trạng Thái</th>
-                            <th className="text-center" style={{ minWidth: '150px' }}>Hành Động</th>
-                        </tr>
+                            <tr>
+                                <th className="text-center">#ID</th>
+                                <th>Mã Vé</th>
+                                <th>Loại Vé</th>
+                                <th>Khách Hàng</th>
+                                <th>Chuyến Bay</th>
+                                <th>Ngày Đặt</th>
+                                <th className="text-end">Tổng Tiền</th>
+                                <th className="text-center">Trạng Thái</th>
+                                <th className="text-center" style={{ minWidth: '150px' }}>Hành Động</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {currentItems.length === 0 ? (
-                            <tr><td colSpan="9" className="text-center p-4 text-muted">Chưa có dữ liệu phù hợp.</td></tr>
-                        ) : (
-                            currentItems.map(b => (
-                                <tr key={b.id}>
-                                    <td className="text-center">{b.id}</td>
-                                    <td style={{ color: '#0056b3', fontWeight: 'bold' }}>{b.bookingCode}</td>
-                                    <td>{b.tripType === 'ROUND_TRIP' || b.returnFlight ? <span className="badge rounded-pill bg-light text-primary border border-primary"><i className="fa-solid fa-repeat"></i> Khứ hồi</span> : <span className="badge rounded-pill bg-light text-info border border-info"><i className="fa-solid fa-arrow-right"></i> 1 Chiều</span>}</td>
-                                    <td>
-                                        <div className="fw-bold">{b.contactName || 'Vãng lai'}</div>
-                                        <div style={{ color: '#006400', fontSize: '0.9em' }}>📞 {b.contactPhone}</div>
-                                    </td>
-                                    <td>
-                                        <div className="d-flex flex-column gap-1">
-                                            <div className="d-flex align-items-center gap-2">
-                                                <span className="badge bg-info text-dark" style={{ minWidth: '35px' }}>Đi</span>
-                                                <span className="fw-bold text-primary">{b.flight?.flightNumber}</span>
-                                            </div>
-                                            {b.returnFlight && (
+                            {currentItems.length === 0 ? (
+                                <tr><td colSpan="9" className="text-center p-4 text-muted">Chưa có dữ liệu phù hợp.</td></tr>
+                            ) : (
+                                currentItems.map(b => (
+                                    <tr key={b.id}>
+                                        <td className="text-center">{b.id}</td>
+                                        <td style={{ color: '#0056b3', fontWeight: 'bold' }}>{b.bookingCode}</td>
+                                        <td>{b.tripType === 'ROUND_TRIP' || b.returnFlight ? <span className="badge rounded-pill bg-light text-primary border border-primary"><i className="fa-solid fa-repeat"></i> Khứ hồi</span> : <span className="badge rounded-pill bg-light text-info border border-info"><i className="fa-solid fa-arrow-right"></i> 1 Chiều</span>}</td>
+                                        <td>
+                                            <div className="fw-bold">{b.contactName || 'Vãng lai'}</div>
+                                            <div style={{ color: '#006400', fontSize: '0.9em' }}>📞 {b.contactPhone}</div>
+                                        </td>
+                                        <td>
+                                            <div className="d-flex flex-column gap-1">
                                                 <div className="d-flex align-items-center gap-2">
-                                                    <span className="badge bg-warning text-dark" style={{ minWidth: '35px' }}>Về</span>
-                                                    <span className="fw-bold text-danger">{b.returnFlight.flightNumber}</span>
+                                                    <span className="badge bg-info text-dark" style={{ minWidth: '35px' }}>Đi</span>
+                                                    <span className="fw-bold text-primary">{b.flight?.flightNumber}</span>
                                                 </div>
-                                            )}
-                                        </div>
-                                    </td>
-                                    <td>{formatDate(b.bookingDate)}</td>
-                                    <td className="text-end fw-bold text-danger">{formatCurrency(calculateCorrectTotal(b))}</td>
-                                    <td className="text-center">{getStatusBadge(b.status)}</td>
-                                    <td className="text-center">
-                                        <div className="d-flex justify-content-center gap-2">
-                                            {(b.status === 'PAID' || b.status === 'PENDING') && (
-                                                <button className="btn btn-sm btn-outline-primary" onClick={() => handlePrintClick(b)} title="In Vé">🖨</button>
-                                            )}
-                                            {b.status !== 'CANCELLED' && (
-                                                <button className="btn btn-sm btn-outline-secondary" onClick={() => handleEditClick(b)} title="Sửa thông tin">✏️</button>
-                                            )}
-                                            {['PENDING', 'UNPAID'].includes(b.status) && (
-                                                <>
-                                                    <button className="btn btn-sm btn-outline-success" onClick={() => handleRequestAction(b, 'PAID')} title="Thanh Toán">💰</button>
-                                                    <button className="btn btn-sm btn-outline-danger" onClick={() => handleRequestAction(b, 'DELETE')} title="Xóa vé">🗑</button>
-                                                </>
-                                            )}
-                                            {b.status === 'PAID' && (
-                                                <button className="btn btn-sm btn-outline-danger" onClick={() => handleRequestAction(b, 'CANCELLED')} title="Hủy">❌</button>
-                                            )}
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
+                                                {b.returnFlight && (
+                                                    <div className="d-flex align-items-center gap-2">
+                                                        <span className="badge bg-warning text-dark" style={{ minWidth: '35px' }}>Về</span>
+                                                        <span className="fw-bold text-danger">{b.returnFlight.flightNumber}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td>{formatDate(b.bookingDate)}</td>
+                                        <td className="text-end fw-bold text-danger">{formatCurrency(calculateCorrectTotal(b))}</td>
+                                        <td className="text-center">{getStatusBadge(b.status)}</td>
+                                        <td className="text-center">
+                                            <div className="d-flex justify-content-center gap-2">
+                                                {(b.status === 'PAID' || b.status === 'PENDING') && (
+                                                    <button className="btn btn-sm btn-outline-primary" onClick={() => handlePrintClick(b)} title="In Vé">🖨</button>
+                                                )}
+                                                {b.status !== 'CANCELLED' && (
+                                                    <button className="btn btn-sm btn-outline-secondary" onClick={() => handleEditClick(b)} title="Sửa thông tin">✏️</button>
+                                                )}
+                                                {['PENDING', 'UNPAID'].includes(b.status) && (
+                                                    <>
+                                                        <button className="btn btn-sm btn-outline-success" onClick={() => handleRequestAction(b, 'PAID')} title="Thanh Toán">💰</button>
+                                                        <button className="btn btn-sm btn-outline-danger" onClick={() => handleRequestAction(b, 'DELETE')} title="Xóa vé">🗑</button>
+                                                    </>
+                                                )}
+                                                {b.status === 'PAID' && (
+                                                    <button className="btn btn-sm btn-outline-danger" onClick={() => handleRequestAction(b, 'CANCELLED')} title="Hủy">❌</button>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                     {totalPages > 1 && (
