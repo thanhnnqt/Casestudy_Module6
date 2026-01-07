@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import ReactQuill from 'react-quill'; // IMPORT EDITOR
-import 'react-quill/dist/quill.snow.css'; // IMPORT CSS CỦA EDITOR
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import { createNews, getNewsById, updateNews } from '../services/NewsService';
 import Header from './Header';
 import Footer from './Footer';
+
+// --- THÊM MỚI: Import axios để gọi API upload ---
+import axios from "../modules/login/service/axiosConfig";
 
 const NewsForm = () => {
     const { id } = useParams();
@@ -18,6 +21,9 @@ const NewsForm = () => {
         thumbnail: '',
         category: 'NEWS'
     });
+
+    // --- THÊM MỚI: State để hiển thị trạng thái đang upload ---
+    const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
         if (id) {
@@ -33,19 +39,50 @@ const NewsForm = () => {
         }
     }, [id]);
 
-    // Xử lý thay đổi các ô input thường (Title, Summary...)
     const handleChange = (e) => {
         const { name, value } = e.target;
         setNews({ ...news, [name]: value });
     };
 
-    // Xử lý riêng cho Editor (Nội dung bài viết)
     const handleContentChange = (value) => {
         setNews({ ...news, content: value });
     };
 
+    // --- THÊM MỚI: Hàm xử lý khi chọn file ảnh ---
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setUploading(true); // Bật loading
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            // Gọi API Backend (đã tạo ở bước trước)
+            const res = await axios.post("/api/upload/image", formData, {
+                headers: { "Content-Type": "multipart/form-data" }
+            });
+
+            // Lấy link ảnh từ server trả về và gán vào news.thumbnail
+            setNews(prev => ({ ...prev, thumbnail: res.data.url }));
+            toast.success("Upload ảnh lên Cloudinary thành công!");
+        } catch (err) {
+            console.error(err);
+            toast.error("Lỗi upload ảnh! Vui lòng kiểm tra lại server.");
+        } finally {
+            setUploading(false); // Tắt loading
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // --- THÊM MỚI: Chặn submit nếu đang upload dở ---
+        if (uploading) {
+            toast.warning("Vui lòng đợi ảnh tải lên xong!");
+            return;
+        }
+
         try {
             if (id) {
                 await updateNews(id, news);
@@ -60,7 +97,6 @@ const NewsForm = () => {
         }
     };
 
-    // Cấu hình thanh công cụ cho Editor
     const modules = {
         toolbar: [
             [{ 'header': [1, 2, 3, false] }],
@@ -108,24 +144,40 @@ const NewsForm = () => {
                                     </select>
                                 </div>
 
-                                {/* Thumbnail */}
+                                {/* Thumbnail - ĐÃ SỬA ĐỂ THÊM NÚT UPLOAD */}
                                 <div className="col-md-6 mb-3">
-                                    <label className="form-label fw-bold">Link ảnh đại diện</label>
+                                    <label className="form-label fw-bold">Ảnh đại diện</label>
+
+                                    {/* 1. Ô Input File để chọn ảnh từ máy */}
+                                    <input
+                                        type="file"
+                                        className="form-control mb-2"
+                                        accept="image/*"
+                                        onChange={handleImageUpload}
+                                    />
+
+                                    {/* Loading text */}
+                                    {uploading && <div className="text-primary small mb-2">⏳ Đang tải ảnh lên Cloudinary...</div>}
+
+                                    {/* 2. Ô Input Text cũ (Vẫn giữ để hiển thị link hoặc paste link thủ công) */}
                                     <input
                                         type="text"
                                         className="form-control"
                                         name="thumbnail"
                                         value={news.thumbnail}
                                         onChange={handleChange}
-                                        placeholder="https://example.com/image.jpg"
+                                        placeholder="Link ảnh sẽ hiện tại đây sau khi upload..."
+                                        readOnly={uploading} // Khóa ô này khi đang upload
                                     />
+                                    <small className="text-muted">Link ảnh sẽ tự động điền sau khi bạn chọn file.</small>
                                 </div>
                             </div>
 
                             {/* Preview ảnh nếu có */}
                             {news.thumbnail && (
-                                <div className="mb-3">
-                                    <img src={news.thumbnail} alt="Preview" className="rounded border p-1" style={{ height: '120px', objectFit: 'cover' }} />
+                                <div className="mb-3 text-center bg-light p-2 rounded">
+                                    <p className="small fw-bold text-muted mb-1">Xem trước ảnh bìa:</p>
+                                    <img src={news.thumbnail} alt="Preview" className="rounded border shadow-sm" style={{ height: '150px', objectFit: 'cover' }} />
                                 </div>
                             )}
 
@@ -159,7 +211,7 @@ const NewsForm = () => {
 
                             <div className="d-flex justify-content-end gap-2 border-top pt-3">
                                 <Link to="/admin/news" className="btn btn-secondary px-4">Hủy bỏ</Link>
-                                <button type="submit" className="btn btn-primary fw-bold px-4">
+                                <button type="submit" className="btn btn-primary fw-bold px-4" disabled={uploading}>
                                     {id ? "Lưu thay đổi" : "Đăng bài viết"}
                                 </button>
                             </div>
