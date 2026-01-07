@@ -87,7 +87,7 @@ const RevenueChart = () => {
                     end,
                     year
                 );
-
+                console.log(res)
                 const charts = (Array.isArray(res) ? res : [res]).map(c => ({
                     ...c,
                     data: normalizeWithOther(c.data)
