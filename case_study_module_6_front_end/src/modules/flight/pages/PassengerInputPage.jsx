@@ -7,11 +7,11 @@ import { useNavigate } from "react-router-dom";
 
 
 const PassengerInputPage = ({
-                                bookingConfig,
-                                selectedOutbound,
-                                selectedInbound,
-                                onBack
-                            }) => {
+    bookingConfig,
+    selectedOutbound,
+    selectedInbound,
+    onBack
+}) => {
     const navigate = useNavigate();
     const [paying, setPaying] = useState(false);
 
@@ -64,26 +64,24 @@ const PassengerInputPage = ({
         return seat ? seat.price : 0;
     };
 
-    const totalAmount = useMemo(() => {
-        const seatPriceOut = getSeatPrice(
-            selectedOutbound,
-            bookingConfig.seatClassOut
-        );
+    // [MỚI] Hàm tính tổng tiền theo danh sách hành khách (có check giảm giá trẻ em)
+    const calculateTotal = (passengers) => {
+        const priceOut = getSeatPrice(selectedOutbound, bookingConfig.seatClassOut);
+        const priceIn = selectedInbound ? getSeatPrice(selectedInbound, bookingConfig.seatClassIn) : 0;
+        const basePrice = priceOut + priceIn;
 
-        const seatPriceIn = selectedInbound
-            ? getSeatPrice(
-                selectedInbound,
-                bookingConfig.seatClassIn
-            )
-            : 0;
-
-        return (seatPriceOut + seatPriceIn) * bookingConfig.quantity;
-    }, [selectedOutbound, selectedInbound, bookingConfig]);
+        return passengers.reduce((sum, p) => {
+            const passengerPrice = p.isChild ? (basePrice * 0.5) : basePrice;
+            return sum + passengerPrice;
+        }, 0);
+    };
 
     /* ================= SUBMIT (VNPAY) ================= */
     /* ================= SUBMIT (VNPAY) ================= */
     const handleSubmit = async (values) => {
-        if (totalAmount <= 0) {
+        const currentTotal = calculateTotal(values.passengers);
+
+        if (currentTotal <= 0) {
             toast.error("Tổng tiền không hợp lệ");
             return;
         }
@@ -100,7 +98,7 @@ const PassengerInputPage = ({
                 contactEmail: values.passengers[0].email || "no-email@system.com",
                 contactPhone: values.passengers[0].phone || "0000000000",
                 paymentMethod: "VNPAY",
-                totalAmount: totalAmount,
+                totalAmount: currentTotal,
                 passengers: values.passengers
             };
             const bookingRes = await createOnlineBooking(payload);
@@ -316,7 +314,7 @@ const PassengerInputPage = ({
                         </FieldArray>
 
                         {/* TOTAL + BUTTON */}
-                        <div className="d-flex justify-content-between align-items-center mt-4 mb-5">
+                        <div className="d-flex justify-content-between align-items-end mt-4 mb-5">
                             <button
                                 type="button"
                                 className="btn btn-secondary px-4"
@@ -329,7 +327,7 @@ const PassengerInputPage = ({
                             <div className="text-end">
                                 <div className="fw-bold text-danger mb-2 fs-5">
                                     Tổng tiền:{" "}
-                                    {totalAmount.toLocaleString()} VNĐ
+                                    {calculateTotal(values.passengers).toLocaleString()} VNĐ
                                 </div>
                                 <button
                                     type="submit"
