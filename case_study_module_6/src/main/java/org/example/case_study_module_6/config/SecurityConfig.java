@@ -53,6 +53,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/customers/me")
                         .hasAnyRole("CUSTOMER", "EMPLOYEE", "ADMIN")
 
+                        
                         // 5. PUBLIC APIs
                         .requestMatchers(
                                 "/swagger-ui/**",
