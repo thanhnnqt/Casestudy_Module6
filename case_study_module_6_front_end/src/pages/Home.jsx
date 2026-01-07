@@ -6,29 +6,13 @@ import { Link, useNavigate } from "react-router-dom";
 import ChatBox from "../components/chat/ChatBox.jsx";
 import AdminFloatingChat from "../components/chat/AdminFloatingChat";
 import { useAuth } from "../context/AuthContext";
+import { getAllAirports } from "../services/AirportService";
 
 const CHAT_ADMIN_TARGET = { customerAccountId: 1, customerUsername: "admin" };
 
-/* ================= CONSTANTS ================= */
-const CITIES = [
-    "Hà Nội (HAN)",
-    "TP. Hồ Chí Minh (SGN)",
-    "Đà Nẵng (DAD)",
-    "Nha Trang (CXR)",
-    "Phú Quốc (PQC)",
-    "Cần Thơ (VCA)"
-];
-
-const CITY_WEATHER_MAP = {
-    "Hà Nội (HAN)": "Hanoi",
-    "TP. Hồ Chí Minh (SGN)": "Ho Chi Minh City",
-    "Đà Nẵng (DAD)": "Da Nang",
-    "Nha Trang (CXR)": "Nha Trang",
-    "Phú Quốc (PQC)": "Phu Quoc",
-    "Cần Thơ (VCA)": "Can Tho"
-};
-
 function Home() {
+    /* ================= DYNAMIC CITY LIST ================= */
+    const [cities, setCities] = useState([]);
 
     /* ================= STATE ================= */
     const [tripType, setTripType] = useState("ONE_WAY");
@@ -45,17 +29,35 @@ function Home() {
         infant: 0
     });
 
-    /* ================= NEWS STATE ================= */
+    /* ================= NEWS & AIRPORTS DATA ================= */
     const [newsList, setNewsList] = useState([]);
     useEffect(() => {
         const fetchNews = async () => {
             const data = await getAllNews();
-            // Lấy 3 tin mới nhất
             if (data && Array.isArray(data)) {
                 setNewsList(data.slice(0, 3));
             }
         };
+
+        const fetchAirports = async () => {
+            const data = await getAllAirports();
+            if (data && Array.isArray(data)) {
+                const formatted = data.map(a => `${a.city} (${a.code})`);
+                setCities(formatted);
+
+                // Set default form values if we have data
+                if (formatted.length >= 2) {
+                    setForm(prev => ({
+                        ...prev,
+                        from: formatted[0],
+                        to: formatted[1]
+                    }));
+                }
+            }
+        };
+
         fetchNews();
+        fetchAirports();
     }, []);
     /* WEATHER STATE */
     const [weatherFrom, setWeatherFrom] = useState(null);
@@ -155,44 +157,63 @@ function Home() {
     const fetchWeather = async (city, date) => {
         try {
             const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
-            if (!apiKey) {
-                console.error("VITE_WEATHER_API_KEY is missing");
-                return null;
-            }
 
             const res = await fetch(
                 `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&lang=vi&appid=${apiKey}`
             );
 
-            if (!res.ok) {
-                console.error(`Weather API error for ${city}: ${res.status}`);
-                return null;
-            }
-
             const data = await res.json();
 
-            if (!data.list || !Array.isArray(data.list) || data.list.length === 0) {
-                console.error("Weather API response invalid or empty:", data);
+            // ❗ BẮT BUỘC CHECK
+            if (!data.list || !Array.isArray(data.list)) {
+                console.error("Weather API response invalid:", data);
                 return null;
             }
 
-            // Tìm forecast cho ngày đã chọn, nếu không thấy lấy cái gần nhất (đầu tiên)
-            const forecast = data.list.find(item => item.dt_txt.startsWith(date)) || data.list[0];
-            return forecast;
+            return (
+                data.list.find(item =>
+                    item.dt_txt.startsWith(date)
+                ) || data.list[0]
+            );
 
         } catch (err) {
             console.error("Weather error:", err);
             return null;
         }
     };
+    /* LOAD WEATHER WHEN CHANGE FORM */
     useEffect(() => {
-        if (!form.departureDate) return;
+        if (!form.departureDate || cities.length === 0) return;
 
         const loadWeather = async () => {
-            const fromCity = CITY_WEATHER_MAP[form.from];
-            const toCity = CITY_WEATHER_MAP[form.to];
+            // Helper để lấy tên thành phố cho Weather API
+            const getPureCity = (str) => {
+                if (!str) return "";
+                const city = str.split(" (")[0].trim();
 
-            if (!fromCity || !toCity) return;
+                // Bản đồ chuyển đổi các tên tiếng Việt sang tên API nhận diện tốt hơn
+                const specialMap = {
+                    "Hà Nội": "Hanoi",
+                    "TP. Hồ Chí Minh": "Ho Chi Minh City",
+                    "Hải Phòng": "Hai Phong",
+                    "Kiên Giang": "Phu Quoc",
+                    "Đà Nẵng": "Da Nang",
+                    "Huế": "Hue",
+                    "Nha Trang": "Nha Trang",
+                    "Quy Nhơn": "Qui Nhon",
+                    "Cần Thơ": "Can Tho",
+                    "Phú Quốc": "Phu Quoc",
+                    "Đà Lạt": "Da Lat",
+                    "Buôn Ma Thuột": "Buon Ma Thuot",
+                    "Vinh": "Vinh",
+                    "Thanh Hóa": "Thanh Hoa"
+                };
+
+                return specialMap[city] || city;
+            };
+
+            const fromCity = getPureCity(form.from);
+            const toCity = getPureCity(form.to);
 
             const wf = await fetchWeather(fromCity, form.departureDate);
             const wt = await fetchWeather(toCity, form.departureDate);
@@ -202,7 +223,7 @@ function Home() {
         };
 
         loadWeather();
-    }, [form.from, form.to, form.departureDate]);
+    }, [form.from, form.to, form.departureDate, cities]);
 
     const handleCopy = async (code) => {
         // Phương pháp 1: Sử dụng Clipboard API (Yêu cầu HTTPS hoặc localhost)
@@ -280,7 +301,7 @@ function Home() {
                             <div className="field">
                                 <label>Từ</label>
                                 <select name="from" value={form.from} onChange={handleChange}>
-                                    {CITIES.map(c => (
+                                    {cities.map(c => (
                                         <option key={c}>{c}</option>
                                     ))}
                                 </select>
@@ -289,7 +310,7 @@ function Home() {
                             <div className="field">
                                 <label>Đến</label>
                                 <select name="to" value={form.to} onChange={handleChange}>
-                                    {CITIES.map(c => (
+                                    {cities.map(c => (
                                         <option key={c}>{c}</option>
                                     ))}
                                 </select>
@@ -522,7 +543,10 @@ function Home() {
                                                 src={n.thumbnail}
                                                 alt={n.title}
                                                 style={{ width: '100%', height: '200px', objectFit: 'cover' }}
-                                                onError={(e) => e.target.src = 'https://via.placeholder.com/300x200?text=No+Image'}
+                                                onError={(e) => {
+                                                    e.target.onerror = null;
+                                                    e.target.src = 'https://placehold.co/300x200?text=No+Image';
+                                                }}
                                             />
                                         </Link>
                                     </div>

@@ -60,6 +60,7 @@ public class SecurityConfig {
                                 "/ws-chat/**", "/app/**", "/topic/**", "/queue/**", "/user/**",
                                 "/api/payment/**",
                                 "/api/bookings/online",
+                                "/api/airports/**",
                                 "/api/master/airports",
                                 "/api/master/airlines",
                                 "/api/master/routes",
