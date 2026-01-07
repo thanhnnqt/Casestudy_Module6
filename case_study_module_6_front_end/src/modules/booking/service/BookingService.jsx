@@ -67,7 +67,7 @@ export const FlightService = {
 
     // 4. Lấy danh sách
     getAllBookings: () => {
-        return axios.get(`${API_URL}/bookings`, getAuthConfig());
+        return axios.get(`${API_URL}/bookings?t=${new Date().getTime()}`, getAuthConfig());
     },
 
     // 5. Danh sách sân bay
