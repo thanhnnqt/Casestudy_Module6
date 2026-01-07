@@ -21,7 +21,7 @@ const FlightList = () => {
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
-    const [pageSize, setPageSize] = useState(10);
+    const [pageSize, setPageSize] = useState(200);
 
     // Filters
     const [filters, setFilters] = useState({
@@ -566,6 +566,7 @@ const FlightList = () => {
                                 <option value="20">20</option>
                                 <option value="50">50</option>
                                 <option value="100">100</option>
+                                <option value="200">200</option>
                             </select>
                         </div>
 
