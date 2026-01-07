@@ -1,192 +1,176 @@
-/* ===================== INSERT ACCOUNTS (30) ===================== */
+/* ===================== BƯỚC 1: TẠO TÀI KHOẢN (ACCOUNTS) ===================== */
+-- Lưu ý: Password ở đây là "123456" (đã mã hóa)
+
 INSERT INTO accounts (username, password, provider, enabled)
 VALUES
--- USER 1
-('demo1',
- '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
- 'LOCAL',
- TRUE),
+-- 1. ADMIN ACCOUNT
+('admin_demo', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
 
--- USER 2
-('demo2',
- '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
- 'LOCAL',
- TRUE),
-
--- USER 3
-('demo3',
- '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
- 'LOCAL',
- TRUE),
-
--- USER 4
-('demo4',
- '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
- 'LOCAL',
- TRUE),
-
--- USER 5
-('demo5',
- '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
- 'LOCAL',
- TRUE),
--- ADMIN
-('admin_demo',
- '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
- 'LOCAL',
- TRUE),
-
--- EMPLOYEE
-('employee_demo1',
- '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
- 'LOCAL',
- TRUE),
-
-('employee_demo2',
- '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
- 'LOCAL',
- TRUE),
-('customer_demo1', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-('customer_demo2', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-('customer_demo3', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-('customer_demo4', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-('customer_demo5', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-('customer_demo6', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-('customer_demo7', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-('customer_demo8', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-('customer_demo9', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-('customer_demo10', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
-('customer_demo11',
- '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
- 'LOCAL',
- TRUE),
-('customer_demo12',
- '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW',
- 'LOCAL',
- TRUE);
+-- 2. EMPLOYEE ACCOUNTS (5 Tài khoản nhân viên)
+('demo1', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+('demo2', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+('demo3', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+('demo4', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+('demo5', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE);
 
 
-/* ===================== ADMINS (1) ===================== */
-INSERT INTO admins (admin_code,
-                    full_name,
-                    email,
-                    phone_number,
-                    account_id)
-VALUES ('AD_DEMO',
+/* ===================== BƯỚC 2: LIÊN KẾT ADMIN ===================== */
+INSERT INTO admins (admin_code, full_name, email, phone_number, account_id)
+VALUES ('AD_01',
         'Demo System Admin',
-        'admin_demo@system.com',
+        'admin@system.com',
         '0909000000',
-        (SELECT id FROM accounts WHERE username = 'admin_demo'));
-
-/* ===================== EMPLOYEES (5) ===================== */
-/* ===================== EMPLOYEES (5) UPDATED WITH CORRECT SHA-256 ===================== */
-INSERT INTO employees (full_name,
-                       address,
-                       phone_number,
-                       identification_id,
-                       email,
-                       dob,
-                       gender,
-                       img_url,
-                       img_hash,
-                       account_id)
-VALUES ('Nguyen Van Huy', 'Ha Noi', '0901000001', '012345001', 'nv1@company.com', '1995-01-01', 'Nam',
-        'https://res.cloudinary.com/dfduj6hiv/image/upload/v1767062658/g3tnflpe4umkdcejpprx.webp',
-        '32fb526959373d9b54a651a97c3ed216cb39c3bdfa546db0d3acc3b4a404cc9a', 2),
-
-       ('Tran Thi Mai', 'Ha Noi', '0901000002', '012345002', 'nv2@company.com', '1996-02-02', 'Nữ',
-        'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766978920/l7rivvz2cshrpb3ra5on.webp',
-        '5c0193f8bf8c2f1b354efde78a512f194407a527041a3a91f05e54bf62f3bc48', 3),
-
-       ('Le Minh Duc', 'Da Nang', '0901000003', '012345003', 'nv3@company.com', '1994-03-03', 'Nam',
-        'https://res.cloudinary.com/dfduj6hiv/image/upload/v1767062643/g3xye2yoji9hhmlvsv3z.webp',
-        'b27dcd4d20be284d8580c73576f40760d47576a89d7a2f33dc1b159c828c5645', 4),
-
-       ('Pham Quang Hieu', 'Da Nang', '0901000004', '012345004', 'nv4@company.com', '1993-04-04', 'Nam',
-        'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766998277/c1qhxssyiheavo02izwi.jpg',
-        '781550e149fd178a77efc4857adb0ff378e24f7b3e3d78c6c33d26c1a01ee326', 5),
-
-       ('Hoang Thanh Tung', 'Ho Chi Minh', '0901000005', '012345005', 'nv5@company.com', '1992-05-05', 'Nam',
-        'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766977350/xkfrcvws16poasyijcxh.webp',
-        '7d49041c6049c40b7b8391ce5d83498d3f0af0f8c02f041e178e4ed856247a43', 6);
+        (SELECT id FROM accounts WHERE username = 'admin_demo')); -- Tự động lấy ID của admin_demo
 
 
+/* ===================== BƯỚC 3: LIÊN KẾT 5 NHÂN VIÊN ===================== */
+INSERT INTO employees (full_name, address, phone_number, identification_id, email, dob, gender, img_url, img_hash, account_id)
+VALUES
+-- Nhân viên 1 -> Gắn vào demo1
+('Nguyen Van Huy', 'Ha Noi', '0901000001', '012345001', 'nv1@company.com', '1995-01-01', 'Nam',
+ 'https://res.cloudinary.com/dfduj6hiv/image/upload/v1767062658/g3tnflpe4umkdcejpprx.webp',
+ '32fb526959373d9b54a651a97c3ed216cb39c3bdfa546db0d3acc3b4a404cc9a',
+ (SELECT id FROM accounts WHERE username = 'demo1')),
 
-/* ===================== CUSTOMERS (20) ===================== */
--- demo1 → account_id = MAX(id) - 4
-INSERT INTO customers (customer_code, full_name, date_of_birth, gender,
-                       phone_number, email, identity_card,
-                       address, total_spending, account_id)
-VALUES ('KH1',
-        'Nguyen Van Demo 1',
-        '1995-01-01',
-        'NAM',
-        '0911111111',
-        'demo1@mail.com',
-        '100000000001',
-        'Ha Noi',
-        0,
-        (SELECT id FROM accounts WHERE username = 'demo1'));
+-- Nhân viên 2 -> Gắn vào demo2
+('Tran Thi Mai', 'Ha Noi', '0901000002', '012345002', 'nv2@company.com', '1996-02-02', 'Nữ',
+ 'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766978920/l7rivvz2cshrpb3ra5on.webp',
+ '5c0193f8bf8c2f1b354efde78a512f194407a527041a3a91f05e54bf62f3bc48',
+ (SELECT id FROM accounts WHERE username = 'demo2')),
 
--- demo2
-INSERT INTO customers (customer_code, full_name, date_of_birth, gender,
-                       phone_number, email, identity_card,
-                       address, total_spending, account_id)
-VALUES ('KH2',
-        'Nguyen Van Demo 2',
-        '1996-02-02',
-        'NU',
-        '0911111112',
-        'demo2@mail.com',
-        '100000000002',
-        'Hai Phong',
-        0,
-        (SELECT id FROM accounts WHERE username = 'demo2'));
+-- Nhân viên 3 -> Gắn vào demo3
+('Le Minh Duc', 'Da Nang', '0901000003', '012345003', 'nv3@company.com', '1994-03-03', 'Nam',
+ 'https://res.cloudinary.com/dfduj6hiv/image/upload/v1767062643/g3xye2yoji9hhmlvsv3z.webp',
+ 'b27dcd4d20be284d8580c73576f40760d47576a89d7a2f33dc1b159c828c5645',
+ (SELECT id FROM accounts WHERE username = 'demo3')),
 
--- demo3
-INSERT INTO customers (customer_code, full_name, date_of_birth, gender,
-                       phone_number, email, identity_card,
-                       address, total_spending, account_id)
-VALUES ('KH3',
-        'Nguyen Van Demo 3',
-        '1997-03-03',
-        'NAM',
-        '0911111113',
-        'demo3@mail.com',
-        '100000000003',
-        'Da Nang',
-        0,
-        (SELECT id FROM accounts WHERE username = 'demo3'));
+-- Nhân viên 4 -> Gắn vào demo4
+('Pham Quang Hieu', 'Da Nang', '0901000004', '012345004', 'nv4@company.com', '1993-04-04', 'Nam',
+ 'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766998277/c1qhxssyiheavo02izwi.jpg',
+ '781550e149fd178a77efc4857adb0ff378e24f7b3e3d78c6c33d26c1a01ee326',
+ (SELECT id FROM accounts WHERE username = 'demo4')),
 
--- demo4
-INSERT INTO customers (customer_code, full_name, date_of_birth, gender,
-                       phone_number, email, identity_card,
-                       address, total_spending, account_id)
-VALUES ('KH4',
-        'Nguyen Van Demo 4',
-        '1998-04-04',
-        'NU',
-        '0911111114',
-        'demo4@mail.com',
-        '100000000004',
-        'Ho Chi Minh',
-        0,
-        (SELECT id FROM accounts WHERE username = 'demo4'));
+-- Nhân viên 5 -> Gắn vào demo5
+('Hoang Thanh Tung', 'Ho Chi Minh', '0901000005', '012345005', 'nv5@company.com', '1992-05-05', 'Nam',
+ 'https://res.cloudinary.com/dfduj6hiv/image/upload/v1766977350/xkfrcvws16poasyijcxh.webp',
+ '7d49041c6049c40b7b8391ce5d83498d3f0af0f8c02f041e178e4ed856247a43',
+ (SELECT id FROM accounts WHERE username = 'demo5'));
 
--- demo5
-INSERT INTO customers (customer_code, full_name, date_of_birth, gender,
-                       phone_number, email, identity_card,
-                       address, total_spending, account_id)
-VALUES ('KH5',
-        'Nguyen Van Demo 5',
-        '1999-05-05',
-        'KHAC',
-        '0911111115',
-        'demo5@mail.com',
-        '100000000005',
-        'Can Tho',
-        0,
-        (SELECT id FROM accounts WHERE username = 'demo5'));
+
+
+
+
+/* ===================== BƯỚC 1: TẠO 20 TÀI KHOẢN KHÁCH HÀNG (ACCOUNTS) ===================== */
+-- Username: customer1 -> customer20
+-- Password: 123456 (Mặc định)
+
+INSERT INTO accounts (username, password, provider, enabled)
+VALUES
+    ('customer1', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+    ('customer2', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+    ('customer3', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+    ('customer4', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+    ('customer5', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+    ('customer6', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+    ('customer7', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+    ('customer8', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+    ('customer9', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+    ('customer10', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+    ('customer11', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+    ('customer12', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+    ('customer13', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+    ('customer14', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+    ('customer15', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+    ('customer16', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+    ('customer17', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+    ('customer18', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+    ('customer19', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE),
+    ('customer20', '$2a$10$TQhZ2iB1qZ1bEOxm0.DinurTA0O.qao17BkgbReJoSFHwDXQgcvWW', 'LOCAL', TRUE);
+
+
+/* ===================== BƯỚC 2: LIÊN KẾT 20 KHÁCH HÀNG (CUSTOMERS) ===================== */
+
+INSERT INTO customers (customer_code, full_name, date_of_birth, gender, phone_number, email, identity_card, address, total_spending, account_id)
+VALUES
+-- KH1 -> customer1
+('KH1', 'Nguyen Van A', '1995-01-01', 'NAM', '0911111101', 'kh1@mail.com', '001095000001', 'Ha Noi', 0,
+ (SELECT id FROM accounts WHERE username = 'customer1')),
+
+-- KH2 -> customer2
+('KH2', 'Tran Thi B', '1996-02-02', 'NU', '0911111102', 'kh2@mail.com', '001096000002', 'Ho Chi Minh', 5000000,
+ (SELECT id FROM accounts WHERE username = 'customer2')),
+
+-- KH3 -> customer3
+('KH3', 'Le Van C', '1997-03-03', 'NAM', '0911111103', 'kh3@mail.com', '001097000003', 'Da Nang', 1200000,
+ (SELECT id FROM accounts WHERE username = 'customer3')),
+
+-- KH4 -> customer4
+('KH4', 'Pham Thi D', '1998-04-04', 'NU', '0911111104', 'kh4@mail.com', '001098000004', 'Hai Phong', 0,
+ (SELECT id FROM accounts WHERE username = 'customer4')),
+
+-- KH5 -> customer5
+('KH5', 'Hoang Van E', '1999-05-05', 'NAM', '0911111105', 'kh5@mail.com', '001099000005', 'Can Tho', 0,
+ (SELECT id FROM accounts WHERE username = 'customer5')),
+
+-- KH6 -> customer6
+('KH6', 'Do Thi F', '1993-06-06', 'NU', '0911111106', 'kh6@mail.com', '001093000006', 'Hue', 0,
+ (SELECT id FROM accounts WHERE username = 'customer6')),
+
+-- KH7 -> customer7
+('KH7', 'Vu Van G', '1988-07-07', 'NAM', '0911111107', 'kh7@mail.com', '001088000007', 'Nghe An', 0,
+ (SELECT id FROM accounts WHERE username = 'customer7')),
+
+-- KH8 -> customer8
+('KH8', 'Dang Thi H', '2000-08-08', 'NU', '0911111108', 'kh8@mail.com', '001200000008', 'Quang Ninh', 0,
+ (SELECT id FROM accounts WHERE username = 'customer8')),
+
+-- KH9 -> customer9
+('KH9', 'Bui Van I', '1991-09-09', 'NAM', '0911111109', 'kh9@mail.com', '001091000009', 'Bac Ninh', 0,
+ (SELECT id FROM accounts WHERE username = 'customer9')),
+
+-- KH10 -> customer10
+('KH10', 'Ngo Thi K', '1997-10-10', 'NU', '0911111110', 'kh10@mail.com', '001097000010', 'Da Lat', 0,
+ (SELECT id FROM accounts WHERE username = 'customer10')),
+
+-- KH11 -> customer11
+('KH11', 'Ly Van L', '1985-11-11', 'NAM', '0911111111', 'kh11@mail.com', '001085000011', 'Hai Duong', 0,
+ (SELECT id FROM accounts WHERE username = 'customer11')),
+
+-- KH12 -> customer12
+('KH12', 'Duong Thi M', '2001-12-12', 'NU', '0911111112', 'kh12@mail.com', '001201000012', 'Nam Dinh', 0,
+ (SELECT id FROM accounts WHERE username = 'customer12')),
+
+-- KH13 -> customer13
+('KH13', 'Cao Van N', '1994-01-13', 'NAM', '0911111113', 'kh13@mail.com', '001094000013', 'Thanh Hoa', 0,
+ (SELECT id FROM accounts WHERE username = 'customer13')),
+
+-- KH14 -> customer14
+('KH14', 'Phan Thi O', '1996-02-14', 'NU', '0911111114', 'kh14@mail.com', '001096000014', 'Khanh Hoa', 0,
+ (SELECT id FROM accounts WHERE username = 'customer14')),
+
+-- KH15 -> customer15
+('KH15', 'Truong Van P', '1990-03-15', 'NAM', '0911111115', 'kh15@mail.com', '001090000015', 'Dong Nai', 0,
+ (SELECT id FROM accounts WHERE username = 'customer15')),
+
+-- KH16 -> customer16
+('KH16', 'Dinh Thi Q', '1989-04-16', 'NU', '0911111116', 'kh16@mail.com', '001089000016', 'Binh Duong', 0,
+ (SELECT id FROM accounts WHERE username = 'customer16')),
+
+-- KH17 -> customer17
+('KH17', 'Lam Van R', '1993-05-17', 'NAM', '0911111117', 'kh17@mail.com', '001093000017', 'Long An', 0,
+ (SELECT id FROM accounts WHERE username = 'customer17')),
+
+-- KH18 -> customer18
+('KH18', 'Mai Thi S', '2002-06-18', 'NU', '0911111118', 'kh18@mail.com', '001202000018', 'Tien Giang', 0,
+ (SELECT id FROM accounts WHERE username = 'customer18')),
+
+-- KH19 -> customer19
+('KH19', 'Trinh Van T', '1995-07-19', 'NAM', '0911111119', 'kh19@mail.com', '001095000019', 'Kien Giang', 0,
+ (SELECT id FROM accounts WHERE username = 'customer19')),
+
+-- KH20 -> customer20
+('KH20', 'Vo Thi U', '1998-08-20', 'NU', '0911111120', 'kh20@mail.com', '001098000020', 'Ca Mau', 0,
+ (SELECT id FROM accounts WHERE username = 'customer20'));
 
 
 /* ===================== AIRPORTS (5) ===================== */
