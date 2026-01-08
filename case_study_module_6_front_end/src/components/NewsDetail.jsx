@@ -68,7 +68,10 @@ const NewsDetail = () => {
                             src={news.thumbnail}
                             alt={news.title}
                             className="img-fluid rounded-3 w-100 mb-5 shadow-sm"
-                            onError={(e) => e.target.src = 'https://via.placeholder.com/800x400'}
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://placehold.co/800x400';
+                            }}
                         />
 
                         {/* Content */}

@@ -97,5 +97,8 @@ public interface IBookingRepository extends JpaRepository<Booking, Long> {
     );
 
 
+    @Query("SELECT b FROM Booking b LEFT JOIN FETCH b.tickets LEFT JOIN FETCH b.flight LEFT JOIN FETCH b.returnFlight")
+    List<Booking> findAllWithTickets();
+
     List<Booking> findByCustomerAccountIdOrderByBookingDateDesc(Long accountId);
 }

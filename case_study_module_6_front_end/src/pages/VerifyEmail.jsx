@@ -19,7 +19,7 @@ export default function VerifyEmail() {
         }
 
         axios
-            .get(`http://localhost:8080/auth/verify-email?token=${token}`)
+            .get(`${import.meta.env.VITE_API_BASE_URL}/auth/verify-email?token=${token}`)
             .then(() => {
                 toast.success("✅ Xác nhận email thành công");
             })

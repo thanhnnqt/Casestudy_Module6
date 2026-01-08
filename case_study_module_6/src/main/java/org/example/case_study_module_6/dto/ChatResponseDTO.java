@@ -13,10 +13,12 @@ public class ChatResponseDTO {
     
     private Long senderId;
     private String senderUsername;
+    private String senderFullName;
     private String senderRole;
     
     private Long receiverId;
     private String receiverUsername;
+    private String receiverFullName;
     private String receiverRole;
     
     private String content;

@@ -340,6 +340,7 @@ const PassengerInputPage = ({
                                 </button>
                             </div>
                         </div>
+                        <div className="alert alert-light border-0 small text-muted fst-italic mt-3 mb-0 text-justify" style={{fontSize: '0.85rem', lineHeight: '1.4'}}><i className="bi bi-info-circle-fill me-2"></i><strong>Lưu ý:</strong> Việc đặt vé thành công không đồng nghĩa với việc chắc chắn được lên máy bay. Hành khách cần mang theo giấy tờ tùy thân hợp lệ, đến sân bay đúng thời gian quy định và tuân thủ các điều kiện an ninh – an toàn của hãng hàng không. Trẻ em và em bé phải có người lớn đi kèm. Chỗ ngồi chỉ được xác nhận sau khi thanh toán thành công. </div>
                     </Form>
                 )}
             </Formik>

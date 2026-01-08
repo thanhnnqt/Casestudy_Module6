@@ -64,7 +64,7 @@ export async function getEmployeeListBySearch(fullName, phoneNumber, page = 0, s
 export const addEmployee = async (data) => {
     try {
         const res = await axios.post(
-            "http://localhost:8080/v1/api/employees",
+            `${import.meta.env.VITE_API_BASE_URL}/v1/api/employees`,
             data
         );
         return res.data;
@@ -224,6 +224,7 @@ export const getAirlineRevenue = async (
     });
     return res.data;
 };
+
 
 
 

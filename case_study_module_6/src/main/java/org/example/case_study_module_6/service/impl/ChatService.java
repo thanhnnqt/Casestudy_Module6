@@ -94,6 +94,8 @@ public class ChatService {
             System.out.println("ChatService: Saved message. Preparing delivery...");
 
             ChatResponseDTO response = ChatResponseDTO.fromEntity(message);
+            response.setSenderFullName(accountService.getDisplayName(sender.getId()));
+            response.setReceiverFullName(accountService.getDisplayName(receiver.getId()));
 
             // ⭐ GỬI TIN NHẮN ĐI
             if ("CUSTOMER".equals(dto.getSenderRole()) && conversation.getStaff() == null) {
@@ -119,7 +121,12 @@ public class ChatService {
     public List<ChatResponseDTO> getHistory(Long customerAccountId) {
         return conversationRepo.findByCustomerId(customerAccountId)
                 .map(conv -> chatRepo.findByConversationIdOrderByCreatedAtAsc(conv.getId())
-                        .stream().map(ChatResponseDTO::fromEntity).toList())
+                        .stream().map(msg -> {
+                            ChatResponseDTO res = ChatResponseDTO.fromEntity(msg);
+                            res.setSenderFullName(accountService.getDisplayName(msg.getSender().getId()));
+                            res.setReceiverFullName(accountService.getDisplayName(msg.getReceiver().getId()));
+                            return res;
+                        }).toList())
                 .orElse(java.util.Collections.emptyList());
     }
 }

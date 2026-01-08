@@ -39,6 +39,7 @@ public class VerificationTokenService implements IVerificationTokenService {
         repo.delete(vt);
     }
 
+    @Override
     public VerificationToken createFromRegister(RegisterRequest req) {
 
         VerificationToken vt = new VerificationToken();

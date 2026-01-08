@@ -68,39 +68,44 @@ const NewsManager = () => {
                     <div className="table-responsive">
                         <table className="table table-hover mb-0 align-middle">
                             <thead className="bg-light text-secondary">
-                            <tr>
-                                <th className="ps-4">#</th>
-                                <th>Hình ảnh</th>
-                                <th style={{width: '35%'}}>Tiêu đề</th>
-                                <th>Danh mục</th>
-                                <th>Ngày đăng</th>
-                                <th className="text-end pe-4">Hành động</th>
-                            </tr>
+                                <tr>
+                                    <th className="ps-4">#</th>
+                                    <th>Hình ảnh</th>
+                                    <th style={{ width: '35%' }}>Tiêu đề</th>
+                                    <th>Danh mục</th>
+                                    <th>Ngày đăng</th>
+                                    <th className="text-end pe-4">Hành động</th>
+                                </tr>
                             </thead>
                             <tbody>
-                            {currentNews.length === 0 ? (
-                                <tr><td colSpan="6" className="text-center py-5 text-muted">Chưa có bài viết nào.</td></tr>
-                            ) : (
-                                currentNews.map((n, index) => (
-                                    <tr key={n.newsId}>
-                                        <td className="ps-4 fw-bold text-muted">{startIndex + index + 1}</td>
-                                        <td>
-                                            <img src={n.thumbnail} alt="" className="rounded border bg-white p-1" style={{width: '60px', height: '40px', objectFit: 'cover'}} onError={(e) => e.target.src = 'https://via.placeholder.com/60x40'} />
-                                        </td>
-                                        <td><div className="fw-bold text-truncate" style={{maxWidth: '300px'}} title={n.title}>{n.title}</div></td>
-                                        <td>
+                                {currentNews.length === 0 ? (
+                                    <tr><td colSpan="6" className="text-center py-5 text-muted">Chưa có bài viết nào.</td></tr>
+                                ) : (
+                                    currentNews.map((n, index) => (
+                                        <tr key={n.newsId}>
+                                            <td className="ps-4 fw-bold text-muted">{startIndex + index + 1}</td>
+                                            <td>
+                                                <img src={n.thumbnail} alt="" className="rounded border bg-white p-1" style={{ width: '60px', height: '40px', objectFit: 'cover' }}
+                                                    onError={(e) => {
+                                                        e.target.onerror = null;
+                                                        e.target.src = 'https://placehold.co/60x40';
+                                                    }}
+                                                />
+                                            </td>
+                                            <td><div className="fw-bold text-truncate" style={{ maxWidth: '300px' }} title={n.title}>{n.title}</div></td>
+                                            <td>
                                                 <span className={`badge border ${n.category === 'NEWS' ? 'bg-primary bg-opacity-10 text-primary border-primary' : n.category === 'PROMOTION' ? 'bg-warning bg-opacity-10 text-warning border-warning' : 'bg-danger bg-opacity-10 text-danger border-danger'}`}>
                                                     {n.category}
                                                 </span>
-                                        </td>
-                                        <td>{new Date(n.publishedAt).toLocaleDateString('vi-VN')}</td>
-                                        <td className="text-end pe-4">
-                                            <Link to={`/admin/news/edit/${n.newsId}`} className="btn btn-light border btn-sm me-2 text-primary shadow-sm"><i className="bi bi-pencil-square"></i></Link>
-                                            <button onClick={() => openDeleteModal(n.newsId)} className="btn btn-light border btn-sm text-danger shadow-sm"><i className="bi bi-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
+                                            </td>
+                                            <td>{new Date(n.publishedAt).toLocaleDateString('vi-VN')}</td>
+                                            <td className="text-end pe-4">
+                                                <Link to={`/admin/news/edit/${n.newsId}`} className="btn btn-light border btn-sm me-2 text-primary shadow-sm"><i className="bi bi-pencil-square"></i></Link>
+                                                <button onClick={() => openDeleteModal(n.newsId)} className="btn btn-light border btn-sm text-danger shadow-sm"><i className="bi bi-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -109,9 +114,9 @@ const NewsManager = () => {
                         <div className="d-flex justify-content-between align-items-center p-3 border-top bg-light bg-opacity-25">
                             <div className="text-muted small">Hiển thị <strong>{currentNews.length}</strong> / <strong>{totalElements}</strong> bài viết</div>
                             <div className="d-flex align-items-center gap-2">
-                                <button className="btn btn-light rounded-circle shadow-sm border" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 0} style={{width: '35px', height: '35px'}}><i className="bi bi-chevron-left text-primary"></i></button>
+                                <button className="btn btn-light rounded-circle shadow-sm border" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 0} style={{ width: '35px', height: '35px' }}><i className="bi bi-chevron-left text-primary"></i></button>
                                 <span className="fw-bold text-dark px-3 py-1 rounded bg-white shadow-sm border mx-2">{currentPage + 1} / {totalPages}</span>
-                                <button className="btn btn-light rounded-circle shadow-sm border" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages - 1} style={{width: '35px', height: '35px'}}><i className="bi bi-chevron-right text-primary"></i></button>
+                                <button className="btn btn-light rounded-circle shadow-sm border" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages - 1} style={{ width: '35px', height: '35px' }}><i className="bi bi-chevron-right text-primary"></i></button>
                             </div>
                         </div>
                     )}

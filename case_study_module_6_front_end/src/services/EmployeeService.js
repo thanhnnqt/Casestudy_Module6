@@ -1,8 +1,8 @@
 import axios from "axios";
 
 // Đảm bảo biến này được khai báo ở đầu file
-const URL_EMPLOYEE = "http://localhost:8080/v1/api/employees";
-const URL_AUTH = "http://localhost:8080/auth";
+const URL_EMPLOYEE = `${import.meta.env.VITE_API_BASE_URL}/v1/api/employees`;
+const URL_AUTH = `${import.meta.env.VITE_API_BASE_URL}/auth`;
 
 export const getAllEmployees = async (page, size) => {
     try {
@@ -118,3 +118,4 @@ export const changePassword = async (passwordData) => {
         throw error;
     }
 };
+

@@ -6,29 +6,13 @@ import { Link, useNavigate } from "react-router-dom";
 import ChatBox from "../components/chat/ChatBox.jsx";
 import AdminFloatingChat from "../components/chat/AdminFloatingChat";
 import { useAuth } from "../context/AuthContext";
+import { getAllAirports } from "../services/AirportService";
 
 const CHAT_ADMIN_TARGET = { customerAccountId: 1, customerUsername: "admin" };
 
 function Home() {
-    /* ================= CITY LIST ================= */
-    const cities = [
-        "Hà Nội (HAN)",
-        "TP. Hồ Chí Minh (SGN)",
-        "Đà Nẵng (DAD)",
-        "Nha Trang (CXR)",
-        "Phú Quốc (PQC)",
-        "Cần Thơ (VCA)"
-    ];
-
-    /* MAP CITY → WEATHER API NAME (CHỈ PHỤC VỤ THỜI TIẾT) */
-    const cityWeatherMap = {
-        "Hà Nội (HAN)": "Hanoi",
-        "TP. Hồ Chí Minh (SGN)": "Ho Chi Minh City",
-        "Đà Nẵng (DAD)": "Da Nang",
-        "Nha Trang (CXR)": "Nha Trang",
-        "Phú Quốc (PQC)": "Phu Quoc",
-        "Cần Thơ (VCA)": "Can Tho"
-    };
+    /* ================= DYNAMIC CITY LIST ================= */
+    const [cities, setCities] = useState([]);
 
     /* ================= STATE ================= */
     const [tripType, setTripType] = useState("ONE_WAY");
@@ -40,22 +24,41 @@ function Home() {
         to: "TP. Hồ Chí Minh (SGN)",
         departureDate: "2025-12-18",
         returnDate: "",
+        seatClass: "ECONOMY",
         adult: 1,
         child: 0,
         infant: 0
     });
 
-    /* ================= NEWS STATE ================= */
+    /* ================= NEWS & AIRPORTS DATA ================= */
     const [newsList, setNewsList] = useState([]);
     useEffect(() => {
         const fetchNews = async () => {
             const data = await getAllNews();
-            // Lấy 3 tin mới nhất
             if (data && Array.isArray(data)) {
                 setNewsList(data.slice(0, 3));
             }
         };
+
+        const fetchAirports = async () => {
+            const data = await getAllAirports();
+            if (data && Array.isArray(data)) {
+                const formatted = data.map(a => `${a.city} (${a.code})`);
+                setCities(formatted);
+
+                // Set default form values if we have data
+                if (formatted.length >= 2) {
+                    setForm(prev => ({
+                        ...prev,
+                        from: formatted[0],
+                        to: formatted[1]
+                    }));
+                }
+            }
+        };
+
         fetchNews();
+        fetchAirports();
     }, []);
     /* WEATHER STATE */
     const [weatherFrom, setWeatherFrom] = useState(null);
@@ -78,6 +81,7 @@ function Home() {
             date: form.departureDate,
             returnDate: form.returnDate,
             tripType: tripType,
+            seatClass: form.seatClass,
             passengers: {
                 adult: form.adult,
                 child: form.child,
@@ -181,13 +185,37 @@ function Home() {
     };
     /* LOAD WEATHER WHEN CHANGE FORM */
     useEffect(() => {
-        if (!form.departureDate) return;
+        if (!form.departureDate || cities.length === 0) return;
 
         const loadWeather = async () => {
-            const fromCity = cityWeatherMap[form.from];
-            const toCity = cityWeatherMap[form.to];
+            // Helper để lấy tên thành phố cho Weather API
+            const getPureCity = (str) => {
+                if (!str) return "";
+                const city = str.split(" (")[0].trim();
 
-            if (!fromCity || !toCity) return;
+                // Bản đồ chuyển đổi các tên tiếng Việt sang tên API nhận diện tốt hơn
+                const specialMap = {
+                    "Hà Nội": "Hanoi",
+                    "TP. Hồ Chí Minh": "Ho Chi Minh City",
+                    "Hải Phòng": "Hai Phong",
+                    "Kiên Giang": "Phu Quoc",
+                    "Đà Nẵng": "Da Nang",
+                    "Huế": "Hue",
+                    "Nha Trang": "Nha Trang",
+                    "Quy Nhơn": "Qui Nhon",
+                    "Cần Thơ": "Can Tho",
+                    "Phú Quốc": "Phu Quoc",
+                    "Đà Lạt": "Da Lat",
+                    "Buôn Ma Thuột": "Buon Ma Thuot",
+                    "Vinh": "Vinh",
+                    "Thanh Hóa": "Thanh Hoa"
+                };
+
+                return specialMap[city] || city;
+            };
+
+            const fromCity = getPureCity(form.from);
+            const toCity = getPureCity(form.to);
 
             const wf = await fetchWeather(fromCity, form.departureDate);
             const wt = await fetchWeather(toCity, form.departureDate);
@@ -197,12 +225,39 @@ function Home() {
         };
 
         loadWeather();
-    }, [form.from, form.to, form.departureDate, cityWeatherMap]);
+    }, [form.from, form.to, form.departureDate, cities]);
 
     const handleCopy = async (code) => {
+        // Phương pháp 1: Sử dụng Clipboard API (Yêu cầu HTTPS hoặc localhost)
+        if (navigator.clipboard && window.isSecureContext) {
+            try {
+                await navigator.clipboard.writeText(code);
+                toast.success(`🎉 Đã copy mã ưu đãi: ${code}`);
+                return;
+            } catch (err) {
+                console.warn("Clipboard API failed, falling back...", err);
+            }
+        }
+
+        // Phương pháp 2: Sử dụng textarea tạm thời (Hoạt động được trên HTTP/IP)
         try {
-            await navigator.clipboard.writeText(code);
-            toast.success(`🎉 Đã copy mã ưu đãi: ${code}`);
+            const textArea = document.createElement("textarea");
+            textArea.value = code;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            textArea.style.top = "0";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            if (successful) {
+                toast.success(`🎉 Đã copy mã ưu đãi: ${code}`);
+            } else {
+                toast.error("❌ Trình duyệt không hỗ trợ copy tự động");
+            }
         } catch (err) {
             toast.error("❌ Không thể copy mã, vui lòng thử lại");
         }
@@ -285,48 +340,13 @@ function Home() {
                                 </div>
                             )}
 
-                            <div className="field passenger-field">
-                                <label>Hành khách</label>
-                                <div
-                                    className="passenger-input"
-                                    onClick={() => setShowPassenger(!showPassenger)}
-                                >
-                                    {passengerText()}
-                                    <span>▾</span>
-                                </div>
-
-                                {showPassenger && (
-                                    <div className="passenger-panel">
-                                        {["adult", "child", "infant"].map(type => (
-                                            <div className="passenger-row" key={type}>
-                                                <span>
-                                                    {type === "adult" && "Người lớn"}
-                                                    {type === "child" && "Trẻ em"}
-                                                    {type === "infant" && "Em bé"}
-                                                </span>
-                                                <div className="counter">
-                                                    <button
-                                                        onClick={() =>
-                                                            setForm(p => ({
-                                                                ...p,
-                                                                [type]: Math.max(0, p[type] - 1)
-                                                            }))
-                                                        }
-                                                    >−</button>
-                                                    <span>{form[type]}</span>
-                                                    <button
-                                                        onClick={() =>
-                                                            setForm(p => ({
-                                                                ...p,
-                                                                [type]: p[type] + 1
-                                                            }))
-                                                        }
-                                                    >+</button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
+                            <div className="field">
+                                <label>Hạng ghế</label>
+                                <select name="seatClass" value={form.seatClass} onChange={handleChange}>
+                                    <option value="ECONOMY">Phổ thông (Economy)</option>
+                                    <option value="BUSINESS">Thương gia (Business)</option>
+                                    <option value="FIRST_CLASS">Hạng nhất (First Class)</option>
+                                </select>
                             </div>
 
                             <button className="btn-search" onClick={handleSearchClick}>🔍</button>
@@ -490,7 +510,10 @@ function Home() {
                                                 src={n.thumbnail}
                                                 alt={n.title}
                                                 style={{ width: '100%', height: '200px', objectFit: 'cover' }}
-                                                onError={(e) => e.target.src = 'https://via.placeholder.com/300x200?text=No+Image'}
+                                                onError={(e) => {
+                                                    e.target.onerror = null;
+                                                    e.target.src = 'https://placehold.co/300x200?text=No+Image';
+                                                }}
                                             />
                                         </Link>
                                     </div>

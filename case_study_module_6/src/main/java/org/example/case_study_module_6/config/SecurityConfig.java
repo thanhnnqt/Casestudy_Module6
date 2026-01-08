@@ -61,6 +61,7 @@ public class SecurityConfig {
                                 "/ws-chat/**", "/app/**", "/topic/**", "/queue/**", "/user/**",
                                 "/api/payment/**",
                                 "/api/bookings/online",
+                                "/api/airports/**",
                                 "/api/master/airports",
                                 "/api/master/airlines",
                                 "/api/master/routes",
@@ -95,7 +96,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
