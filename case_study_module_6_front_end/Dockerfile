@@ -1,7 +1,8 @@
 # Frontend Dockerfile
 FROM node:18-alpine AS build
 WORKDIR /app
-COPY package*.json ./
+COPY package.json ./
+# Xóa package-lock.json (nếu có) để tránh lỗi thiếu binary Rollup cho Linux khi build từ Windows
 RUN npm install
 COPY . .
 RUN npm run build
