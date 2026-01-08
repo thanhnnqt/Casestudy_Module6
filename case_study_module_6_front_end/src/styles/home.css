@@ -270,6 +270,18 @@ body,
     align-items: center;
 }
 
+.promo-code-box {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    /* Thêm khoảng cách giữa mã và nút Copy */
+}
+
+.promo-code {
+    font-weight: bold;
+    color: #0d6efd;
+}
+
 /* ================= NEWS ================= */
 .news-card {
     border-radius: 16px;

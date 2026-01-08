@@ -1,22 +1,27 @@
 import React, { useState, useEffect } from "react";
 
-const BookingDetailModal = ({ outboundFlight, inboundFlight, tripType, onClose, onConfirm }) => {
+const BookingDetailModal = ({ outboundFlight, inboundFlight, tripType, onClose, onConfirm, initialSeatClass }) => {
     // --- STATE ---
     const [quantity, setQuantity] = useState(1);
 
     // Chọn 1 hạng ghế chung cho tất cả
-    const [seatClassOut, setSeatClassOut] = useState("ECONOMY");
-    const [seatClassIn, setSeatClassIn] = useState("ECONOMY");
+    const [seatClassOut, setSeatClassOut] = useState(initialSeatClass || "ECONOMY");
+    const [seatClassIn, setSeatClassIn] = useState(initialSeatClass || "ECONOMY");
 
-    // Reset về hạng ghế mặc định (hạng đầu tiên trong danh sách) khi mở modal
+    // Reset về hạng ghế mặc định (ưu tiên hạng ghế từ Home page, sau đó là hạng đầu tiên trong danh sách) khi mở modal
     useEffect(() => {
-        if (outboundFlight?.seatDetails?.length > 0) {
-            setSeatClassOut(outboundFlight.seatDetails[0].seatClass);
+        if (initialSeatClass) {
+            setSeatClassOut(initialSeatClass);
+            setSeatClassIn(initialSeatClass);
+        } else {
+            if (outboundFlight?.seatDetails?.length > 0) {
+                setSeatClassOut(outboundFlight.seatDetails[0].seatClass);
+            }
+            if (inboundFlight?.seatDetails?.length > 0) {
+                setSeatClassIn(inboundFlight.seatDetails[0].seatClass);
+            }
         }
-        if (inboundFlight?.seatDetails?.length > 0) {
-            setSeatClassIn(inboundFlight.seatDetails[0].seatClass);
-        }
-    }, [outboundFlight, inboundFlight]);
+    }, [outboundFlight, inboundFlight, initialSeatClass]);
 
     if (!outboundFlight) return null;
 
@@ -51,10 +56,10 @@ const BookingDetailModal = ({ outboundFlight, inboundFlight, tripType, onClose, 
 
     return (
         <div className="modal-backdrop-custom d-flex justify-content-center align-items-center"
-             style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050}}>
+            style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
 
             <div className="bg-white rounded-4 shadow-lg p-0 overflow-hidden animate__animated animate__fadeInDown"
-                 style={{width: '900px', maxWidth: '95%'}}>
+                style={{ width: '900px', maxWidth: '95%' }}>
 
                 {/* HEADER */}
                 <div className="bg-primary text-white p-3 d-flex justify-content-between align-items-center">
@@ -63,7 +68,7 @@ const BookingDetailModal = ({ outboundFlight, inboundFlight, tripType, onClose, 
                 </div>
 
                 {/* BODY */}
-                <div className="p-4" style={{maxHeight: '70vh', overflowY: 'auto'}}>
+                <div className="p-4" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
 
                     {/* 1. CHỌN SỐ LƯỢNG */}
                     <div className="mb-4 d-flex align-items-center gap-3 p-3 bg-light rounded border border-primary-subtle">
@@ -73,7 +78,7 @@ const BookingDetailModal = ({ outboundFlight, inboundFlight, tripType, onClose, 
                             value={quantity}
                             onChange={(e) => setQuantity(parseInt(e.target.value))}
                         >
-                            {[1,2,3,4,5,6,7,8,9,10].map(n => <option key={n} value={n}>{n} người</option>)}
+                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => <option key={n} value={n}>{n} người</option>)}
                         </select>
                         <small className="text-muted fst-italic ms-2">(Bao gồm Người lớn & Trẻ em)</small>
                     </div>
@@ -81,74 +86,74 @@ const BookingDetailModal = ({ outboundFlight, inboundFlight, tripType, onClose, 
                     {/* 2. BẢNG CHI TIẾT */}
                     <table className="table table-bordered align-middle table-hover">
                         <thead className="table-secondary text-secondary">
-                        <tr className="text-center small text-uppercase">
-                            <th style={{width: '40%'}}>Hành trình</th>
-                            <th style={{width: '30%'}}>Hạng vé (Áp dụng tất cả)</th>
-                            <th style={{width: '15%'}}>Đơn giá</th>
-                            <th style={{width: '15%'}}>Thành tiền</th>
-                        </tr>
+                            <tr className="text-center small text-uppercase">
+                                <th style={{ width: '40%' }}>Hành trình</th>
+                                <th style={{ width: '30%' }}>Hạng vé (Áp dụng tất cả)</th>
+                                <th style={{ width: '15%' }}>Đơn giá</th>
+                                <th style={{ width: '15%' }}>Thành tiền</th>
+                            </tr>
                         </thead>
                         <tbody>
 
-                        {/* DÒNG 1: CHIỀU ĐI */}
-                        <tr>
-                            <td>
-                                <div className="badge bg-primary mb-2">CHIỀU ĐI</div>
-                                <div className="fw-bold text-dark mb-1">
-                                    {outboundFlight.departureAirport.city} <i className="bi bi-arrow-right text-muted mx-1"></i> {outboundFlight.arrivalAirport.city}
-                                </div>
-                                <div className="small text-muted">
-                                    <img src={outboundFlight.aircraft.airline.logoUrl} alt="" style={{height: '18px', marginRight:'5px'}}/>
-                                    {outboundFlight.flightNumber} • {outboundFlight.departureTime.replace('T', ' ')}
-                                </div>
-                            </td>
-                            <td>
-                                <select
-                                    className="form-select fw-bold text-primary"
-                                    value={seatClassOut}
-                                    onChange={(e) => setSeatClassOut(e.target.value)}
-                                >
-                                    {renderSeatOptions(outboundFlight)}
-                                </select>
-                            </td>
-                            <td className="text-end">{priceOut.toLocaleString()} đ</td>
-                            <td className="text-end fw-bold text-primary">{(priceOut * quantity).toLocaleString()} đ</td>
-                        </tr>
-
-                        {/* DÒNG 2: CHIỀU VỀ (NẾU CÓ) */}
-                        {tripType === "ROUND_TRIP" && inboundFlight && (
+                            {/* DÒNG 1: CHIỀU ĐI */}
                             <tr>
                                 <td>
-                                    <div className="badge bg-success mb-2">CHIỀU VỀ</div>
+                                    <div className="badge bg-primary mb-2">CHIỀU ĐI</div>
                                     <div className="fw-bold text-dark mb-1">
-                                        {inboundFlight.departureAirport.city} <i className="bi bi-arrow-right text-muted mx-1"></i> {inboundFlight.arrivalAirport.city}
+                                        {outboundFlight.departureAirport.city} <i className="bi bi-arrow-right text-muted mx-1"></i> {outboundFlight.arrivalAirport.city}
                                     </div>
                                     <div className="small text-muted">
-                                        <img src={inboundFlight.aircraft.airline.logoUrl} alt="" style={{height: '18px', marginRight:'5px'}}/>
-                                        {inboundFlight.flightNumber} • {inboundFlight.departureTime.replace('T', ' ')}
+                                        <img src={outboundFlight.aircraft.airline.logoUrl} alt="" style={{ height: '18px', marginRight: '5px' }} />
+                                        {outboundFlight.flightNumber} • {outboundFlight.departureTime.replace('T', ' ')}
                                     </div>
                                 </td>
                                 <td>
                                     <select
-                                        className="form-select fw-bold text-success"
-                                        value={seatClassIn}
-                                        onChange={(e) => setSeatClassIn(e.target.value)}
+                                        className="form-select fw-bold text-primary"
+                                        value={seatClassOut}
+                                        onChange={(e) => setSeatClassOut(e.target.value)}
                                     >
-                                        {renderSeatOptions(inboundFlight)}
+                                        {renderSeatOptions(outboundFlight)}
                                     </select>
                                 </td>
-                                <td className="text-end">{priceIn.toLocaleString()} đ</td>
-                                <td className="text-end fw-bold text-success">{(priceIn * quantity).toLocaleString()} đ</td>
+                                <td className="text-end">{priceOut.toLocaleString()} đ</td>
+                                <td className="text-end fw-bold text-primary">{(priceOut * quantity).toLocaleString()} đ</td>
                             </tr>
-                        )}
+
+                            {/* DÒNG 2: CHIỀU VỀ (NẾU CÓ) */}
+                            {tripType === "ROUND_TRIP" && inboundFlight && (
+                                <tr>
+                                    <td>
+                                        <div className="badge bg-success mb-2">CHIỀU VỀ</div>
+                                        <div className="fw-bold text-dark mb-1">
+                                            {inboundFlight.departureAirport.city} <i className="bi bi-arrow-right text-muted mx-1"></i> {inboundFlight.arrivalAirport.city}
+                                        </div>
+                                        <div className="small text-muted">
+                                            <img src={inboundFlight.aircraft.airline.logoUrl} alt="" style={{ height: '18px', marginRight: '5px' }} />
+                                            {inboundFlight.flightNumber} • {inboundFlight.departureTime.replace('T', ' ')}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <select
+                                            className="form-select fw-bold text-success"
+                                            value={seatClassIn}
+                                            onChange={(e) => setSeatClassIn(e.target.value)}
+                                        >
+                                            {renderSeatOptions(inboundFlight)}
+                                        </select>
+                                    </td>
+                                    <td className="text-end">{priceIn.toLocaleString()} đ</td>
+                                    <td className="text-end fw-bold text-success">{(priceIn * quantity).toLocaleString()} đ</td>
+                                </tr>
+                            )}
                         </tbody>
                         <tfoot className="bg-light">
-                        <tr>
-                            <td colSpan="3" className="text-end fw-bold fs-5 pt-3 text-muted">TỔNG CỘNG ({quantity} khách):</td>
-                            <td className="text-end fw-bold fs-3 text-danger pt-3">
-                                {finalTotal.toLocaleString()} đ
-                            </td>
-                        </tr>
+                            <tr>
+                                <td colSpan="3" className="text-end fw-bold fs-5 pt-3 text-muted">TỔNG CỘNG ({quantity} khách):</td>
+                                <td className="text-end fw-bold fs-3 text-danger pt-3">
+                                    {finalTotal.toLocaleString()} đ
+                                </td>
+                            </tr>
                         </tfoot>
                     </table>
                 </div>

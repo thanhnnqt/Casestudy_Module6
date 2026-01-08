@@ -24,7 +24,8 @@ const BookingPage = () => {
         destination: "HAN",
         date: "2026-01-10",
         returnDate: "2026-01-11",
-        tripType: "ROUND_TRIP"
+        tripType: "ROUND_TRIP",
+        seatClass: "ECONOMY"
     });
 
     const [outboundFlights, setOutboundFlights] = useState([]);
@@ -58,19 +59,25 @@ const BookingPage = () => {
         });
     };
 
-    const handleSearch = async (targetDateOut, targetDateIn) => {
+    const handleSearch = async (targetDateOut, targetDateIn, customParams = null) => {
         setStep(1);
-        const dateOut = targetDateOut || searchParams.date;
-        const dateIn = targetDateIn || searchParams.returnDate;
 
-        if (!targetDateOut) setSelectedOutbound(null);
-        if (!targetDateIn) setSelectedInbound(null);
+        // Sử dụng customParams (thường từ location.state) nếu có, nếu không dùng searchParams từ state
+        const effectiveParams = customParams || searchParams;
+
+        const dateOut = targetDateOut || effectiveParams.date;
+        const dateIn = targetDateIn || effectiveParams.returnDate;
+        const currentOrigin = effectiveParams.origin;
+        const currentDestination = effectiveParams.destination;
+
+        if (targetDateOut) setSelectedOutbound(null);
+        if (targetDateIn) setSelectedInbound(null);
 
         const rangeOut = getRangeDates(dateOut);
         try {
             const resOut = await getAllFlights({
-                origin: searchParams.origin,
-                destination: searchParams.destination,
+                origin: currentOrigin,
+                destination: currentDestination,
                 startDate: rangeOut.startStr,
                 endDate: rangeOut.endStr,
                 size: 500
@@ -89,11 +96,11 @@ const BookingPage = () => {
             setRawOutboundFlights(displayOut);
 
             let displayIn = [];
-            if (searchParams.tripType === "ROUND_TRIP" && dateIn) {
+            if (effectiveParams.tripType === "ROUND_TRIP" && dateIn) {
                 const rangeIn = getRangeDates(dateIn);
                 const resIn = await getAllFlights({
-                    origin: searchParams.destination,
-                    destination: searchParams.origin,
+                    origin: currentDestination,
+                    destination: currentOrigin,
                     startDate: rangeIn.startStr,
                     endDate: rangeIn.endStr,
                     size: 500
@@ -162,15 +169,18 @@ const BookingPage = () => {
             setAirports(aps || []);
 
             if (location.state) {
-                const { origin, destination, date, returnDate, tripType } = location.state;
-                setSearchParams({
+                const { origin, destination, date, returnDate, tripType, seatClass } = location.state;
+                const newParams = {
                     origin: origin || "HAN",
                     destination: destination || "SGN",
                     date: date || getTodayStr(),
                     returnDate: returnDate || "",
-                    tripType: tripType || "ONE_WAY"
-                });
-                handleSearch(date, returnDate);
+                    tripType: tripType || "ONE_WAY",
+                    seatClass: seatClass || "ECONOMY"
+                };
+                setSearchParams(newParams);
+                // Truyền trực tiếp newParams vào handleSearch để tránh bị delay do state chưa update
+                handleSearch(newParams.date, newParams.returnDate, newParams);
             } else {
                 handleSearch();
             }
@@ -373,6 +383,7 @@ const BookingPage = () => {
                     outboundFlight={selectedOutbound}
                     inboundFlight={selectedInbound}
                     tripType={searchParams.tripType}
+                    initialSeatClass={searchParams.seatClass}
                     onClose={() => setStep(1)}
                     onConfirm={handleConfirmModal}
                 />

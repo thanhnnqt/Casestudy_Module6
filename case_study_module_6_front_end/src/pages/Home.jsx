@@ -24,6 +24,7 @@ function Home() {
         to: "TP. Hồ Chí Minh (SGN)",
         departureDate: "2025-12-18",
         returnDate: "",
+        seatClass: "ECONOMY",
         adult: 1,
         child: 0,
         infant: 0
@@ -80,6 +81,7 @@ function Home() {
             date: form.departureDate,
             returnDate: form.returnDate,
             tripType: tripType,
+            seatClass: form.seatClass,
             passengers: {
                 adult: form.adult,
                 child: form.child,
@@ -338,48 +340,13 @@ function Home() {
                                 </div>
                             )}
 
-                            <div className="field passenger-field">
-                                <label>Hành khách</label>
-                                <div
-                                    className="passenger-input"
-                                    onClick={() => setShowPassenger(!showPassenger)}
-                                >
-                                    {passengerText()}
-                                    <span>▾</span>
-                                </div>
-
-                                {showPassenger && (
-                                    <div className="passenger-panel">
-                                        {["adult", "child", "infant"].map(type => (
-                                            <div className="passenger-row" key={type}>
-                                                <span>
-                                                    {type === "adult" && "Người lớn"}
-                                                    {type === "child" && "Trẻ em"}
-                                                    {type === "infant" && "Em bé"}
-                                                </span>
-                                                <div className="counter">
-                                                    <button
-                                                        onClick={() =>
-                                                            setForm(p => ({
-                                                                ...p,
-                                                                [type]: Math.max(0, p[type] - 1)
-                                                            }))
-                                                        }
-                                                    >−</button>
-                                                    <span>{form[type]}</span>
-                                                    <button
-                                                        onClick={() =>
-                                                            setForm(p => ({
-                                                                ...p,
-                                                                [type]: p[type] + 1
-                                                            }))
-                                                        }
-                                                    >+</button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
+                            <div className="field">
+                                <label>Hạng ghế</label>
+                                <select name="seatClass" value={form.seatClass} onChange={handleChange}>
+                                    <option value="ECONOMY">Phổ thông (Economy)</option>
+                                    <option value="BUSINESS">Thương gia (Business)</option>
+                                    <option value="FIRST_CLASS">Hạng nhất (First Class)</option>
+                                </select>
                             </div>
 
                             <button className="btn-search" onClick={handleSearchClick}>🔍</button>

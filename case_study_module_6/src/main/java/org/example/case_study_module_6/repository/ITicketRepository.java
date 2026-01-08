@@ -17,4 +17,8 @@ public interface ITicketRepository extends JpaRepository<Ticket, Long> {
     // THÊM ĐOẠN NÀY VÀO: Đếm xem chuyến bay này, hạng ghế này đã bán được bao nhiêu vé rồi
     @Query("SELECT COUNT(t) FROM Ticket t WHERE t.flight.id = :flightId AND t.seatClass = :seatClass")
     long countByFlightIdAndSeatClass(@Param("flightId") Long flightId, @Param("seatClass") SeatClass seatClass);
+
+    // FIX: Tìm vé có số ghế lớn nhất để lấy index tiếp theo chuẩn xác hơn
+    @Query("SELECT t FROM Ticket t WHERE t.flight.id = :flightId AND t.seatClass = :seatClass ORDER BY t.id DESC LIMIT 1")
+    Ticket findLastTicketByFlightIdAndSeatClass(@Param("flightId") Long flightId, @Param("seatClass") SeatClass seatClass);
 }

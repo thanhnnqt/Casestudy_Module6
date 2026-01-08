@@ -9,6 +9,7 @@ import org.example.case_study_module_6.entity.*;
 import org.example.case_study_module_6.service.*;
 import org.example.case_study_module_6.service.impl.GoogleTokenVerifierService;
 import org.example.case_study_module_6.service.impl.JwtService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,9 @@ public class AuthController {
     private final IVerificationTokenService verificationTokenService;
     private final IEmailService emailService;
     private final IAuthService authService;
+
+    @Value("${app.frontend-url}")
+    private String frontEndUrl;
 
     public AuthController(
             JwtService jwtService,
@@ -155,8 +159,8 @@ public class AuthController {
         }
 
         VerificationToken token = verificationTokenService.createFromRegister(req);
-        // Dùng IP của máy bạn để máy khác (điện thoại) có thể click được trong mail
-        String link = "http://192.168.1.30:5173/verify-email?token=" + token.getToken();
+        // Sử dụng cấu hình từ application.properties thay vì hardcode IP
+        String link = frontEndUrl + "/verify-email?token=" + token.getToken();
         emailService.sendVerificationEmail(req.getEmail(), link);
 
         return ResponseEntity.ok("Vui lòng kiểm tra email");
