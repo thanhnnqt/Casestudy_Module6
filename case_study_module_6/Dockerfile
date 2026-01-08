@@ -9,4 +9,4 @@ WORKDIR /app
 # Copy specific JAR to avoid copying the *-plain.jar
 COPY --from=build /app/build/libs/case_study_module_6-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "java -Dserver.port=${PORT:-8080} -jar app.jar"]
