@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 // 1. Import useAuth để lấy thông tin chuẩn
 import { useAuth } from "../context/AuthContext";
-import { getEmployeeById, changePassword } from '../services/employeeService';
+import { getEmployeeById, changePassword } from '../services/EmployeeService';
 import "../modules/flight/components/FlightList.css";
 
 const EmployeeInfo = () => {
@@ -130,7 +130,7 @@ const EmployeeInfo = () => {
                         <div className="col-md-4 bg-light d-flex flex-column align-items-center justify-content-center p-5 border-end">
                             <div className="mb-3 position-relative">
                                 <img src={employee.imgURL} alt="Avatar" className="rounded-circle shadow border border-5 border-white" style={{ width: '160px', height: '160px', objectFit: 'cover' }}
-                                     onError={(e) => { e.target.onerror = null; e.target.src = "https://cdn-icons-png.flaticon.com/512/149/149071.png"; }} />
+                                    onError={(e) => { e.target.onerror = null; e.target.src = "https://cdn-icons-png.flaticon.com/512/149/149071.png"; }} />
                             </div>
                             <h4 className="fw-bold mb-1 text-center">{employee.fullName}</h4>
                             <span className="text-muted">@{employee.account?.username}</span>
@@ -162,17 +162,17 @@ const EmployeeInfo = () => {
                             <div className="mb-3">
                                 <label className="form-label small fw-bold text-muted">Mật khẩu hiện tại</label>
                                 <input type="password" name="currentPassword" className="form-control"
-                                       value={passForm.currentPassword} onChange={handleChangePass} />
+                                    value={passForm.currentPassword} onChange={handleChangePass} />
                             </div>
                             <div className="mb-3">
                                 <label className="form-label small fw-bold text-muted">Mật khẩu mới</label>
                                 <input type="password" name="newPassword" className="form-control"
-                                       value={passForm.newPassword} onChange={handleChangePass} />
+                                    value={passForm.newPassword} onChange={handleChangePass} />
                             </div>
                             <div className="mb-4">
                                 <label className="form-label small fw-bold text-muted">Xác nhận mật khẩu mới</label>
                                 <input type="password" name="confirmPassword" className="form-control"
-                                       value={passForm.confirmPassword} onChange={handleChangePass} />
+                                    value={passForm.confirmPassword} onChange={handleChangePass} />
                             </div>
                             <div className="d-flex justify-content-end gap-2">
                                 <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Hủy</button>
