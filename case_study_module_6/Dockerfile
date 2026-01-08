@@ -2,7 +2,7 @@
 FROM gradle:8-jdk17-alpine AS build
 WORKDIR /app
 COPY . .
-RUN gradle clean build -x test --no-daemon
+RUN gradle clean build -x test --no-daemon --stacktrace
 
 FROM amazoncorretto:17-alpine
 WORKDIR /app
