@@ -369,19 +369,35 @@ public class BookingService {
         return bookingRepository.findByCustomerAccountIdOrderByBookingDateDesc(accountId);
     }
 
-    public void updateStatusByCode(String bookingCode, BookingStatus status, String transactionNo) {
-        Booking booking = bookingRepository.findByBookingCode(bookingCode)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+    public Optional<Booking> findByBookingCode(String code) {
+        return bookingRepository.findByBookingCode(code);
+    }
+
+    @Transactional
+    public synchronized Optional<Booking> updateStatusByCode(String bookingCode, BookingStatus status, String transactionNo) {
+        Optional<Booking> bookingOpt = bookingRepository.findByBookingCode(bookingCode);
+        if (bookingOpt.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        Booking booking = bookingOpt.get();
+        
+        // Nếu đã thanh toán rồi thì không làm gì thêm và trả về empty để báo hiệu không gửi mail lại
+        if (booking.getStatus() == BookingStatus.PAID && status == BookingStatus.PAID) {
+            System.out.println(">>> Booking " + bookingCode + " is already PAID. Skipping re-update.");
+            return Optional.empty(); 
+        }
+
         booking.setStatus(status);
         if (status == BookingStatus.PAID) {
             booking.setPaymentStatus(PaymentStatus.PAID);
             booking.setTransactionCode(transactionNo);
             booking.setPaidAt(LocalDateTime.now());
         }
-        bookingRepository.save(booking);
-    }
-
-    // =========================================================================
+        
+        System.out.println(">>> Updating booking " + bookingCode + " to " + status);
+        return Optional.of(bookingRepository.save(booking));
+    }// =========================================================================
     // 6. HÀM ĐẶT VÉ ONLINE (ĐÃ SỬA LOGIC GIẢM GIÁ)
     // =========================================================================
     @Transactional(rollbackFor = Exception.class)

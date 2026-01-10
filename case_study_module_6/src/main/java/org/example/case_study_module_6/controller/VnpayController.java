@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.example.case_study_module_6.config.VnpayConfig;
 import org.example.case_study_module_6.dto.PaymentRequest; // Tạo DTO này nếu chưa có
 import org.example.case_study_module_6.enums.BookingStatus;
+import org.example.case_study_module_6.entity.Booking;
+import org.example.case_study_module_6.service.IEmailService;
 import org.example.case_study_module_6.service.IVnpayService;
 import org.example.case_study_module_6.service.impl.BookingService;
 import org.example.case_study_module_6.util.VnpayUtil;
@@ -11,16 +13,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/payment")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "*")
 public class VnpayController {
     private final IVnpayService vnpayService;
     private final BookingService bookingService;
-    public VnpayController(IVnpayService vnpayService, BookingService bookingService) {
+    private final IEmailService emailService;
+    public VnpayController(IVnpayService vnpayService, BookingService bookingService, IEmailService emailService) {
         this.vnpayService = vnpayService;
         this.bookingService = bookingService;
+        this.emailService = emailService;
     }
     // API tạo link thanh toán
     @PostMapping("/create-payment-url")
@@ -72,15 +77,34 @@ public class VnpayController {
         // 3. Cập nhật trạng thái Booking
         try {
             if ("00".equals(responseCode)) {
-                bookingService.updateStatusByCode(bookingCode, BookingStatus.PAID, transactionNo);
-                System.out.println(">>> Booking status updated to PAID for code: " + bookingCode);
-                return ResponseEntity.ok(Map.of("code", "00", "message", "Success", "bookingCode", bookingCode));
+                System.out.println(">>> Attempting to update booking status to PAID for: " + bookingCode);
+                
+                // updateStatusByCode sẽ trả về Optional.of(booking) nếu vừa mới update xong
+                // Trả về Optional.empty() nếu đã PAID rồi
+                java.util.Optional<Booking> bookingOpt = bookingService.updateStatusByCode(bookingCode, BookingStatus.PAID, transactionNo);
+                
+                if (bookingOpt.isPresent()) {
+                    System.out.println(">>> Successfully updated to PAID. Sending email...");
+                    emailService.sendBookingSuccessEmail(bookingOpt.get());
+                    return ResponseEntity.ok(Map.of("code", "00", "message", "Success", "bookingCode", bookingCode));
+                } else {
+                    // Nếu empty, có thể là đã PAID từ trước HOẶC không tìm thấy
+                    // Kiểm tra xem thực sự có tồn tại booking này không
+                    if (bookingService.findByBookingCode(bookingCode).isPresent()) {
+                        System.out.println(">>> Booking already processed (PAID). Returning success to VNPAY.");
+                        return ResponseEntity.ok(Map.of("code", "00", "message", "Already processed"));
+                    } else {
+                        System.out.println(">>> Booking not found for code: " + bookingCode);
+                        return ResponseEntity.ok(Map.of("code", "01", "message", "Booking not found"));
+                    }
+                }
             } else {
                 bookingService.updateStatusByCode(bookingCode, BookingStatus.FAILED, null);
                 System.out.println(">>> Booking status updated to FAILED for code: " + bookingCode);
                 return ResponseEntity.ok(Map.of("code", responseCode, "message", "Transaction Failed"));
             }
         } catch (Exception e) {
+            e.printStackTrace();
             System.err.println(">>> Error updating booking status: " + e.getMessage());
             return ResponseEntity.internalServerError().body(Map.of("code", "99", "message", e.getMessage()));
         }
@@ -102,3 +126,4 @@ public class VnpayController {
         return ResponseEntity.ok(config);
     }
 }
+

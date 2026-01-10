@@ -1,6 +1,6 @@
 package org.example.case_study_module_6.service.impl;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.case_study_module_6.dto.CustomerUpdateRequest;
 import org.example.case_study_module_6.dto.RegisterRequest;

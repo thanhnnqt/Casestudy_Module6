@@ -17,7 +17,7 @@ export const connectChat = (token, onMessage) => {
     }
 
     client = new Client({
-        webSocketFactory: () => new SockJS("http://localhost:8080/ws-chat"),
+        webSocketFactory: () => new SockJS(`${import.meta.env.VITE_API_BASE_URL}/ws-chat`),
         connectHeaders: { Authorization: "Bearer " + token },
         onConnect: () => {
             isConnected = true;

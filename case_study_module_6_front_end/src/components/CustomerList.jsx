@@ -190,7 +190,7 @@ const CustomerList = () => {
                 <div className="p-2 border-bottom bg-light d-flex justify-content-between align-items-center">
                     <div className="d-flex align-items-baseline gap-2">
                         <h6 className="fw-bold mb-0 text-secondary small">DANH SÁCH KHÁCH HÀNG</h6>
-                        <span className="text-muted" style={{fontSize: '0.75rem'}}>
+                        <span className="text-muted" style={{ fontSize: '0.75rem' }}>
                             (Trang <b>{currentPage + 1}</b>/{totalPages} - Tổng <b>{totalElements}</b> kết quả)
                         </span>
                     </div>
@@ -226,11 +226,11 @@ const CustomerList = () => {
                                         <div className="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center text-primary fw-bold" style={{ width: '32px', height: '32px', fontSize: '0.8rem' }}>
                                             {c.fullName.charAt(0)}
                                         </div>
-                                        <div className="d-flex flex-column" style={{lineHeight: '1.2'}}>
-                                            <span className="fw-bold text-dark" style={{fontSize: '0.9rem'}}>{c.fullName}</span>
+                                        <div className="d-flex flex-column" style={{ lineHeight: '1.2' }}>
+                                            <span className="fw-bold text-dark" style={{ fontSize: '0.9rem' }}>{c.fullName}</span>
                                             <div className="d-flex align-items-center gap-2">
-                                                <span className="badge bg-light text-secondary border px-1" style={{fontSize: '0.65rem'}}>{c.customerCode}</span>
-                                                <span className="small text-muted" style={{fontSize: '0.75rem'}}>
+                                                <span className="badge bg-light text-secondary border px-1" style={{ fontSize: '0.65rem' }}>{c.customerCode}</span>
+                                                <span className="small text-muted" style={{ fontSize: '0.75rem' }}>
                                                     {c.gender === 'NAM' ? 'Nam' : c.gender === 'NU' ? 'Nữ' : 'Khác'}
                                                 </span>
                                             </div>
@@ -239,12 +239,12 @@ const CustomerList = () => {
 
                                     {/* Cột 3: SĐT */}
                                     <div className="col-3 text-center">
-                                        <span className="fw-medium font-monospace text-primary" style={{fontSize: '0.9rem'}}>{c.phoneNumber}</span>
+                                        <span className="fw-medium font-monospace text-primary" style={{ fontSize: '0.9rem' }}>{c.phoneNumber}</span>
                                     </div>
 
                                     {/* Cột 4: CCCD */}
                                     <div className="col-3 text-center">
-                                        <span className="fw-medium font-monospace text-dark" style={{fontSize: '0.9rem'}}>{c.identityCard}</span>
+                                        <span className="fw-medium font-monospace text-dark" style={{ fontSize: '0.9rem' }}>{c.identityCard}</span>
                                     </div>
 
                                     {/* Cột 5: Nút Sửa */}
