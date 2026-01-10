@@ -65,7 +65,11 @@ export const addEmployee = async (data) => {
     try {
         const res = await axios.post(
             `${URL}`,
-            data
+            data, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
         );
         return res.data;
     } catch (err) {
