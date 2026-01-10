@@ -64,7 +64,7 @@ export async function getEmployeeListBySearch(fullName, phoneNumber, page = 0, s
 export const addEmployee = async (data) => {
     try {
         const res = await axios.post(
-            "http://localhost:8080/v1/api/employees",
+            `${URL}`,
             data
         );
         return res.data;
